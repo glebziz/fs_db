@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package store;
+
+option go_package = "fs_fb/proto/store";
+
+enum ChunkSize {
+  EMPTY = 0;
+  MAX = 2048;
+}
+
+service StoreV1 {
+  rpc SetFile(stream SetFileRequest) returns(SetFileResponse) {}
+  rpc GetFile(GetFileRequest) returns(stream GetFileResponse) {}
+  rpc DeleteFile(DeleteFileRequest) returns(DeleteFileResponse) {}
+}
+
+message SetFileHeader {
+  string key = 1;
+  uint64 size = 2;
+}
+
+message SetFileRequest {
+  oneof data {
+    SetFileHeader header = 1;
+    bytes chunk = 2;
+  }
+}
+
+message SetFileResponse {}
+
+message GetFileRequest {
+  string key = 1;
+}
+
+message GetFileResponse {
+  bytes chunk = 1;
+}
+
+message DeleteFileRequest {
+  string key = 1;
+}
+
+message DeleteFileResponse {}
