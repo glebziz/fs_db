@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func TestRep_Delete(t *testing.T) {
@@ -45,7 +45,7 @@ func TestRep_Delete(t *testing.T) {
 
 		err := r.RunTransaction(context.Background(), func(ctx context.Context) error {
 			err := r.Delete(ctx, gofakeit.UUID())
-			require.ErrorIs(t, err, pkgModel.NotFoundErr)
+			require.ErrorIs(t, err, fs_db.NotFoundErr)
 
 			return assert.AnError
 		})

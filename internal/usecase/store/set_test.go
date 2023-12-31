@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func TestUseCase_Set_Success(t *testing.T) {
@@ -67,7 +67,7 @@ func TestUseCase_Set_Error(t *testing.T) {
 		{
 			name: "empty key",
 			prepare: func(td *testDeps) error {
-				return pkgModel.EmptyKeyErr
+				return fs_db.EmptyKeyErr
 			},
 		},
 		{

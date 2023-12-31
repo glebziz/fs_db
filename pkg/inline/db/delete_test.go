@@ -7,7 +7,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
 
-	"github.com/glebziz/fs_db/pkg/model"
+	"github.com/glebziz/fs_db"
 )
 
 func TestDb_Delete(t *testing.T) {
@@ -33,12 +33,12 @@ func TestDb_Delete(t *testing.T) {
 		if err == nil {
 			atomic.AddInt32(&count, 1)
 		} else {
-			require.ErrorIs(t, err, model.NotFoundErr)
+			require.ErrorIs(t, err, fs_db.NotFoundErr)
 		}
 	})
 
 	require.Equal(t, int32(1), count)
 
 	_, err = _db.Get(testCtx, key)
-	require.ErrorIs(t, err, model.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.NotFoundErr)
 }

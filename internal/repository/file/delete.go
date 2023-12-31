@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
+	"github.com/glebziz/fs_db"
 )
 
 func (r *rep) Delete(ctx context.Context, key string) error {
@@ -21,7 +21,7 @@ func (r *rep) Delete(ctx context.Context, key string) error {
 	}
 
 	if affected == 0 {
-		return pkgModel.NotFoundErr
+		return fs_db.NotFoundErr
 	}
 
 	return nil

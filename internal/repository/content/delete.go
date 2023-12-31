@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"os"
 
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
+	"github.com/glebziz/fs_db"
 )
 
 func (r *rep) Delete(_ context.Context, path string) error {
 	err := os.Remove(path)
 	if errors.Is(err, os.ErrNotExist) {
-		return pkgModel.NotFoundErr
+		return fs_db.NotFoundErr
 	} else if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}

@@ -9,7 +9,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
 
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
+	"github.com/glebziz/fs_db"
 )
 
 func TestRep_Delete(t *testing.T) {
@@ -36,6 +36,6 @@ func TestRep_Delete(t *testing.T) {
 		fPath := path.Join(dir, gofakeit.UUID())
 
 		err := r.Delete(context.Background(), fPath)
-		require.ErrorIs(t, err, pkgModel.NotFoundErr)
+		require.ErrorIs(t, err, fs_db.NotFoundErr)
 	})
 }

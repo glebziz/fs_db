@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
 	"github.com/glebziz/fs_db/internal/utils/grpc"
 	"github.com/glebziz/fs_db/internal/utils/grpc/streamreader"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 type wrapper struct {
@@ -33,7 +33,7 @@ func (i *implementation) SetFile(stream store.StoreV1_SetFileServer) error {
 
 	header := req.GetHeader()
 	if header == nil {
-		return grpc.Error(pkgModel.HeaderNotFoundErr)
+		return grpc.Error(fs_db.HeaderNotFoundErr)
 	}
 
 	err = i.usecase.Set(stream.Context(), header.Key, &model.Content{

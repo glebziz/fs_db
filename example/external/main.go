@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/glebziz/fs_db/internal/utils/log"
-	"github.com/glebziz/fs_db/pkg/fs_db"
+	"github.com/glebziz/fs_db/pkg/external"
 )
 
 func main() {
-	db, err := fs_db.Open(context.Background(), "localhost:8888")
+	db, err := external.Open(context.Background(), "localhost:8888")
 	if err != nil {
 		log.Fatalln("Open db:", err)
 	}

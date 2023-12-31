@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func (r *rep) Get(_ context.Context, path string) (*model.Content, error) {
 	f, err := os.Open(path)
 	if errors.Is(err, os.ErrNotExist) {
-		return nil, pkgModel.NotFoundErr
+		return nil, fs_db.NotFoundErr
 	} else if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
