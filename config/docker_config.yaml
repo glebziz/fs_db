@@ -1,0 +1,6 @@
+port: 8888
+storage:
+  dbPath: /var/lib/fs_db/fs.db
+  maxDirCount: 100000
+  rootDirs:
+    - /var/lib/fs_db/storage/
