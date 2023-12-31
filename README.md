@@ -14,7 +14,7 @@ go get -u github.com/glebziz/fs_db
 
 ## Usage
 
-See more examples [here](https://github.com/glebziz/fs_db/tree/master/examples/).
+See more examples [here](https://github.com/glebziz/fs_db/tree/master/example/).
 
 ```go
 package main
