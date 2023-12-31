@@ -1,0 +1,163 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  APP_NAME: 'fs-db'
+  MAINTAINER: 'Zhizhchenko Gleb <zhizhchienko0162@gmail.com>'
+  DESC: 'FS DB server'
+  BIN_PATH: 'usr/local/bin/${APP_NAME}'
+  SERVICE_PATH: 'lib/systemd/system/${APP_NAME}.service'
+  CONF_PATH: 'etc/${APP_NAME}/${APP_NAME}.conf'
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          cache: false
+          go-version: 1.21
+      - name: Verify dependencies
+        run: go mod verify
+      - name: Build
+        run: |
+          mkdir -p bin
+          go build -o ./bin/${{ env.APP_NAME }} ./cmd/fs_db/main.go
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: ./bin/${{ env.APP_NAME }}
+
+  build-package:
+    runs-on: ubuntu-latest
+    needs:
+      - build-artifact
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+      - name: Create dirs
+        run: |
+          mkdir -p .debian/usr/local/bin/
+          mkdir -p .debian/lib/systemd/system/
+          mkdir -p .debian/etc/${{ env.APP_NAME }}/
+          mkdir -p .debian/var/lib/fs_db/
+          mkdir -p .debian/DEBIAN
+          cp ${{ env.APP_NAME }} .debian/usr/local/bin/
+          cp ./config/docker_config.yaml .debian/${{ env.CONF_PATH }}
+          chmod +x .debian/${{ env.BIN_PATH }}
+      - name: Create service
+        run: |
+          echo [Unit]                                                           >  .debian/${{env.SERVICE_PATH}}
+          echo Description=${{ env.DESC }}                                      >> .debian/${{env.SERVICE_PATH}}
+          echo                                                                  >> .debian/${{env.SERVICE_PATH}}
+          echo [Service]                                                        >> .debian/${{env.SERVICE_PATH}}
+          echo RestartSec=5s                                                    >> .debian/${{env.SERVICE_PATH}}
+          echo Restart=always                                                   >> .debian/${{env.SERVICE_PATH}}
+          echo ExecStart=/${{ env.BIN_PATH }} --config /${{ env.CONF_PATH }}    >> .debian/${{env.SERVICE_PATH}}
+          echo                                                                  >> .debian/${{env.SERVICE_PATH}}
+          echo [Install]                                                        >> .debian/${{env.SERVICE_PATH}}
+          echo WantedBy=multi-user.target                                       >> .debian/${{env.SERVICE_PATH}}
+      - name: Create pre/post scripts
+        run: |
+          echo #!/bin/bash                                      >  .debian/DEBIAN/postinst
+          echo                                                  >> .debian/DEBIAN/postinst
+          echo systemctl daemon-reload                          >> .debian/DEBIAN/postinst
+          echo systemctl enable ${{ env.APP_NAME }}             >> .debian/DEBIAN/postinst
+          echo systemctl start ${{ env.APP_NAME }}              >> .debian/DEBIAN/postinst
+          echo                                                  >> .debian/DEBIAN/postinst
+          echo exit 0                                           >> .debian/DEBIAN/postinst
+          
+          echo #!/bin/bash                                      >  .debian/DEBIAN/prerm
+          echo                                                  >> .debian/DEBIAN/prerm
+          echo systemctl disable ${{ env.APP_NAME }}            >> .debian/DEBIAN/prerm
+          echo systemctl stop ${{ env.APP_NAME }}               >> .debian/DEBIAN/prerm
+          echo                                                  >> .debian/DEBIAN/prerm
+          echo exit 0                                           >> .debian/DEBIAN/prerm
+          
+          echo #!/bin/bash                                      >  .debian/DEBIAN/postrm
+          echo                                                  >> .debian/DEBIAN/postrm
+          echo systemctl daemon-reload                          >> .debian/DEBIAN/postrm
+          echo rm -r /var/lib/fs_db                             >> .debian/DEBIAN/postrm
+          echo                                                  >> .debian/DEBIAN/postrm
+          echo exit 0                                           >> .debian/DEBIAN/postrm
+          
+          chmod +x .debian/DEBIAN/postinst
+          chmod +x .debian/DEBIAN/prerm
+          chmod +x .debian/DEBIAN/postrm
+      - uses: jiro4989/build-deb-action@v2
+        with:
+          package: ${{ env.APP_NAME }}
+          version: ${{ github.ref }}
+          arch: 'amd64'
+          maintainer: ${{ env.MAINTAINER }}
+          desc: '${{ env.DESC }}'
+          package_root: .debian
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifact-deb
+          path: ./*.deb
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs:
+      - build-package
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        run: |
+          wget https://github.com/git-chglog/git-chglog/releases/download/0.9.1/git-chglog_linux_amd64
+          chmod +x git-chglog_linux_amd64
+          ./git-chglog_linux_amd64 --output ./changelog $(git describe --tags $(git rev-list --tags --max-count=1))
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body_path: ./changelog
+
+      - name: Write upload_url to file
+        run: echo '${{ steps.create-release.outputs.upload_url }}' > upload_url.txt
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: create-release
+          path: upload_url.txt
+
+  upload-package:
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact-deb
+      - uses: actions/download-artifact@v3
+        with:
+          name: create-release
+      - id: vars
+        run: |
+          echo "::set-output name=upload_url::$(cat upload_url.txt)"
+          echo "::set-output name=asset_name::$(ls *.deb | head -n 1)"
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.vars.outputs.upload_url }}
+          asset_path: ${{ steps.vars.outputs.asset_name }}
+          asset_name: ${{ steps.vars.outputs.asset_name }}
+          asset_content_type: application/vnd.debian.binary-package

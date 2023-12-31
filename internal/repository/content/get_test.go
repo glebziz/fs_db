@@ -17,7 +17,7 @@ func TestRep_Get_Success(t *testing.T) {
 	r := New()
 
 	dir := path.Join(rootPath, gofakeit.UUID())
-	err := os.MkdirAll(dir, 0666)
+	err := os.MkdirAll(dir, 0750)
 	require.NoError(t, err)
 
 	content := []byte("1234567890")
