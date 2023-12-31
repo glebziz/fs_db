@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/glebziz/fs_db/pkg/model"
+	"github.com/glebziz/fs_db"
 )
 
 func TestError(t *testing.T) {
@@ -19,22 +19,22 @@ func TestError(t *testing.T) {
 	}{
 		{
 			name: "size",
-			err:  model.SizeErr,
+			err:  fs_db.SizeErr,
 			code: codes.ResourceExhausted,
 		},
 		{
 			name: "not found",
-			err:  model.NotFoundErr,
+			err:  fs_db.NotFoundErr,
 			code: codes.NotFound,
 		},
 		{
 			name: "header not found",
-			err:  model.EmptyKeyErr,
+			err:  fs_db.EmptyKeyErr,
 			code: codes.InvalidArgument,
 		},
 		{
 			name: "header not found",
-			err:  model.HeaderNotFoundErr,
+			err:  fs_db.HeaderNotFoundErr,
 			code: codes.Internal,
 		},
 		{
@@ -69,17 +69,17 @@ func TestClientError(t *testing.T) {
 		{
 			name:    "invalid arguments",
 			code:    codes.InvalidArgument,
-			wantErr: model.EmptyKeyErr,
+			wantErr: fs_db.EmptyKeyErr,
 		},
 		{
 			name:    "not found",
 			code:    codes.NotFound,
-			wantErr: model.NotFoundErr,
+			wantErr: fs_db.NotFoundErr,
 		},
 		{
 			name:    "resource exhausted",
 			code:    codes.ResourceExhausted,
-			wantErr: model.SizeErr,
+			wantErr: fs_db.SizeErr,
 		},
 		{
 			name:    "other error",

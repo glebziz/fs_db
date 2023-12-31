@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func TestRep_Get_Success(t *testing.T) {
@@ -53,7 +53,7 @@ func TestRep_Get_Error(t *testing.T) {
 
 	err := r.RunTransaction(context.Background(), func(ctx context.Context) error {
 		actual, err := r.Get(ctx, gofakeit.UUID())
-		require.ErrorIs(t, err, pkgModel.NotFoundErr)
+		require.ErrorIs(t, err, fs_db.NotFoundErr)
 		require.Nil(t, actual)
 
 		return assert.AnError

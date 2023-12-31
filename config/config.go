@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/glebziz/fs_db/pkg/model"
+	"github.com/glebziz/fs_db"
 )
 
 const (
@@ -48,7 +48,7 @@ type Storage struct {
 
 func (s *Storage) Valid() error {
 	if s.DbPath == "" {
-		return model.EmptyDbPathErr
+		return fs_db.EmptyDbPathErr
 	}
 
 	if s.MaxDirCount < minDirCount {
@@ -56,7 +56,7 @@ func (s *Storage) Valid() error {
 	}
 
 	if len(s.RootDirs) == 0 {
-		return model.EmptyRootDirs
+		return fs_db.EmptyRootDirs
 	}
 
 	return nil

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func (u *useCase) Select(ctx context.Context, size uint64) (*model.Dir, error) {
@@ -37,7 +37,7 @@ func (u *useCase) Select(ctx context.Context, size uint64) (*model.Dir, error) {
 
 	root := rootMap.Select(size)
 	if root == nil {
-		return nil, pkgModel.SizeErr
+		return nil, fs_db.SizeErr
 	}
 
 	d := model.Dir{

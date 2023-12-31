@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func (u *useCase) Set(ctx context.Context, key string, content *model.Content) error {
 	if key == "" {
-		return pkgModel.EmptyKeyErr
+		return fs_db.EmptyKeyErr
 	}
 
 	dir, err := u.dir.Select(ctx, content.Size)

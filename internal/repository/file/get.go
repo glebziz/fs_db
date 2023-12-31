@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func (r *rep) Get(ctx context.Context, key string) (*model.File, error) {
@@ -29,5 +29,5 @@ func (r *rep) Get(ctx context.Context, key string) (*model.File, error) {
 		return &file, err
 	}
 
-	return nil, pkgModel.NotFoundErr
+	return nil, fs_db.NotFoundErr
 }

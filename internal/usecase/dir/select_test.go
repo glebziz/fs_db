@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	pkgModel "github.com/glebziz/fs_db/pkg/model"
 )
 
 func TestUseCase_Select_Success(t *testing.T) {
@@ -292,7 +292,7 @@ func TestUseCase_Select_Error(t *testing.T) {
 					Get(gomock.Any()).
 					Return(dirs, nil)
 
-				return pkgModel.SizeErr
+				return fs_db.SizeErr
 			},
 		},
 		{
@@ -322,7 +322,7 @@ func TestUseCase_Select_Error(t *testing.T) {
 					Get(gomock.Any()).
 					Return(dirs, nil)
 
-				return pkgModel.SizeErr
+				return fs_db.SizeErr
 			},
 		},
 		{
