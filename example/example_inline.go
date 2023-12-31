@@ -11,7 +11,7 @@ import (
 
 func main() {
 	db, err := inline.Open(context.Background(), &config.Storage{
-		DbPath:      "./test.db",
+		DbPath:      "test.db",
 		MaxDirCount: 1,
 		RootDirs:    []string{"./testStorage"},
 	})

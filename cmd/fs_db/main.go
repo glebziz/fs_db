@@ -26,10 +26,6 @@ func init() {
 }
 
 func main() {
-	if confFile == "" {
-		log.Fatalln("Config file must not be empty")
-	}
-
 	conf, err := config.ParseConfig(confFile)
 	if err != nil {
 		log.Fatalln("Parse config:", err)
