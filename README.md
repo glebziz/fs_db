@@ -24,13 +24,17 @@ import (
 	"fmt"
 	"log"
 	
-	"github.com/glebziz/fs_db/pkg/fs_db"
+	"github.com/glebziz/fs_db/pkg/inline"
 )
 
 func main() {
-	db, err := fs_db.Open(context.Background(), "localhost:8888")
+	db, err := inline.Open(context.Background(), &config.Storage{
+		DbPath:      "test.db",
+		MaxDirCount: 1,
+		RootDirs:    []string{"./testStorage"},
+	})
 	if err != nil {
-		log.Fatalln("Open db:", err)
+		log.Fatalln("Open db inline:", err)
 	}
 
 	err = db.Set(context.Background(), "someKey", []byte("some content"))

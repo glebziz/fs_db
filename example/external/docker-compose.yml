@@ -1,0 +1,18 @@
+version: "3.9"
+volumes:
+  db:
+  data1:
+  data2:
+
+services:
+  db:
+    restart: always
+    image: ghcr.io/glebziz/fs_db:latest
+    volumes:
+      - db:/var/lib/fs_db
+      - data1:/var/lib/fs_db/storage1
+      - data2:/var/lib/fs_db/storage2
+    environment:
+      - ROOT_DIRS=/var/lib/fs_db/storage1;/var/lib/fs_db/storage2
+    ports:
+      - "8888:8888"
