@@ -7,9 +7,9 @@ import (
 )
 
 func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
-	content, err := db.usecase.Get(ctx, key)
+	content, err := db.sUc.Get(ctx, key)
 	if err != nil {
-		return nil, fmt.Errorf("usecase get: %w", err)
+		return nil, fmt.Errorf("store usecase get: %w", err)
 	}
 	defer content.Reader.Close()
 

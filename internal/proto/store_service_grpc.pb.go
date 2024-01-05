@@ -22,6 +22,9 @@ const (
 	StoreV1_SetFile_FullMethodName    = "/store.StoreV1/SetFile"
 	StoreV1_GetFile_FullMethodName    = "/store.StoreV1/GetFile"
 	StoreV1_DeleteFile_FullMethodName = "/store.StoreV1/DeleteFile"
+	StoreV1_BeginTx_FullMethodName    = "/store.StoreV1/BeginTx"
+	StoreV1_CommitTx_FullMethodName   = "/store.StoreV1/CommitTx"
+	StoreV1_RollbackTx_FullMethodName = "/store.StoreV1/RollbackTx"
 )
 
 // StoreV1Client is the client API for StoreV1 service.
@@ -31,6 +34,10 @@ type StoreV1Client interface {
 	SetFile(ctx context.Context, opts ...grpc.CallOption) (StoreV1_SetFileClient, error)
 	GetFile(ctx context.Context, in *GetFileRequest, opts ...grpc.CallOption) (StoreV1_GetFileClient, error)
 	DeleteFile(ctx context.Context, in *DeleteFileRequest, opts ...grpc.CallOption) (*DeleteFileResponse, error)
+	// Tx
+	BeginTx(ctx context.Context, in *BeginTxRequest, opts ...grpc.CallOption) (*BeginTxResponse, error)
+	CommitTx(ctx context.Context, in *CommitTxRequest, opts ...grpc.CallOption) (*CommitTxResponse, error)
+	RollbackTx(ctx context.Context, in *RollbackTxRequest, opts ...grpc.CallOption) (*RollbackTxResponse, error)
 }
 
 type storeV1Client struct {
@@ -116,6 +123,33 @@ func (c *storeV1Client) DeleteFile(ctx context.Context, in *DeleteFileRequest, o
 	return out, nil
 }
 
+func (c *storeV1Client) BeginTx(ctx context.Context, in *BeginTxRequest, opts ...grpc.CallOption) (*BeginTxResponse, error) {
+	out := new(BeginTxResponse)
+	err := c.cc.Invoke(ctx, StoreV1_BeginTx_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *storeV1Client) CommitTx(ctx context.Context, in *CommitTxRequest, opts ...grpc.CallOption) (*CommitTxResponse, error) {
+	out := new(CommitTxResponse)
+	err := c.cc.Invoke(ctx, StoreV1_CommitTx_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *storeV1Client) RollbackTx(ctx context.Context, in *RollbackTxRequest, opts ...grpc.CallOption) (*RollbackTxResponse, error) {
+	out := new(RollbackTxResponse)
+	err := c.cc.Invoke(ctx, StoreV1_RollbackTx_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StoreV1Server is the server API for StoreV1 service.
 // All implementations must embed UnimplementedStoreV1Server
 // for forward compatibility
@@ -123,6 +157,10 @@ type StoreV1Server interface {
 	SetFile(StoreV1_SetFileServer) error
 	GetFile(*GetFileRequest, StoreV1_GetFileServer) error
 	DeleteFile(context.Context, *DeleteFileRequest) (*DeleteFileResponse, error)
+	// Tx
+	BeginTx(context.Context, *BeginTxRequest) (*BeginTxResponse, error)
+	CommitTx(context.Context, *CommitTxRequest) (*CommitTxResponse, error)
+	RollbackTx(context.Context, *RollbackTxRequest) (*RollbackTxResponse, error)
 	mustEmbedUnimplementedStoreV1Server()
 }
 
@@ -138,6 +176,15 @@ func (UnimplementedStoreV1Server) GetFile(*GetFileRequest, StoreV1_GetFileServer
 }
 func (UnimplementedStoreV1Server) DeleteFile(context.Context, *DeleteFileRequest) (*DeleteFileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFile not implemented")
+}
+func (UnimplementedStoreV1Server) BeginTx(context.Context, *BeginTxRequest) (*BeginTxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BeginTx not implemented")
+}
+func (UnimplementedStoreV1Server) CommitTx(context.Context, *CommitTxRequest) (*CommitTxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CommitTx not implemented")
+}
+func (UnimplementedStoreV1Server) RollbackTx(context.Context, *RollbackTxRequest) (*RollbackTxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RollbackTx not implemented")
 }
 func (UnimplementedStoreV1Server) mustEmbedUnimplementedStoreV1Server() {}
 
@@ -217,6 +264,60 @@ func _StoreV1_DeleteFile_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StoreV1_BeginTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BeginTxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StoreV1Server).BeginTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StoreV1_BeginTx_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StoreV1Server).BeginTx(ctx, req.(*BeginTxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StoreV1_CommitTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitTxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StoreV1Server).CommitTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StoreV1_CommitTx_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StoreV1Server).CommitTx(ctx, req.(*CommitTxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StoreV1_RollbackTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RollbackTxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StoreV1Server).RollbackTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StoreV1_RollbackTx_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StoreV1Server).RollbackTx(ctx, req.(*RollbackTxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StoreV1_ServiceDesc is the grpc.ServiceDesc for StoreV1 service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -227,6 +328,18 @@ var StoreV1_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteFile",
 			Handler:    _StoreV1_DeleteFile_Handler,
+		},
+		{
+			MethodName: "BeginTx",
+			Handler:    _StoreV1_BeginTx_Handler,
+		},
+		{
+			MethodName: "CommitTx",
+			Handler:    _StoreV1_CommitTx_Handler,
+		},
+		{
+			MethodName: "RollbackTx",
+			Handler:    _StoreV1_RollbackTx_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

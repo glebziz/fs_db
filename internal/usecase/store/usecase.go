@@ -15,13 +15,21 @@ type dirUsecase interface {
 type contentRepository interface {
 	Store(ctx context.Context, path string, content *model.Content) error
 	Get(ctx context.Context, path string) (*model.Content, error)
-	Delete(ctx context.Context, path string) error
+}
+
+type contentFileRepository interface {
+	Store(ctx context.Context, file model.ContentFile) error
+	Get(ctx context.Context, id string) (*model.ContentFile, error)
 }
 
 type fileRepository interface {
-	Store(ctx context.Context, file model.File) error
-	Get(ctx context.Context, key string) (*model.File, error)
-	Delete(ctx context.Context, key string) error
+	Store(ctx context.Context, txId string, file model.File) error
+	Get(ctx context.Context, txId, key string, filter *model.FileFilter) (*model.File, error)
+	Delete(ctx context.Context, txId, key string) error
+}
+
+type txRepository interface {
+	Get(ctx context.Context, id string) (*model.Transaction, error)
 }
 
 type generator interface {
@@ -31,18 +39,26 @@ type generator interface {
 type useCase struct {
 	dir dirUsecase
 
-	cRepo contentRepository
-	fRepo fileRepository
+	cRepo  contentRepository
+	cfRepo contentFileRepository
+	fRepo  fileRepository
+	txRepo txRepository
 
 	idGen generator
 }
 
-func New(dir dirUsecase, cRepo contentRepository, fRepo fileRepository, idGen generator) *useCase {
+func New(
+	dir dirUsecase, cRepo contentRepository,
+	cfRepo contentFileRepository, fRepo fileRepository,
+	txRepo txRepository, idGen generator,
+) *useCase {
 	return &useCase{
 		dir: dir,
 
-		cRepo: cRepo,
-		fRepo: fRepo,
+		cRepo:  cRepo,
+		cfRepo: cfRepo,
+		fRepo:  fRepo,
+		txRepo: txRepo,
 
 		idGen: idGen,
 	}

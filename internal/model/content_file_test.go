@@ -42,7 +42,7 @@ func TestFile_GetPath(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			file := File{
+			file := ContentFile{
 				Id:         tc.id,
 				ParentPath: tc.parent,
 			}

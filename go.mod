@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/mattn/go-sqlite3 v1.14.19
 	github.com/pressly/goose/v3 v3.17.0
+	github.com/puzpuzpuz/xsync/v3 v3.0.2
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/mock v0.4.0

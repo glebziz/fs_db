@@ -1,13 +1,13 @@
 package model
 
-import "path"
+import "time"
 
 type File struct {
-	Id         string
-	Key        string
-	ParentPath string
+	Key       string
+	ContentId string
 }
 
-func (f *File) GetPath() string {
-	return path.Join(f.ParentPath, f.Id)
+type FileFilter struct {
+	TxId     *string
+	BeforeTs *time.Time
 }

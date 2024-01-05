@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/delivery/grpc/store/mocks"
 	store "github.com/glebziz/fs_db/internal/proto"
 	"github.com/glebziz/fs_db/internal/utils/log"
@@ -31,10 +32,15 @@ var (
 	testReader     = io.NopCloser(bytes.NewReader(testContent))
 	testErrReader  = io.NopCloser(errReader{})
 	testContentLen = uint64(len(testContent))
+
+	testTxId            = gofakeit.UUID()
+	testTxIsoLevel      = store.TxIsoLevel_ISO_LEVEL_READ_COMMITTED
+	testLocalTxIsoLevel = fs_db.IsoLevelDefault
 )
 
 type testDeps struct {
-	uc *mock_store.MockUsecase
+	suc  *mock_store.MockstoreUseCase
+	txuc *mock_store.MocktxUseCase
 
 	client store.StoreV1Client
 }
@@ -42,13 +48,14 @@ type testDeps struct {
 func newTestDeps(t *testing.T) *testDeps {
 	ctrl := gomock.NewController(t)
 
-	uc := mock_store.NewMockUsecase(ctrl)
+	suc := mock_store.NewMockstoreUseCase(ctrl)
+	txuc := mock_store.NewMocktxUseCase(ctrl)
 
 	buffer := 101024 * 1024
 	lis := bufconn.Listen(buffer)
 
 	server := grpc.NewServer(grpc.MaxSendMsgSize(500))
-	store.RegisterStoreV1Server(server, New(uc))
+	store.RegisterStoreV1Server(server, New(suc, txuc))
 	go func() {
 		if err := server.Serve(lis); err != nil {
 			log.Fatalln("error serving server", err)
@@ -75,7 +82,8 @@ func newTestDeps(t *testing.T) *testDeps {
 	}
 
 	return &testDeps{
-		uc:     uc,
+		suc:    suc,
+		txuc:   txuc,
 		client: store.NewStoreV1Client(conn),
 	}
 }

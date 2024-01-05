@@ -11,6 +11,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/config"
 )
 
@@ -25,7 +26,7 @@ var (
 	testSize    = uint64(len(testContent))
 )
 
-func newTestDb(t testing.TB) *db {
+func newTestDb(t testing.TB) fs_db.DB {
 	t.Helper()
 
 	dir, err := os.MkdirTemp("", "fs_db_test")

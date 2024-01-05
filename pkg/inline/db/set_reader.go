@@ -9,12 +9,12 @@ import (
 )
 
 func (db *db) SetReader(ctx context.Context, key string, reader io.Reader, size uint64) error {
-	err := db.usecase.Set(ctx, key, &model.Content{
+	err := db.sUc.Set(ctx, key, &model.Content{
 		Reader: io.NopCloser(reader),
 		Size:   size,
 	})
 	if err != nil {
-		return fmt.Errorf("usecase set: %w", err)
+		return fmt.Errorf("store usecase set: %w", err)
 	}
 
 	return nil

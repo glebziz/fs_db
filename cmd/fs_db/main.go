@@ -44,12 +44,14 @@ func main() {
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			server.LoggingInterceptor,
+			server.ContextInterceptor,
 		),
 		grpc.ChainStreamInterceptor(
 			server.StreamLoggingInterceptor,
+			server.ContextStreamInterceptor,
 		),
 	)
 
-	store.RegisterStoreV1Server(s, storeService.New(cl.GetUseCase()))
+	store.RegisterStoreV1Server(s, storeService.New(cl.GetStoreUseCase(), cl.GetTxUseCase()))
 	log.Fatalln(s.Serve(lis))
 }

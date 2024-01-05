@@ -8,7 +8,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
 
-	"github.com/glebziz/fs_db/internal/usecase"
 	"github.com/glebziz/fs_db/internal/utils/sql/db_pool"
 )
 
@@ -22,12 +21,9 @@ type Manager struct {
 type QueryManager interface {
 	Query(ctx context.Context, sql string, args ...interface{}) (*db_pool.Rows, error)
 	Exec(ctx context.Context, sql string, args ...interface{}) (*db_pool.Result, error)
-	Begin(ctx context.Context) (*db_pool.Tx, error)
-	BeginFunc(ctx context.Context, f func(tx *db_pool.Tx) error) error
 }
 
 type Provider interface {
-	usecase.Transactor
 	DB(ctx context.Context) QueryManager
 }
 
@@ -66,12 +62,6 @@ func (m *Manager) DB(ctx context.Context) QueryManager {
 	}
 
 	return m.db
-}
-
-func (m *Manager) RunTransaction(ctx context.Context, fn usecase.TransactionFn) error {
-	return m.DB(ctx).BeginFunc(ctx, func(tx *db_pool.Tx) error {
-		return fn(context.WithValue(ctx, ctxQuerier, tx))
-	})
 }
 
 func (m *Manager) Close() error {

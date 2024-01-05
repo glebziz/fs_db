@@ -21,7 +21,7 @@ func TestImplementation_GetFile_Success(t *testing.T) {
 
 	td := newTestDeps(t)
 
-	td.uc.EXPECT().
+	td.suc.EXPECT().
 		Get(gomock.Any(), testKey).
 		Return(&model.Content{
 			Size:   testContentLen,
@@ -69,7 +69,7 @@ func TestImplementation_GetFile_Error(t *testing.T) {
 
 			td := newTestDeps(t)
 
-			td.uc.EXPECT().
+			td.suc.EXPECT().
 				Get(gomock.Any(), gomock.Any()).
 				Return(&model.Content{
 					Size:   testContentLen,

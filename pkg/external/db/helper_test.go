@@ -15,9 +15,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/config"
 	storeService "github.com/glebziz/fs_db/internal/delivery/grpc/store"
 	store "github.com/glebziz/fs_db/internal/proto"
+	"github.com/glebziz/fs_db/internal/utils/grpc/interceptors/server"
 	inlineDb "github.com/glebziz/fs_db/pkg/inline/db"
 )
 
@@ -32,7 +34,7 @@ var (
 	testSize    = uint64(len(testContent))
 )
 
-func newTestDb(t testing.TB) *db {
+func newTestDb(t testing.TB) fs_db.DB {
 	t.Helper()
 
 	var (
@@ -70,8 +72,15 @@ func newTestDb(t testing.TB) *db {
 		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 		require.NoError(t, err)
 
-		s := grpc.NewServer()
-		store.RegisterStoreV1Server(s, storeService.New(cl.GetUseCase()))
+		s := grpc.NewServer(
+			grpc.ChainUnaryInterceptor(
+				server.ContextInterceptor,
+			),
+			grpc.ChainStreamInterceptor(
+				server.ContextStreamInterceptor,
+			),
+		)
+		store.RegisterStoreV1Server(s, storeService.New(cl.GetStoreUseCase(), cl.GetTxUseCase()))
 		go func() {
 			runWg.Done()
 			s.Serve(lis)

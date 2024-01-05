@@ -3,12 +3,19 @@ package server
 import (
 	"context"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
-	testRequest  = "testRequest"
-	testResponse = "testResponse"
+	testTxId     = gofakeit.UUID()
+	testRequest  = gofakeit.UUID()
+	testResponse = gofakeit.UUID()
+
+	testCtx = metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+		TxIdKey: testTxId,
+	}))
 )
 
 type testStream struct {

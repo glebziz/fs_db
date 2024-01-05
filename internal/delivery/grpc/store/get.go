@@ -9,9 +9,9 @@ import (
 )
 
 func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFileServer) error {
-	content, err := i.usecase.Get(stream.Context(), req.Key)
+	content, err := i.sUsecase.Get(stream.Context(), req.Key)
 	if err != nil {
-		return grpc.Error(fmt.Errorf("usecase get: %w", err))
+		return grpc.Error(fmt.Errorf("store usecase get: %w", err))
 	}
 	defer content.Reader.Close()
 

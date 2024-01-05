@@ -1,7 +1,6 @@
 package db
 
 import (
-	"sync/atomic"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -16,8 +15,7 @@ func TestDb_Delete(t *testing.T) {
 	_db := newTestDb(t)
 
 	var (
-		count = int32(0)
-		key   = gofakeit.UUID()
+		key = gofakeit.UUID()
 	)
 
 	err := _db.Set(testCtx, key, testContent)
@@ -29,15 +27,8 @@ func TestDb_Delete(t *testing.T) {
 
 	testGoN(t, testNumThread, func(t testing.TB) {
 		err = _db.Delete(testCtx, key)
-
-		if err == nil {
-			atomic.AddInt32(&count, 1)
-		} else {
-			require.ErrorIs(t, err, fs_db.NotFoundErr)
-		}
+		require.NoError(t, err)
 	})
-
-	require.Equal(t, int32(1), count)
 
 	_, err = _db.Get(testCtx, key)
 	require.ErrorIs(t, err, fs_db.NotFoundErr)

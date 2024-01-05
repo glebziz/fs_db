@@ -13,7 +13,7 @@ func (r *rep) Get(ctx context.Context) ([]model.Dir, error) {
 		from dir d
 			left join (
 			    select parent_path, count(*) count 
-			    from file
+			    from content_file
 			    group by parent_path
 			) f on concat(d.parent_path, '/', d.id) = f.parent_path
 		order by f.count`)

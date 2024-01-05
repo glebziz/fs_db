@@ -1,16 +1,16 @@
-package dir
+package file
 
 import (
 	"context"
 	"fmt"
-
-	"github.com/glebziz/fs_db"
+	"time"
 )
 
-func (r *rep) Delete(ctx context.Context, key string) error {
+func (r *rep) Delete(ctx context.Context, txId, key string) error {
 	res, err := r.p.DB(ctx).Exec(ctx, `
-		delete from file
-		where key = $1`, key)
+		insert into file(key, tx_id, ts)
+		values ($1, $2, $3)`,
+		key, txId, time.Now().UTC())
 	if err != nil {
 		return fmt.Errorf("exec: %w", err)
 	}
@@ -21,7 +21,7 @@ func (r *rep) Delete(ctx context.Context, key string) error {
 	}
 
 	if affected == 0 {
-		return fs_db.NotFoundErr
+		return fmt.Errorf("no rows are affected")
 	}
 
 	return nil
