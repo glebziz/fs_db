@@ -1,17 +1,17 @@
 package transaction
 
 import (
-	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/glebziz/containers/omap"
 
 	"github.com/glebziz/fs_db/internal/model"
 )
 
 type rep struct {
-	storage *xsync.MapOf[string, *model.Transaction]
+	storage *omap.OMap[string, *model.Transaction]
 }
 
 func New() *rep {
 	return &rep{
-		storage: xsync.NewMapOf[string, *model.Transaction](),
+		storage: omap.New[string, *model.Transaction](),
 	}
 }

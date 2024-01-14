@@ -8,10 +8,12 @@ import (
 )
 
 func (r *rep) Store(_ context.Context, tx model.Transaction) error {
-	_, ok := r.storage.LoadOrStore(tx.Id, &tx)
+	_, ok := r.storage.Load(tx.Id)
 	if ok {
 		return fs_db.TxAlreadyExistsErr
 	}
+
+	r.storage.Store(tx.Id, &tx)
 
 	return nil
 }

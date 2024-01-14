@@ -8,10 +8,11 @@ import (
 )
 
 func (r *rep) Delete(_ context.Context, id string) (*model.Transaction, error) {
-	tx, ok := r.storage.LoadAndDelete(id)
+	tx, ok := r.storage.Load(id)
 	if !ok {
 		return nil, fs_db.TxNotFoundErr
 	}
 
+	r.storage.Delete(id)
 	return tx, nil
 }

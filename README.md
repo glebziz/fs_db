@@ -2,6 +2,7 @@
 
 [![Test](https://github.com/glebziz/fs_db/actions/workflows/test.yml/badge.svg)](https://github.com/glebziz/fs_db/actions/workflows/test.yml)
 [![Coverage](https://codecov.io/gh/glebziz/fs_db/branch/master/graph/badge.svg?token=CIBKI0F59J)](https://codecov.io/gh/glebziz/fs_db/)
+[![Go Reference](https://pkg.go.dev/badge/github.com/glebziz/fs_db.svg)](https://pkg.go.dev/github.com/glebziz/fs_db)
 
 FS DB is a simple key-value database for storing files. FS DB has two clients that give you the option to
 inline database logic into your application or run an external server and send data using grpc. 

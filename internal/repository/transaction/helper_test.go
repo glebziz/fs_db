@@ -16,8 +16,7 @@ var (
 func testCreateTransaction(t *testing.T, repo *rep, tx model.Transaction) {
 	t.Helper()
 
-	_, ok := repo.storage.LoadOrStore(tx.Id, &tx)
-	require.False(t, ok)
+	repo.storage.Store(tx.Id, &tx)
 }
 
 func testGetTransaction(t *testing.T, repo *rep, id string) *model.Transaction {
