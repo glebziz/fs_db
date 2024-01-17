@@ -32,7 +32,8 @@ func TestUseCase_Rollback_Success(t *testing.T) {
 		Return(contentIds, nil)
 
 	td.cleaner.EXPECT().
-		Send(contentIds)
+		Clean(contentIds).
+		Return(nil)
 
 	uc := td.newUseCase()
 
@@ -66,6 +67,24 @@ func TestUseCase_Rollback_Error(t *testing.T) {
 				td.fRepo.EXPECT().
 					HardDelete(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil, assert.AnError)
+
+				return assert.AnError
+			},
+		},
+		{
+			name: "clean",
+			prepare: func(td *testDeps) error {
+				td.txRepo.EXPECT().
+					Delete(gomock.Any(), gomock.Any()).
+					Return(&model.Transaction{}, nil)
+
+				td.fRepo.EXPECT().
+					HardDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil, nil)
+
+				td.cleaner.EXPECT().
+					Clean(gomock.Any()).
+					Return(assert.AnError)
 
 				return assert.AnError
 			},

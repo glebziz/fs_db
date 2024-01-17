@@ -9,7 +9,7 @@ import (
 //go:generate mockgen -source usecase.go -destination mocks/mocks.go -typed true
 
 type cleaner interface {
-	Send(contentIds []string)
+	Clean(contentIds []string) error
 }
 
 type fileRepository interface {

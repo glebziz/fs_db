@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/reugn/go-quartz/quartz"
+
 	"github.com/glebziz/fs_db/config"
 	dbManager "github.com/glebziz/fs_db/internal/db"
 	"github.com/glebziz/fs_db/internal/model"
@@ -23,6 +25,11 @@ import (
 
 //go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
 
+type cleaner interface {
+	Run(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
+
 type storeUsecase interface {
 	Set(ctx context.Context, key string, content *model.Content) error
 	Get(ctx context.Context, key string) (*model.Content, error)
@@ -36,6 +43,8 @@ type txUsecase interface {
 }
 
 type db struct {
+	cleaner cleaner
+
 	sUc  storeUsecase
 	txUc txUsecase
 
@@ -54,13 +63,19 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 
 	gen := generator.New()
 
+	sched := quartz.NewStdScheduler()
+
 	contentRep := contentRepo.New()
 	contentFileRep := contentFileRepo.New(manager)
 	dirRep := dirRepo.New(manager)
 	fileRep := fileRepo.New(manager)
 	txRep := txRepo.New()
 
-	cleaner := cleanerUseCase.New(contentRep, contentFileRep)
+	cl := cleanerUseCase.New(
+		sched, contentRep,
+		contentFileRep, fileRep,
+		txRep,
+	)
 
 	rootUc := rootUseCase.New(cfg.RootDirs, disk.GetDisk(), dirRep)
 	dirUc := dirUseCase.New(cfg.MaxDirCount, rootUc, dirRep, gen)
@@ -69,9 +84,15 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		contentFileRep, fileRep,
 		txRep, gen,
 	)
-	txUx := txUseCase.New(cleaner, fileRep, txRep, gen)
+	txUx := txUseCase.New(cl, fileRep, txRep, gen)
+
+	err = cl.Run(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("cleaner run: %w", err)
+	}
 
 	return &db{
+		cleaner: cl,
 		sUc:     storeUc,
 		txUc:    txUx,
 		manager: manager,
@@ -87,5 +108,15 @@ func (db *db) GetTxUseCase() txUsecase {
 }
 
 func (db *db) Close() error {
-	return db.manager.Close()
+	err := db.cleaner.Stop(context.Background())
+	if err != nil {
+		return fmt.Errorf("cleaner stop: %w", err)
+	}
+
+	err = db.manager.Close()
+	if err != nil {
+		return fmt.Errorf("manager close: %w", err)
+	}
+
+	return nil
 }

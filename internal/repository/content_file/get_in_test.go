@@ -6,18 +6,18 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
 
-	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func TestRep_Delete(t *testing.T) {
+func TestRep_GetIn(t *testing.T) {
 	t.Parallel()
 
 	r, ctx := newTestRep(t)
 
 	var (
-		ids   []string
-		files []model.ContentFile
+		ids    = make([]string, 0, 100)
+		files  = make([]model.ContentFile, 0, 100)
+		mFiles = make(map[string]model.ContentFile, 100)
 	)
 	for i := 0; i < 100; i++ {
 		file := model.ContentFile{
@@ -29,13 +29,15 @@ func TestRep_Delete(t *testing.T) {
 
 		ids = append(ids, file.Id)
 		files = append(files, file)
+		mFiles[file.Id] = file
 	}
 
-	err := r.Delete(ctx, append(ids, gofakeit.UUID()))
+	actual, err := r.GetIn(ctx, append(ids, gofakeit.UUID()))
 	require.NoError(t, err)
 
-	for _, id := range ids {
-		_, err := r.Get(ctx, id)
-		require.ErrorIs(t, err, fs_db.NotFoundErr)
+	for _, file := range actual {
+		f, ok := mFiles[file.Id]
+		require.True(t, ok)
+		require.Equal(t, f, file)
 	}
 }

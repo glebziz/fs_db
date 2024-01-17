@@ -39,38 +39,40 @@ func (m *Mockcleaner) EXPECT() *MockcleanerMockRecorder {
 	return m.recorder
 }
 
-// Send mocks base method.
-func (m *Mockcleaner) Send(contentIds []string) {
+// Clean mocks base method.
+func (m *Mockcleaner) Clean(contentIds []string) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Send", contentIds)
+	ret := m.ctrl.Call(m, "Clean", contentIds)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// Send indicates an expected call of Send.
-func (mr *MockcleanerMockRecorder) Send(contentIds any) *cleanerSendCall {
+// Clean indicates an expected call of Clean.
+func (mr *MockcleanerMockRecorder) Clean(contentIds any) *cleanerCleanCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Send", reflect.TypeOf((*Mockcleaner)(nil).Send), contentIds)
-	return &cleanerSendCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clean", reflect.TypeOf((*Mockcleaner)(nil).Clean), contentIds)
+	return &cleanerCleanCall{Call: call}
 }
 
-// cleanerSendCall wrap *gomock.Call
-type cleanerSendCall struct {
+// cleanerCleanCall wrap *gomock.Call
+type cleanerCleanCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *cleanerSendCall) Return() *cleanerSendCall {
-	c.Call = c.Call.Return()
+func (c *cleanerCleanCall) Return(arg0 error) *cleanerCleanCall {
+	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *cleanerSendCall) Do(f func([]string)) *cleanerSendCall {
+func (c *cleanerCleanCall) Do(f func([]string) error) *cleanerCleanCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *cleanerSendCall) DoAndReturn(f func([]string)) *cleanerSendCall {
+func (c *cleanerCleanCall) DoAndReturn(f func([]string) error) *cleanerCleanCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

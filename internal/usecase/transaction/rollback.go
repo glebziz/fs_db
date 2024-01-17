@@ -21,6 +21,9 @@ func (u *useCase) Rollback(ctx context.Context) error {
 		return fmt.Errorf("file repository delete by tx: %w", err)
 	}
 
-	u.cleaner.Send(contentIds)
+	err = u.cleaner.Clean(contentIds)
+	if err != nil {
+		return fmt.Errorf("clean: %w", err)
+	}
 	return nil
 }

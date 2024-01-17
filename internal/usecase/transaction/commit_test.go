@@ -154,9 +154,37 @@ func TestUseCase_Commit_Error(t *testing.T) {
 					Return(contentIds, nil)
 
 				td.cleaner.EXPECT().
-					Send(contentIds)
+					Clean(contentIds).
+					Return(nil)
 
 				return fs_db.TxSerializationErr
+			},
+		},
+		{
+			name: "serialization",
+			prepare: func(td *testDeps) error {
+				var (
+					contentIds = []string{gofakeit.UUID()}
+				)
+				td.txRepo.EXPECT().
+					Delete(gomock.Any(), gomock.Any()).
+					Return(&model.Transaction{
+						IsoLevel: fs_db.IsoLevelSerializable,
+					}, nil)
+
+				td.fRepo.EXPECT().
+					UpdateTx(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil)
+
+				td.fRepo.EXPECT().
+					HardDelete(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(contentIds, nil)
+
+				td.cleaner.EXPECT().
+					Clean(gomock.Any()).
+					Return(assert.AnError)
+
+				return assert.AnError
 			},
 		},
 	} {
