@@ -1,8 +1,8 @@
-//go:build external
-
 package db
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"math/rand"
 	"net"
@@ -20,8 +20,18 @@ import (
 	storeService "github.com/glebziz/fs_db/internal/delivery/grpc/store"
 	store "github.com/glebziz/fs_db/internal/proto"
 	"github.com/glebziz/fs_db/internal/utils/grpc/interceptors/server"
-	externalDb "github.com/glebziz/fs_db/pkg/external/db"
 	inlineDb "github.com/glebziz/fs_db/pkg/inline/db"
+)
+
+const (
+	testN         = 100
+	testNumThread = 10
+)
+
+var (
+	testCtx     = context.Background()
+	testContent = bytes.Repeat([]byte("1"), 1<<15)
+	testSize    = uint64(len(testContent))
 )
 
 func newTestDb(t testing.TB) fs_db.DB {
@@ -35,9 +45,6 @@ func newTestDb(t testing.TB) fs_db.DB {
 	)
 
 	dir, err := os.MkdirTemp("", "fs_db_test")
-	require.NoError(t, err)
-
-	err = os.Chmod(dir, 0750)
 	require.NoError(t, err)
 
 	cl, err := inlineDb.New(testCtx, &config.Storage{
@@ -88,8 +95,24 @@ func newTestDb(t testing.TB) fs_db.DB {
 
 	runWg.Wait()
 
-	_db, err := externalDb.New(testCtx, fmt.Sprintf("localhost:%d", port))
+	_db, err := New(testCtx, fmt.Sprintf("localhost:%d", port))
 	require.NoError(t, err)
 
 	return _db
+}
+
+func testGoN(t testing.TB, n int, fn func(t testing.TB)) {
+	t.Helper()
+
+	wg := sync.WaitGroup{}
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+			fn(t)
+		}()
+	}
+
+	wg.Wait()
 }
