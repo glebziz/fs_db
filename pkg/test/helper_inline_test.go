@@ -1,11 +1,10 @@
+//go:build inline
+
 package db
 
 import (
-	"bytes"
-	"context"
 	"os"
 	"path"
-	"sync"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -13,17 +12,7 @@ import (
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/config"
-)
-
-const (
-	testN         = 100
-	testNumThread = 10
-)
-
-var (
-	testCtx     = context.Background()
-	testContent = bytes.Repeat([]byte("1"), 1<<15)
-	testSize    = uint64(len(testContent))
+	inlineDb "github.com/glebziz/fs_db/pkg/inline/db"
 )
 
 func newTestDb(t testing.TB) fs_db.DB {
@@ -32,7 +21,10 @@ func newTestDb(t testing.TB) fs_db.DB {
 	dir, err := os.MkdirTemp("", "fs_db_test")
 	require.NoError(t, err)
 
-	_db, err := New(testCtx, &config.Storage{
+	err = os.Chmod(dir, 0750)
+	require.NoError(t, err)
+
+	_db, err := inlineDb.New(testCtx, &config.Storage{
 		MaxDirCount: 100,
 		DbPath:      path.Join(dir, "test.db"),
 		RootDirs:    []string{path.Join(dir, gofakeit.UUID()), path.Join(dir, gofakeit.UUID())},
@@ -48,20 +40,4 @@ func newTestDb(t testing.TB) fs_db.DB {
 	})
 
 	return _db
-}
-
-func testGoN(t testing.TB, n int, fn func(t testing.TB)) {
-	t.Helper()
-
-	wg := sync.WaitGroup{}
-	for i := 0; i < n; i++ {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-			fn(t)
-		}()
-	}
-
-	wg.Wait()
 }
