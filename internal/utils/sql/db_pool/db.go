@@ -3,7 +3,6 @@ package db_pool
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"time"
 
@@ -115,45 +114,6 @@ func (db *DB) Exec(ctx context.Context, sql string, args ...interface{}) (*Resul
 	return &Result{
 		Result: res,
 	}, nil
-}
-
-func (db *DB) Begin(ctx context.Context) (*Tx, error) {
-	c, err := db.Acquire()
-	if err != nil {
-		return nil, err
-	}
-	defer c.Release()
-
-	tx, err := c.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Tx{
-		Tx: tx,
-	}, nil
-}
-
-func (db *DB) BeginFunc(ctx context.Context, f func(tx *Tx) error) error {
-	tx, err := db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		rollbackErr := tx.Rollback()
-		if rollbackErr != nil && !errors.Is(rollbackErr, sql.ErrTxDone) {
-			err = rollbackErr
-		}
-	}()
-
-	fErr := f(tx)
-	if fErr != nil {
-		_ = tx.Rollback()
-		return fErr
-	}
-
-	return tx.Commit()
 }
 
 func (db *DB) Close() error {

@@ -10,37 +10,37 @@ package mock_store
 
 import (
 	context "context"
-	model "github.com/glebziz/fs_db/internal/model"
 	reflect "reflect"
 
+	model "github.com/glebziz/fs_db/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockUsecase is a mock of Usecase interface.
-type MockUsecase struct {
+// MockstoreUseCase is a mock of storeUseCase interface.
+type MockstoreUseCase struct {
 	ctrl     *gomock.Controller
-	recorder *MockUsecaseMockRecorder
+	recorder *MockstoreUseCaseMockRecorder
 }
 
-// MockUsecaseMockRecorder is the mock recorder for MockUsecase.
-type MockUsecaseMockRecorder struct {
-	mock *MockUsecase
+// MockstoreUseCaseMockRecorder is the mock recorder for MockstoreUseCase.
+type MockstoreUseCaseMockRecorder struct {
+	mock *MockstoreUseCase
 }
 
-// NewMockUsecase creates a new mock instance.
-func NewMockUsecase(ctrl *gomock.Controller) *MockUsecase {
-	mock := &MockUsecase{ctrl: ctrl}
-	mock.recorder = &MockUsecaseMockRecorder{mock}
+// NewMockstoreUseCase creates a new mock instance.
+func NewMockstoreUseCase(ctrl *gomock.Controller) *MockstoreUseCase {
+	mock := &MockstoreUseCase{ctrl: ctrl}
+	mock.recorder = &MockstoreUseCaseMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
+func (m *MockstoreUseCase) EXPECT() *MockstoreUseCaseMockRecorder {
 	return m.recorder
 }
 
 // Delete mocks base method.
-func (m *MockUsecase) Delete(ctx context.Context, key string) error {
+func (m *MockstoreUseCase) Delete(ctx context.Context, key string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", ctx, key)
 	ret0, _ := ret[0].(error)
@@ -48,37 +48,37 @@ func (m *MockUsecase) Delete(ctx context.Context, key string) error {
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockUsecaseMockRecorder) Delete(ctx, key any) *UsecaseDeleteCall {
+func (mr *MockstoreUseCaseMockRecorder) Delete(ctx, key any) *storeUseCaseDeleteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), ctx, key)
-	return &UsecaseDeleteCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockstoreUseCase)(nil).Delete), ctx, key)
+	return &storeUseCaseDeleteCall{Call: call}
 }
 
-// UsecaseDeleteCall wrap *gomock.Call
-type UsecaseDeleteCall struct {
+// storeUseCaseDeleteCall wrap *gomock.Call
+type storeUseCaseDeleteCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *UsecaseDeleteCall) Return(arg0 error) *UsecaseDeleteCall {
+func (c *storeUseCaseDeleteCall) Return(arg0 error) *storeUseCaseDeleteCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *UsecaseDeleteCall) Do(f func(context.Context, string) error) *UsecaseDeleteCall {
+func (c *storeUseCaseDeleteCall) Do(f func(context.Context, string) error) *storeUseCaseDeleteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *UsecaseDeleteCall) DoAndReturn(f func(context.Context, string) error) *UsecaseDeleteCall {
+func (c *storeUseCaseDeleteCall) DoAndReturn(f func(context.Context, string) error) *storeUseCaseDeleteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Get mocks base method.
-func (m *MockUsecase) Get(ctx context.Context, key string) (*model.Content, error) {
+func (m *MockstoreUseCase) Get(ctx context.Context, key string) (*model.Content, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, key)
 	ret0, _ := ret[0].(*model.Content)
@@ -87,37 +87,37 @@ func (m *MockUsecase) Get(ctx context.Context, key string) (*model.Content, erro
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockUsecaseMockRecorder) Get(ctx, key any) *UsecaseGetCall {
+func (mr *MockstoreUseCaseMockRecorder) Get(ctx, key any) *storeUseCaseGetCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get), ctx, key)
-	return &UsecaseGetCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockstoreUseCase)(nil).Get), ctx, key)
+	return &storeUseCaseGetCall{Call: call}
 }
 
-// UsecaseGetCall wrap *gomock.Call
-type UsecaseGetCall struct {
+// storeUseCaseGetCall wrap *gomock.Call
+type storeUseCaseGetCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *UsecaseGetCall) Return(arg0 *model.Content, arg1 error) *UsecaseGetCall {
+func (c *storeUseCaseGetCall) Return(arg0 *model.Content, arg1 error) *storeUseCaseGetCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *UsecaseGetCall) Do(f func(context.Context, string) (*model.Content, error)) *UsecaseGetCall {
+func (c *storeUseCaseGetCall) Do(f func(context.Context, string) (*model.Content, error)) *storeUseCaseGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *UsecaseGetCall) DoAndReturn(f func(context.Context, string) (*model.Content, error)) *UsecaseGetCall {
+func (c *storeUseCaseGetCall) DoAndReturn(f func(context.Context, string) (*model.Content, error)) *storeUseCaseGetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Set mocks base method.
-func (m *MockUsecase) Set(ctx context.Context, key string, content *model.Content) error {
+func (m *MockstoreUseCase) Set(ctx context.Context, key string, content *model.Content) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", ctx, key, content)
 	ret0, _ := ret[0].(error)
@@ -125,31 +125,169 @@ func (m *MockUsecase) Set(ctx context.Context, key string, content *model.Conten
 }
 
 // Set indicates an expected call of Set.
-func (mr *MockUsecaseMockRecorder) Set(ctx, key, content any) *UsecaseSetCall {
+func (mr *MockstoreUseCaseMockRecorder) Set(ctx, key, content any) *storeUseCaseSetCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockUsecase)(nil).Set), ctx, key, content)
-	return &UsecaseSetCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockstoreUseCase)(nil).Set), ctx, key, content)
+	return &storeUseCaseSetCall{Call: call}
 }
 
-// UsecaseSetCall wrap *gomock.Call
-type UsecaseSetCall struct {
+// storeUseCaseSetCall wrap *gomock.Call
+type storeUseCaseSetCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *UsecaseSetCall) Return(arg0 error) *UsecaseSetCall {
+func (c *storeUseCaseSetCall) Return(arg0 error) *storeUseCaseSetCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *UsecaseSetCall) Do(f func(context.Context, string, *model.Content) error) *UsecaseSetCall {
+func (c *storeUseCaseSetCall) Do(f func(context.Context, string, *model.Content) error) *storeUseCaseSetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *UsecaseSetCall) DoAndReturn(f func(context.Context, string, *model.Content) error) *UsecaseSetCall {
+func (c *storeUseCaseSetCall) DoAndReturn(f func(context.Context, string, *model.Content) error) *storeUseCaseSetCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// MocktxUseCase is a mock of txUseCase interface.
+type MocktxUseCase struct {
+	ctrl     *gomock.Controller
+	recorder *MocktxUseCaseMockRecorder
+}
+
+// MocktxUseCaseMockRecorder is the mock recorder for MocktxUseCase.
+type MocktxUseCaseMockRecorder struct {
+	mock *MocktxUseCase
+}
+
+// NewMocktxUseCase creates a new mock instance.
+func NewMocktxUseCase(ctrl *gomock.Controller) *MocktxUseCase {
+	mock := &MocktxUseCase{ctrl: ctrl}
+	mock.recorder = &MocktxUseCaseMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MocktxUseCase) EXPECT() *MocktxUseCaseMockRecorder {
+	return m.recorder
+}
+
+// Begin mocks base method.
+func (m *MocktxUseCase) Begin(ctx context.Context, isoLevel model.TxIsoLevel) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Begin", ctx, isoLevel)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Begin indicates an expected call of Begin.
+func (mr *MocktxUseCaseMockRecorder) Begin(ctx, isoLevel any) *txUseCaseBeginCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MocktxUseCase)(nil).Begin), ctx, isoLevel)
+	return &txUseCaseBeginCall{Call: call}
+}
+
+// txUseCaseBeginCall wrap *gomock.Call
+type txUseCaseBeginCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *txUseCaseBeginCall) Return(arg0 string, arg1 error) *txUseCaseBeginCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *txUseCaseBeginCall) Do(f func(context.Context, model.TxIsoLevel) (string, error)) *txUseCaseBeginCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *txUseCaseBeginCall) DoAndReturn(f func(context.Context, model.TxIsoLevel) (string, error)) *txUseCaseBeginCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// Commit mocks base method.
+func (m *MocktxUseCase) Commit(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Commit", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Commit indicates an expected call of Commit.
+func (mr *MocktxUseCaseMockRecorder) Commit(ctx any) *txUseCaseCommitCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Commit", reflect.TypeOf((*MocktxUseCase)(nil).Commit), ctx)
+	return &txUseCaseCommitCall{Call: call}
+}
+
+// txUseCaseCommitCall wrap *gomock.Call
+type txUseCaseCommitCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *txUseCaseCommitCall) Return(arg0 error) *txUseCaseCommitCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *txUseCaseCommitCall) Do(f func(context.Context) error) *txUseCaseCommitCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *txUseCaseCommitCall) DoAndReturn(f func(context.Context) error) *txUseCaseCommitCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// Rollback mocks base method.
+func (m *MocktxUseCase) Rollback(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Rollback", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Rollback indicates an expected call of Rollback.
+func (mr *MocktxUseCaseMockRecorder) Rollback(ctx any) *txUseCaseRollbackCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rollback", reflect.TypeOf((*MocktxUseCase)(nil).Rollback), ctx)
+	return &txUseCaseRollbackCall{Call: call}
+}
+
+// txUseCaseRollbackCall wrap *gomock.Call
+type txUseCaseRollbackCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *txUseCaseRollbackCall) Return(arg0 error) *txUseCaseRollbackCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *txUseCaseRollbackCall) Do(f func(context.Context) error) *txUseCaseRollbackCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *txUseCaseRollbackCall) DoAndReturn(f func(context.Context) error) *txUseCaseRollbackCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -36,12 +36,12 @@ func (i *implementation) SetFile(stream store.StoreV1_SetFileServer) error {
 		return grpc.Error(fs_db.HeaderNotFoundErr)
 	}
 
-	err = i.usecase.Set(stream.Context(), header.Key, &model.Content{
+	err = i.sUsecase.Set(stream.Context(), header.Key, &model.Content{
 		Reader: io.NopCloser(streamreader.New(newWrapper(stream))),
 		Size:   header.Size,
 	})
 	if err != nil {
-		return grpc.Error(fmt.Errorf("usecase set: %w", err))
+		return grpc.Error(fmt.Errorf("store usecase set: %w", err))
 	}
 
 	err = stream.SendAndClose(&store.SetFileResponse{})

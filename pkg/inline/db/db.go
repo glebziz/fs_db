@@ -4,29 +4,50 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/reugn/go-quartz/quartz"
+
 	"github.com/glebziz/fs_db/config"
 	dbManager "github.com/glebziz/fs_db/internal/db"
 	"github.com/glebziz/fs_db/internal/model"
 	contentRepo "github.com/glebziz/fs_db/internal/repository/content"
+	contentFileRepo "github.com/glebziz/fs_db/internal/repository/content_file"
 	dirRepo "github.com/glebziz/fs_db/internal/repository/dir"
 	fileRepo "github.com/glebziz/fs_db/internal/repository/file"
+	txRepo "github.com/glebziz/fs_db/internal/repository/transaction"
+	cleanerUseCase "github.com/glebziz/fs_db/internal/usecase/cleaner"
 	dirUseCase "github.com/glebziz/fs_db/internal/usecase/dir"
 	rootUseCase "github.com/glebziz/fs_db/internal/usecase/root"
 	storeUseCase "github.com/glebziz/fs_db/internal/usecase/store"
+	txUseCase "github.com/glebziz/fs_db/internal/usecase/transaction"
 	"github.com/glebziz/fs_db/internal/utils/disk"
-	generator "github.com/glebziz/fs_db/internal/utils/generator"
+	"github.com/glebziz/fs_db/internal/utils/generator"
 )
 
 //go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
 
-type useCase interface {
+type cleaner interface {
+	Run(ctx context.Context) error
+	Stop(ctx context.Context) error
+}
+
+type storeUsecase interface {
 	Set(ctx context.Context, key string, content *model.Content) error
 	Get(ctx context.Context, key string) (*model.Content, error)
 	Delete(ctx context.Context, key string) error
 }
 
+type txUsecase interface {
+	Begin(ctx context.Context, isoLevel model.TxIsoLevel) (string, error)
+	Commit(ctx context.Context) error
+	Rollback(ctx context.Context) error
+}
+
 type db struct {
-	usecase useCase
+	cleaner cleaner
+
+	sUc  storeUsecase
+	txUc txUsecase
+
 	manager *dbManager.Manager
 }
 
@@ -42,24 +63,60 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 
 	gen := generator.New()
 
+	sched := quartz.NewStdScheduler()
+
 	contentRep := contentRepo.New()
+	contentFileRep := contentFileRepo.New(manager)
 	dirRep := dirRepo.New(manager)
 	fileRep := fileRepo.New(manager)
+	txRep := txRepo.New()
+
+	cl := cleanerUseCase.New(
+		sched, contentRep,
+		contentFileRep, fileRep,
+		txRep,
+	)
 
 	rootUc := rootUseCase.New(cfg.RootDirs, disk.GetDisk(), dirRep)
 	dirUc := dirUseCase.New(cfg.MaxDirCount, rootUc, dirRep, gen)
-	storeUc := storeUseCase.New(dirUc, contentRep, fileRep, gen)
+	storeUc := storeUseCase.New(
+		dirUc, contentRep,
+		contentFileRep, fileRep,
+		txRep, gen,
+	)
+	txUx := txUseCase.New(cl, fileRep, txRep, gen)
+
+	err = cl.Run(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("cleaner run: %w", err)
+	}
 
 	return &db{
-		usecase: storeUc,
+		cleaner: cl,
+		sUc:     storeUc,
+		txUc:    txUx,
 		manager: manager,
 	}, nil
 }
 
-func (db *db) GetUseCase() useCase {
-	return db.usecase
+func (db *db) GetStoreUseCase() storeUsecase {
+	return db.sUc
+}
+
+func (db *db) GetTxUseCase() txUsecase {
+	return db.txUc
 }
 
 func (db *db) Close() error {
-	return db.manager.Close()
+	err := db.cleaner.Stop(context.Background())
+	if err != nil {
+		return fmt.Errorf("cleaner stop: %w", err)
+	}
+
+	err = db.manager.Close()
+	if err != nil {
+		return fmt.Errorf("manager close: %w", err)
+	}
+
+	return nil
 }

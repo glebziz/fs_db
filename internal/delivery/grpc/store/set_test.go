@@ -20,7 +20,7 @@ func TestImplementation_SetFile_Success(t *testing.T) {
 
 	td := newTestDeps(t)
 
-	td.uc.EXPECT().
+	td.suc.EXPECT().
 		Set(gomock.Any(), testKey, gomock.Any()).
 		Do(func(ctx context.Context, s string, content *model.Content) error {
 			data, err := io.ReadAll(content.Reader)
@@ -90,7 +90,7 @@ func TestImplementation_SetFile_Error(t *testing.T) {
 
 		td := newTestDeps(t)
 
-		td.uc.EXPECT().
+		td.suc.EXPECT().
 			Set(gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(assert.AnError)
 

@@ -18,7 +18,7 @@ func TestImplementation_DeleteFile_Success(t *testing.T) {
 
 	td := newTestDeps(t)
 
-	td.uc.EXPECT().
+	td.suc.EXPECT().
 		Delete(gomock.Any(), testKey).
 		Return(nil)
 
@@ -34,7 +34,7 @@ func TestImplementation_DeleteFile_Error(t *testing.T) {
 
 	td := newTestDeps(t)
 
-	td.uc.EXPECT().
+	td.suc.EXPECT().
 		Delete(gomock.Any(), gomock.Any()).
 		Return(assert.AnError)
 

@@ -1,55 +1,48 @@
-package dir
+package file
 
 import (
-	"context"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func TestRep_Delete(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		t.Parallel()
+func TestRep_Delete_Success(t *testing.T) {
+	t.Parallel()
 
-		r := New(manager)
+	r, ctx := newTestRep(t)
 
-		err := r.RunTransaction(context.Background(), func(ctx context.Context) error {
-			var (
-				file = model.File{
-					Id:         gofakeit.UUID(),
-					Key:        gofakeit.UUID(),
-					ParentPath: gofakeit.UUID(),
-				}
-			)
+	var (
+		txId = gofakeit.UUID()
+		key1 = gofakeit.UUID()
+		key2 = gofakeit.UUID()
+	)
 
-			testCreateFile(ctx, t, &file)
+	err := r.Delete(ctx, txId, key1)
+	require.NoError(t, err)
 
-			err := r.Delete(ctx, file.Key)
-			require.NoError(t, err)
+	err = r.Delete(ctx, txId, key2)
+	require.NoError(t, err)
 
-			return assert.AnError
-		})
+	actual := testGetFile(ctx, t, r.p, key1)
+	require.Equal(t, &model.File{
+		Key: key1,
+	}, actual)
 
-		require.ErrorIs(t, err, assert.AnError)
-	})
+	actual = testGetFile(ctx, t, r.p, key2)
+	require.Equal(t, &model.File{
+		Key: key2,
+	}, actual)
 
-	t.Run("success with non existing file", func(t *testing.T) {
-		t.Parallel()
+}
 
-		r := New(manager)
+func TestRep_Delete_Error(t *testing.T) {
+	t.Parallel()
 
-		err := r.RunTransaction(context.Background(), func(ctx context.Context) error {
-			err := r.Delete(ctx, gofakeit.UUID())
-			require.ErrorIs(t, err, fs_db.NotFoundErr)
+	r, ctx := newTestRep(t)
 
-			return assert.AnError
-		})
-
-		require.ErrorIs(t, err, assert.AnError)
-	})
+	err := r.Delete(ctx, gofakeit.UUID(), "")
+	require.Error(t, err)
 }

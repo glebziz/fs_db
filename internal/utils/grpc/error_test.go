@@ -28,9 +28,24 @@ func TestError(t *testing.T) {
 			code: codes.NotFound,
 		},
 		{
-			name: "header not found",
+			name: "empty key error",
 			err:  fs_db.EmptyKeyErr,
 			code: codes.InvalidArgument,
+		},
+		{
+			name: "tx not found",
+			err:  fs_db.TxNotFoundErr,
+			code: codes.Aborted,
+		},
+		{
+			name: "tx already exists",
+			err:  fs_db.TxAlreadyExistsErr,
+			code: codes.AlreadyExists,
+		},
+		{
+			name: "serialization",
+			err:  fs_db.TxSerializationErr,
+			code: codes.FailedPrecondition,
 		},
 		{
 			name: "header not found",
@@ -77,9 +92,24 @@ func TestClientError(t *testing.T) {
 			wantErr: fs_db.NotFoundErr,
 		},
 		{
+			name:    "already exists",
+			code:    codes.AlreadyExists,
+			wantErr: fs_db.TxAlreadyExistsErr,
+		},
+		{
 			name:    "resource exhausted",
 			code:    codes.ResourceExhausted,
 			wantErr: fs_db.SizeErr,
+		},
+		{
+			name:    "failed precondition",
+			code:    codes.FailedPrecondition,
+			wantErr: fs_db.TxSerializationErr,
+		},
+		{
+			name:    "aborted",
+			code:    codes.Aborted,
+			wantErr: fs_db.TxNotFoundErr,
 		},
 		{
 			name:    "other error",

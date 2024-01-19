@@ -13,6 +13,18 @@ service StoreV1 {
   rpc SetFile(stream SetFileRequest) returns(SetFileResponse) {}
   rpc GetFile(GetFileRequest) returns(stream GetFileResponse) {}
   rpc DeleteFile(DeleteFileRequest) returns(DeleteFileResponse) {}
+
+  // Tx
+  rpc BeginTx(BeginTxRequest) returns(BeginTxResponse) {}
+  rpc CommitTx(CommitTxRequest) returns(CommitTxResponse) {}
+  rpc RollbackTx(RollbackTxRequest) returns(RollbackTxResponse) {}
+}
+
+enum TxIsoLevel {
+  ISO_LEVEL_READ_UNCOMMITTED = 0;
+  ISO_LEVEL_READ_COMMITTED = 1;
+  ISO_LEVEL_REPEATABLE_READ = 2;
+  ISO_LEVEL_SERIALIZABLE = 3;
 }
 
 message SetFileHeader {
@@ -42,3 +54,19 @@ message DeleteFileRequest {
 }
 
 message DeleteFileResponse {}
+
+message BeginTxRequest {
+  TxIsoLevel isoLevel = 1;
+}
+
+message BeginTxResponse {
+  string id = 1;
+}
+
+message CommitTxRequest {}
+
+message CommitTxResponse {}
+
+message RollbackTxRequest {}
+
+message RollbackTxResponse {}
