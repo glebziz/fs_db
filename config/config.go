@@ -40,12 +40,31 @@ var (
 	}
 )
 
+// Storage provides configuration options for fs db storage.
+//
+//	Default:
+//	  dbPath: test.db
+//	  maxDirCount: 1000000
+//	  rootDirs:
+//	    - ./testStorage
 type Storage struct {
-	DbPath      string   `yaml:"dbPath"`
-	MaxDirCount uint64   `yaml:"maxDirCount"`
-	RootDirs    []string `yaml:"rootDirs"`
+	// DbPath path to the SQLite database file.
+	// 	 Default: test.db
+	// 	 Env: DB_PATH
+	DbPath string `yaml:"dbPath"`
+
+	// MaxDirCount max number of files in one subdirectory.
+	//   Default: 1_000_000
+	//   Env: DIR_COUNT
+	MaxDirCount uint64 `yaml:"maxDirCount"`
+
+	// RootDirs slice with root directories.
+	//   Default: ["./testStorage"]
+	//   Env: ROOT_DIRS
+	RootDirs []string `yaml:"rootDirs"`
 }
 
+// Valid validates the storage options.
 func (s *Storage) Valid() error {
 	if s.DbPath == "" {
 		return fs_db.EmptyDbPathErr
@@ -62,6 +81,7 @@ func (s *Storage) Valid() error {
 	return nil
 }
 
+// ParseEnv fills the storage options with environment variables.
 func (s *Storage) ParseEnv() error {
 	if env, ok := os.LookupEnv(envDbPath); ok && env != "" {
 		s.DbPath = env
@@ -80,11 +100,26 @@ func (s *Storage) ParseEnv() error {
 	return nil
 }
 
+// Config provides fs db configuration options.
+//
+//	Default:
+//	  port: 8888
+//	  storage:
+//	    dbPath: test.db
+//	    maxDirCount: 1000000
+//	    rootDirs:
+//	      - ./testStorage
 type Config struct {
-	Port    int     `yaml:"port"`
+	// Port fs db server port.
+	//   Default: 8888
+	//   Env: PORT
+	Port int `yaml:"port"`
+
+	// Storage fs db storage options.
 	Storage Storage `yaml:"storage"`
 }
 
+// ParseEnv fills the config options with environment variables.
 func (c *Config) ParseEnv() error {
 	if env, ok := os.LookupEnv(envPort); ok && env != "" {
 		port, err := strconv.Atoi(env)
@@ -102,6 +137,7 @@ func (c *Config) ParseEnv() error {
 	return nil
 }
 
+// ParseConfig returns filled Config options from a configuration file.
 func ParseConfig(confFile string) (*Config, error) {
 	conf := defaultConfig
 

@@ -8,6 +8,7 @@ import (
 	"github.com/glebziz/fs_db/pkg/external/db"
 )
 
+// Open returns the client for the external fs db.
 func Open(ctx context.Context, url string) (fs_db.DB, error) {
 	b, err := db.New(ctx, url)
 	if err != nil {

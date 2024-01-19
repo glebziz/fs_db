@@ -8,31 +8,37 @@ import (
 
 type txCtxFn func(ctx context.Context) context.Context
 
-type tx interface {
+// TxOps provides transactional operations.
+type TxOps interface {
+	// Commit commits the transaction.
 	Commit(ctx context.Context) error
+
+	// Rollback rolls back the transaction.
 	Rollback(ctx context.Context) error
 }
 
+// Tx provides fs db transaction interface.
 type Tx interface {
-	tx
-	store
+	TxOps
+	Store
 }
 
-type _tx struct {
-	tx
-	store store
+type tx struct {
+	TxOps
+	store Store
 	ctxFn txCtxFn
 }
 
-func CreateTx(store store, tx tx, ctxFn txCtxFn) Tx {
-	return &_tx{
-		tx:    tx,
+// CreateTx returns transaction fs db.
+func CreateTx(store Store, t TxOps, ctxFn txCtxFn) Tx {
+	return &tx{
+		TxOps: t,
 		store: store,
 		ctxFn: ctxFn,
 	}
 }
 
-func (t *_tx) Set(ctx context.Context, key string, b []byte) error {
+func (t *tx) Set(ctx context.Context, key string, b []byte) error {
 	err := t.store.Set(t.ctxFn(ctx), key, b)
 	if err != nil {
 		return fmt.Errorf("store set: %w", err)
@@ -41,7 +47,7 @@ func (t *_tx) Set(ctx context.Context, key string, b []byte) error {
 	return nil
 }
 
-func (t *_tx) SetReader(ctx context.Context, key string, reader io.Reader, size uint64) error {
+func (t *tx) SetReader(ctx context.Context, key string, reader io.Reader, size uint64) error {
 	err := t.store.SetReader(t.ctxFn(ctx), key, reader, size)
 	if err != nil {
 		return fmt.Errorf("store set reader: %w", err)
@@ -50,7 +56,7 @@ func (t *_tx) SetReader(ctx context.Context, key string, reader io.Reader, size 
 	return nil
 }
 
-func (t *_tx) Get(ctx context.Context, key string) ([]byte, error) {
+func (t *tx) Get(ctx context.Context, key string) ([]byte, error) {
 	b, err := t.store.Get(t.ctxFn(ctx), key)
 	if err != nil {
 		return nil, fmt.Errorf("store get: %w", err)
@@ -59,7 +65,7 @@ func (t *_tx) Get(ctx context.Context, key string) ([]byte, error) {
 	return b, nil
 }
 
-func (t *_tx) GetReader(ctx context.Context, key string) (io.ReadCloser, error) {
+func (t *tx) GetReader(ctx context.Context, key string) (io.ReadCloser, error) {
 	r, err := t.store.GetReader(t.ctxFn(ctx), key)
 	if err != nil {
 		return nil, fmt.Errorf("store get reader: %w", err)
@@ -68,7 +74,7 @@ func (t *_tx) GetReader(ctx context.Context, key string) (io.ReadCloser, error) 
 	return r, nil
 }
 
-func (t *_tx) Delete(ctx context.Context, key string) error {
+func (t *tx) Delete(ctx context.Context, key string) error {
 	err := t.store.Delete(t.ctxFn(ctx), key)
 	if err != nil {
 		return fmt.Errorf("store delete: %w", err)
