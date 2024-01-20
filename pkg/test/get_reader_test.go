@@ -6,6 +6,8 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
+
+	"github.com/glebziz/fs_db"
 )
 
 func TestDb_GetReader(t *testing.T) {
@@ -14,7 +16,12 @@ func TestDb_GetReader(t *testing.T) {
 	_db := newTestDb(t)
 
 	key := gofakeit.UUID()
-	err := _db.Set(testCtx, key, testContent)
+
+	r, err := _db.GetReader(testCtx, key)
+	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.Nil(t, r)
+
+	err = _db.Set(testCtx, key, testContent)
 	require.NoError(t, err)
 
 	testGoN(t, testNumThread, func(t testing.TB) {

@@ -39,7 +39,7 @@ func TestImplementation_SetFile_Success(t *testing.T) {
 
 	err = stream.Send(&store.SetFileRequest{
 		Data: &store.SetFileRequest_Header{
-			Header: &store.SetFileHeader{
+			Header: &store.FileHeader{
 				Key:  testKey,
 				Size: testContentLen,
 			},
@@ -100,7 +100,7 @@ func TestImplementation_SetFile_Error(t *testing.T) {
 
 		err = stream.Send(&store.SetFileRequest{
 			Data: &store.SetFileRequest_Header{
-				Header: &store.SetFileHeader{
+				Header: &store.FileHeader{
 					Key:  testKey,
 					Size: testContentLen,
 				},

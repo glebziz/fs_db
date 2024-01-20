@@ -19,6 +19,11 @@ func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
 		return nil, fmt.Errorf("get file: %w", grpc.ClientError(err))
 	}
 
+	_, err = stream.Recv()
+	if err != nil {
+		return nil, fmt.Errorf("recv header: %w", grpc.ClientError(err))
+	}
+
 	var buf bytes.Buffer
 	for {
 		req, err := stream.Recv()

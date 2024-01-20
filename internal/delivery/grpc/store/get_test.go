@@ -34,10 +34,16 @@ func TestImplementation_GetFile_Success(t *testing.T) {
 
 	require.NoError(t, err)
 
-	ch, err := resp.Recv()
+	data, err := resp.Recv()
 
 	require.NoError(t, err)
-	require.Equal(t, testContent, ch.GetChunk())
+	require.Equal(t, testKey, data.GetHeader().Key)
+	require.Equal(t, testContentLen, data.GetHeader().Size)
+
+	data, err = resp.Recv()
+
+	require.NoError(t, err)
+	require.Equal(t, testContent, data.GetChunk())
 }
 
 func TestImplementation_GetFile_Error(t *testing.T) {
@@ -82,11 +88,18 @@ func TestImplementation_GetFile_Error(t *testing.T) {
 
 			require.NoError(t, err)
 
-			ch, err := resp.Recv()
+			data, err := resp.Recv()
+			if tc.err == nil {
+				require.NoError(t, err)
+				require.Equal(t, testKey, data.GetHeader().Key)
+				require.Equal(t, testContentLen, data.GetHeader().Size)
+
+				data, err = resp.Recv()
+			}
 
 			require.Error(t, err)
 			require.Equal(t, tc.code, status.Convert(err).Code())
-			require.Nil(t, ch)
+			require.Nil(t, data)
 		})
 	}
 }
