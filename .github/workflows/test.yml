@@ -2,9 +2,6 @@ name: test
 
 on:
   push:
-    branches: [develop, master]
-    paths-ignore:
-      - LICENSE
 
 jobs:
   test:
