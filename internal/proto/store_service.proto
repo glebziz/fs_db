@@ -27,14 +27,14 @@ enum TxIsoLevel {
   ISO_LEVEL_SERIALIZABLE = 3;
 }
 
-message SetFileHeader {
+message FileHeader {
   string key = 1;
   uint64 size = 2;
 }
 
 message SetFileRequest {
   oneof data {
-    SetFileHeader header = 1;
+    FileHeader header = 1;
     bytes chunk = 2;
   }
 }
@@ -46,7 +46,10 @@ message GetFileRequest {
 }
 
 message GetFileResponse {
-  bytes chunk = 1;
+  oneof data {
+    bytes chunk = 1;
+    FileHeader header = 2;
+  }
 }
 
 message DeleteFileRequest {

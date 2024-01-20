@@ -15,6 +15,18 @@ func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1
 	}
 	defer content.Reader.Close()
 
+	stream.Send(&store.GetFileResponse{
+		Data: &store.GetFileResponse_Header{
+			Header: &store.FileHeader{
+				Key:  req.Key,
+				Size: content.Size,
+			},
+		},
+	})
+	if err != nil {
+		return grpc.Error(fmt.Errorf("stream file header send: %w", err))
+	}
+
 	chunk := make([]byte, store.ChunkSize_MAX)
 	for {
 		n, err := content.Reader.Read(chunk)
@@ -26,7 +38,9 @@ func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1
 		}
 
 		err = stream.Send(&store.GetFileResponse{
-			Chunk: chunk[:n],
+			Data: &store.GetFileResponse_Chunk{
+				Chunk: chunk[:n],
+			},
 		})
 		if err != nil {
 			return grpc.Error(fmt.Errorf("stream chunk send: %w", err))

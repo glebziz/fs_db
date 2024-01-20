@@ -37,5 +37,10 @@ func (db *db) GetReader(ctx context.Context, key string) (io.ReadCloser, error) 
 		return nil, fmt.Errorf("get file: %w", grpc.ClientError(err))
 	}
 
+	_, err = stream.Recv()
+	if err != nil {
+		return nil, fmt.Errorf("recv header: %w", grpc.ClientError(err))
+	}
+
 	return io.NopCloser(streamreader.New(newGetWrapper(stream))), nil
 }

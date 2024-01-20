@@ -17,7 +17,7 @@ func (db *db) SetReader(ctx context.Context, key string, reader io.Reader, size 
 
 	err = stream.Send(&store.SetFileRequest{
 		Data: &store.SetFileRequest_Header{
-			Header: &store.SetFileHeader{
+			Header: &store.FileHeader{
 				Key:  key,
 				Size: size,
 			},
