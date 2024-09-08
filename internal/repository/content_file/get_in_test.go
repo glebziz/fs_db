@@ -21,8 +21,8 @@ func TestRep_GetIn(t *testing.T) {
 	)
 	for i := 0; i < 100; i++ {
 		file := model.ContentFile{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
+			Id:     gofakeit.UUID(),
+			Parent: gofakeit.UUID(),
 		}
 
 		testCreateContentFile(ctx, t, r.p, &file)

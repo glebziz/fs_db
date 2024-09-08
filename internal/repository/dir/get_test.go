@@ -1,63 +1,61 @@
 package dir
 
 import (
+	"context"
+	"path"
+	"slices"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
 
 	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/utils/disk"
 )
 
 func TestRep_Get(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		t.Parallel()
+	var (
+		rootPath = testNewRootPath(t)
 
-		r, ctx := newTestRep(t)
+		dir1 = gofakeit.UUID()
+		dir2 = gofakeit.UUID()
 
-		var (
-			dirs = []model.Dir{{
-				Id:         gofakeit.UUID(),
-				FileCount:  0,
-				ParentPath: gofakeit.UUID(),
-			}, {
-				Id:         gofakeit.UUID(),
-				FileCount:  3,
-				ParentPath: gofakeit.UUID(),
-			}}
+		file1 = path.Join(rootPath, dir1, gofakeit.UUID())
+		file2 = path.Join(rootPath, dir1, gofakeit.UUID())
+		file3 = path.Join(rootPath, dir2, gofakeit.UUID())
+	)
 
-			files = []model.ContentFile{{
-				Id:         gofakeit.UUID(),
-				ParentPath: dirs[1].GetPath(),
-			}, {
-				Id:         gofakeit.UUID(),
-				ParentPath: dirs[1].GetPath(),
-			}, {
-				Id:         gofakeit.UUID(),
-				ParentPath: dirs[1].GetPath(),
-			}}
-		)
+	testCreateDir(t, path.Join(rootPath, dir1))
+	testCreateDir(t, path.Join(rootPath, dir2))
+	testCreateFile(t, file1)
+	testCreateFile(t, file2)
+	testCreateFile(t, file3)
 
-		for _, file := range files {
-			testCreateContentFile(ctx, t, r.p, &file)
-		}
+	r, err := New([]string{rootPath})
+	require.NoError(t, err)
+	require.NotNil(t, r)
 
-		for _, dir := range dirs {
-			testCreateDir(ctx, t, r.p, &dir)
-		}
+	st, err := disk.Usage(context.Background(), rootPath)
+	require.NoError(t, err)
+	require.NotNil(t, st)
 
-		actual, err := r.Get(ctx)
-		require.NoError(t, err)
-		require.Equal(t, dirs, actual)
+	dirs, err := r.Get(context.Background())
+	require.NoError(t, err)
+	require.Len(t, dirs, 2)
+
+	slices.SortFunc(dirs, func(a, b model.Dir) int {
+		return int(b.Count - a.Count)
 	})
 
-	t.Run("empty dirs", func(t *testing.T) {
-		t.Parallel()
-
-		r, ctx := newTestRep(t)
-
-		actual, err := r.Get(ctx)
-		require.NoError(t, err)
-		require.Empty(t, actual)
-	})
+	require.Equal(t, model.Dirs{{
+		Name:  dir1,
+		Root:  rootPath,
+		Count: 2,
+		Free:  st.Free,
+	}, {
+		Name:  dir2,
+		Root:  rootPath,
+		Count: 1,
+		Free:  st.Free,
+	}}, dirs)
 }

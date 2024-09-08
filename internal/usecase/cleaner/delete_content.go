@@ -24,10 +24,10 @@ func (c *Cleaner) deleteContent(ctx context.Context, contentIds []string) error 
 	}
 
 	for _, cf := range cfs {
-		err = c.cRepo.Delete(ctx, cf.GetPath())
+		err = c.cRepo.Delete(ctx, cf.Path())
 		if errors.Is(err, fs_db.NotFoundErr) {
 			slog.Warn("content not exists",
-				slog.String("path", cf.GetPath()),
+				slog.String("path", cf.Path()),
 			)
 		} else if err != nil {
 			return fmt.Errorf("content repo delete: %w", err)

@@ -1,6 +1,6 @@
 module github.com/glebziz/fs_db
 
-go 1.21.0
+go 1.22.0
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.26.3

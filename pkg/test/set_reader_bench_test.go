@@ -18,7 +18,7 @@ func BenchmarkDb_SetReader(b *testing.B) {
 		reader := bytes.NewReader(testContent)
 		b.StartTimer()
 
-		err := _db.SetReader(testCtx, key, reader, testSize)
+		err := _db.SetReader(testCtx, key, reader)
 		require.NoError(b, err)
 	}
 }

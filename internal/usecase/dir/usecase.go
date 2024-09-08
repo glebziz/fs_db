@@ -8,13 +8,11 @@ import (
 
 //go:generate mockgen -source usecase.go -destination mocks/mocks.go -typed true
 
-type rootUseCase interface {
-	Get(ctx context.Context) (model.RootMap, error)
-}
-
 type dirRepository interface {
+	GetRoots(ctx context.Context) ([]model.Root, error)
+	Get(ctx context.Context) (model.Dirs, error)
 	Create(ctx context.Context, d model.Dir) error
-	Get(ctx context.Context) ([]model.Dir, error)
+	Remove(ctx context.Context, d model.Dir) error
 }
 
 type generator interface {
@@ -24,16 +22,14 @@ type generator interface {
 type useCase struct {
 	maxCount uint64
 
-	root  rootUseCase
-	dRepo dirRepository
-	idGen generator
+	dRepo   dirRepository
+	nameGen generator
 }
 
-func New(maxCount uint64, root rootUseCase, dRepo dirRepository, idGen generator) *useCase {
+func New(maxCount uint64, dRepo dirRepository, nameGen generator) *useCase {
 	return &useCase{
 		maxCount: maxCount,
-		root:     root,
 		dRepo:    dRepo,
-		idGen:    idGen,
+		nameGen:  nameGen,
 	}
 }

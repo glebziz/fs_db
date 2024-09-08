@@ -27,11 +27,10 @@ func (r errReader) Read([]byte) (int, error) {
 }
 
 var (
-	testKey        = gofakeit.UUID()
-	testContent    = []byte("some content")
-	testReader     = io.NopCloser(bytes.NewReader(testContent))
-	testErrReader  = io.NopCloser(errReader{})
-	testContentLen = uint64(len(testContent))
+	testKey       = gofakeit.UUID()
+	testContent   = []byte("some content")
+	testReader    = io.NopCloser(bytes.NewReader(testContent))
+	testErrReader = io.NopCloser(errReader{})
 
 	testTxId            = gofakeit.UUID()
 	testTxIsoLevel      = store.TxIsoLevel_ISO_LEVEL_READ_COMMITTED

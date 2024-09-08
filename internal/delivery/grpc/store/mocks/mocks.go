@@ -10,6 +10,7 @@ package mock_store
 
 import (
 	context "context"
+	io "io"
 	reflect "reflect"
 
 	model "github.com/glebziz/fs_db/internal/model"
@@ -78,10 +79,10 @@ func (c *storeUseCaseDeleteCall) DoAndReturn(f func(context.Context, string) err
 }
 
 // Get mocks base method.
-func (m *MockstoreUseCase) Get(ctx context.Context, key string) (*model.Content, error) {
+func (m *MockstoreUseCase) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, key)
-	ret0, _ := ret[0].(*model.Content)
+	ret0, _ := ret[0].(io.ReadCloser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -99,25 +100,25 @@ type storeUseCaseGetCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *storeUseCaseGetCall) Return(arg0 *model.Content, arg1 error) *storeUseCaseGetCall {
+func (c *storeUseCaseGetCall) Return(arg0 io.ReadCloser, arg1 error) *storeUseCaseGetCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *storeUseCaseGetCall) Do(f func(context.Context, string) (*model.Content, error)) *storeUseCaseGetCall {
+func (c *storeUseCaseGetCall) Do(f func(context.Context, string) (io.ReadCloser, error)) *storeUseCaseGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *storeUseCaseGetCall) DoAndReturn(f func(context.Context, string) (*model.Content, error)) *storeUseCaseGetCall {
+func (c *storeUseCaseGetCall) DoAndReturn(f func(context.Context, string) (io.ReadCloser, error)) *storeUseCaseGetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Set mocks base method.
-func (m *MockstoreUseCase) Set(ctx context.Context, key string, content *model.Content) error {
+func (m *MockstoreUseCase) Set(ctx context.Context, key string, content io.Reader) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", ctx, key, content)
 	ret0, _ := ret[0].(error)
@@ -143,13 +144,13 @@ func (c *storeUseCaseSetCall) Return(arg0 error) *storeUseCaseSetCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *storeUseCaseSetCall) Do(f func(context.Context, string, *model.Content) error) *storeUseCaseSetCall {
+func (c *storeUseCaseSetCall) Do(f func(context.Context, string, io.Reader) error) *storeUseCaseSetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *storeUseCaseSetCall) DoAndReturn(f func(context.Context, string, *model.Content) error) *storeUseCaseSetCall {
+func (c *storeUseCaseSetCall) DoAndReturn(f func(context.Context, string, io.Reader) error) *storeUseCaseSetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

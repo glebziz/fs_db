@@ -11,9 +11,9 @@ func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("store usecase get: %w", err)
 	}
-	defer content.Reader.Close()
+	defer content.Close()
 
-	b, err := io.ReadAll(content.Reader)
+	b, err := io.ReadAll(content)
 	if err != nil {
 		return nil, fmt.Errorf("read all: %w", err)
 	}

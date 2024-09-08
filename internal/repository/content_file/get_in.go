@@ -22,7 +22,7 @@ func (r *rep) GetIn(ctx context.Context, ids []string) ([]model.ContentFile, err
 	for rows.Next() {
 		var file model.ContentFile
 
-		err = rows.Scan(&file.Id, &file.ParentPath)
+		err = rows.Scan(&file.Id, &file.Parent)
 		if err != nil {
 			return nil, fmt.Errorf("scan: %w", err)
 		}

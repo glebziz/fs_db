@@ -5,25 +5,20 @@ import (
 	"fmt"
 
 	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
-func (r *rep) Create(ctx context.Context, d model.Dir) error {
-	res, err := r.p.DB(ctx).Exec(ctx, `
-		insert into dir(id, parent_path)
-		values ($1, $2)`,
-		d.Id, d.ParentPath)
+func (r *rep) Create(_ context.Context, dir model.Dir) error {
+	err := os.MkdirAll(dir.Path(), mkdirPerm)
 	if err != nil {
-		return fmt.Errorf("exec: %w", err)
+		return fmt.Errorf("mkdir all: %w", err)
 	}
 
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("rows affected: %w", err)
-	}
+	r.m.Lock()
+	defer r.m.Unlock()
 
-	if affected == 0 {
-		return fmt.Errorf("no rows are affected")
-	}
+	r.dirs[dir.Path()] = dir
+	r.counts[dir.Root]++
 
 	return nil
 }

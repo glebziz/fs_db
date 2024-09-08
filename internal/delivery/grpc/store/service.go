@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"io"
 
 	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
@@ -10,8 +11,8 @@ import (
 //go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
 
 type storeUseCase interface {
-	Set(ctx context.Context, key string, content *model.Content) error
-	Get(ctx context.Context, key string) (*model.Content, error)
+	Set(ctx context.Context, key string, content io.Reader) error
+	Get(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 }
 

@@ -13,13 +13,12 @@ func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1
 	if err != nil {
 		return grpc.Error(fmt.Errorf("store usecase get: %w", err))
 	}
-	defer content.Reader.Close()
+	defer content.Close()
 
-	stream.Send(&store.GetFileResponse{
+	err = stream.Send(&store.GetFileResponse{
 		Data: &store.GetFileResponse_Header{
 			Header: &store.FileHeader{
-				Key:  req.Key,
-				Size: content.Size,
+				Key: req.Key,
 			},
 		},
 	})
@@ -29,7 +28,8 @@ func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1
 
 	chunk := make([]byte, store.ChunkSize_MAX)
 	for {
-		n, err := content.Reader.Read(chunk)
+		var n int
+		n, err = content.Read(chunk)
 		if err == io.EOF {
 			break
 		}

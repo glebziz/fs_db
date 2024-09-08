@@ -11,7 +11,7 @@ func (r *rep) Store(ctx context.Context, file model.ContentFile) error {
 	res, err := r.p.DB(ctx).Exec(ctx, `
 		insert into content_file(id, parent_path)
 		values ($1, $2)`,
-		file.Id, file.ParentPath)
+		file.Id, file.Parent)
 	if err != nil {
 		return fmt.Errorf("exec: %w", err)
 	}

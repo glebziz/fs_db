@@ -2,6 +2,8 @@ package store
 
 import (
 	"context"
+	"io"
+	"math/rand/v2"
 
 	"github.com/glebziz/fs_db/internal/model"
 )
@@ -9,12 +11,12 @@ import (
 //go:generate mockgen -source usecase.go -destination mocks/mocks.go -typed true
 
 type dirUsecase interface {
-	Select(ctx context.Context, size uint64) (*model.Dir, error)
+	Get(ctx context.Context) (model.Dirs, error)
 }
 
 type contentRepository interface {
-	Store(ctx context.Context, path string, content *model.Content) error
-	Get(ctx context.Context, path string) (*model.Content, error)
+	Store(ctx context.Context, path string, content io.Reader) error
+	Get(ctx context.Context, path string) (io.ReadCloser, error)
 }
 
 type contentFileRepository interface {
@@ -44,13 +46,15 @@ type useCase struct {
 	fRepo  fileRepository
 	txRepo txRepository
 
-	idGen generator
+	idGen   generator
+	randGen *rand.Rand
 }
 
 func New(
 	dir dirUsecase, cRepo contentRepository,
 	cfRepo contentFileRepository, fRepo fileRepository,
 	txRepo txRepository, idGen generator,
+	randGen *rand.Rand,
 ) *useCase {
 	return &useCase{
 		dir: dir,
@@ -60,6 +64,7 @@ func New(
 		fRepo:  fRepo,
 		txRepo: txRepo,
 
-		idGen: idGen,
+		idGen:   idGen,
+		randGen: randGen,
 	}
 }

@@ -10,6 +10,7 @@ package mock_store
 
 import (
 	context "context"
+	io "io"
 	reflect "reflect"
 
 	model "github.com/glebziz/fs_db/internal/model"
@@ -39,41 +40,41 @@ func (m *MockdirUsecase) EXPECT() *MockdirUsecaseMockRecorder {
 	return m.recorder
 }
 
-// Select mocks base method.
-func (m *MockdirUsecase) Select(ctx context.Context, size uint64) (*model.Dir, error) {
+// Get mocks base method.
+func (m *MockdirUsecase) Get(ctx context.Context) (model.Dirs, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Select", ctx, size)
-	ret0, _ := ret[0].(*model.Dir)
+	ret := m.ctrl.Call(m, "Get", ctx)
+	ret0, _ := ret[0].(model.Dirs)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Select indicates an expected call of Select.
-func (mr *MockdirUsecaseMockRecorder) Select(ctx, size any) *dirUsecaseSelectCall {
+// Get indicates an expected call of Get.
+func (mr *MockdirUsecaseMockRecorder) Get(ctx any) *dirUsecaseGetCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Select", reflect.TypeOf((*MockdirUsecase)(nil).Select), ctx, size)
-	return &dirUsecaseSelectCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockdirUsecase)(nil).Get), ctx)
+	return &dirUsecaseGetCall{Call: call}
 }
 
-// dirUsecaseSelectCall wrap *gomock.Call
-type dirUsecaseSelectCall struct {
+// dirUsecaseGetCall wrap *gomock.Call
+type dirUsecaseGetCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *dirUsecaseSelectCall) Return(arg0 *model.Dir, arg1 error) *dirUsecaseSelectCall {
+func (c *dirUsecaseGetCall) Return(arg0 model.Dirs, arg1 error) *dirUsecaseGetCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *dirUsecaseSelectCall) Do(f func(context.Context, uint64) (*model.Dir, error)) *dirUsecaseSelectCall {
+func (c *dirUsecaseGetCall) Do(f func(context.Context) (model.Dirs, error)) *dirUsecaseGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *dirUsecaseSelectCall) DoAndReturn(f func(context.Context, uint64) (*model.Dir, error)) *dirUsecaseSelectCall {
+func (c *dirUsecaseGetCall) DoAndReturn(f func(context.Context) (model.Dirs, error)) *dirUsecaseGetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -102,10 +103,10 @@ func (m *MockcontentRepository) EXPECT() *MockcontentRepositoryMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MockcontentRepository) Get(ctx context.Context, path string) (*model.Content, error) {
+func (m *MockcontentRepository) Get(ctx context.Context, path string) (io.ReadCloser, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, path)
-	ret0, _ := ret[0].(*model.Content)
+	ret0, _ := ret[0].(io.ReadCloser)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -123,25 +124,25 @@ type contentRepositoryGetCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *contentRepositoryGetCall) Return(arg0 *model.Content, arg1 error) *contentRepositoryGetCall {
+func (c *contentRepositoryGetCall) Return(arg0 io.ReadCloser, arg1 error) *contentRepositoryGetCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *contentRepositoryGetCall) Do(f func(context.Context, string) (*model.Content, error)) *contentRepositoryGetCall {
+func (c *contentRepositoryGetCall) Do(f func(context.Context, string) (io.ReadCloser, error)) *contentRepositoryGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *contentRepositoryGetCall) DoAndReturn(f func(context.Context, string) (*model.Content, error)) *contentRepositoryGetCall {
+func (c *contentRepositoryGetCall) DoAndReturn(f func(context.Context, string) (io.ReadCloser, error)) *contentRepositoryGetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Store mocks base method.
-func (m *MockcontentRepository) Store(ctx context.Context, path string, content *model.Content) error {
+func (m *MockcontentRepository) Store(ctx context.Context, path string, content io.Reader) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Store", ctx, path, content)
 	ret0, _ := ret[0].(error)
@@ -167,13 +168,13 @@ func (c *contentRepositoryStoreCall) Return(arg0 error) *contentRepositoryStoreC
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *contentRepositoryStoreCall) Do(f func(context.Context, string, *model.Content) error) *contentRepositoryStoreCall {
+func (c *contentRepositoryStoreCall) Do(f func(context.Context, string, io.Reader) error) *contentRepositoryStoreCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *contentRepositoryStoreCall) DoAndReturn(f func(context.Context, string, *model.Content) error) *contentRepositoryStoreCall {
+func (c *contentRepositoryStoreCall) DoAndReturn(f func(context.Context, string, io.Reader) error) *contentRepositoryStoreCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -37,7 +37,7 @@ func testCreateContentFile(ctx context.Context, t *testing.T, p db.Provider, fil
 
 	_, err := p.DB(ctx).Exec(ctx, `
 		insert into content_file(id, parent_path) VALUES ($1, $2)`,
-		file.Id, file.ParentPath)
+		file.Id, file.Parent)
 	require.NoError(t, err)
 }
 
@@ -52,7 +52,7 @@ func testGetContentFile(ctx context.Context, t *testing.T, p db.Provider, id str
 	defer rows.Close()
 	require.True(t, rows.Next())
 
-	err = rows.Scan(&file.Id, &file.ParentPath)
+	err = rows.Scan(&file.Id, &file.Parent)
 	require.NoError(t, err)
 	require.NoError(t, rows.Err())
 
