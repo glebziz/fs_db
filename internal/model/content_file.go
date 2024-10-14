@@ -3,10 +3,10 @@ package model
 import "path"
 
 type ContentFile struct {
-	Id         string
-	ParentPath string
+	Id     string
+	Parent string
 }
 
-func (f *ContentFile) GetPath() string {
-	return path.Join(f.ParentPath, f.Id)
+func (f *ContentFile) Path() string {
+	return path.Join(f.Parent, f.Id)
 }

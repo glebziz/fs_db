@@ -40,7 +40,7 @@ func ExampleStore_SetReader() {
 	}
 
 	content := []byte("some content")
-	err = db.SetReader(context.Background(), "someKey", bytes.NewReader(content), uint64(len(content)))
+	err = db.SetReader(context.Background(), "someKey", bytes.NewReader(content))
 	if err != nil {
 		log.Fatalln("SetReader:", err)
 	}

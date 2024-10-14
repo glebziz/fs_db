@@ -17,11 +17,11 @@ func TestRep_Get_Success(t *testing.T) {
 
 	var (
 		files = []model.ContentFile{{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
+			Id:     gofakeit.UUID(),
+			Parent: gofakeit.UUID(),
 		}, {
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
+			Id:     gofakeit.UUID(),
+			Parent: gofakeit.UUID(),
 		}}
 	)
 

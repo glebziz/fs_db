@@ -29,7 +29,7 @@ enum TxIsoLevel {
 
 message FileHeader {
   string key = 1;
-  uint64 size = 2;
+  uint64 size = 2 [deprecated = true];
 }
 
 message SetFileRequest {

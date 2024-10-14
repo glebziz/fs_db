@@ -57,21 +57,18 @@ func TestUseCase_Get_Success(t *testing.T) {
 					CreateTs: testTxTs,
 				}
 				dir = model.Dir{
-					Id:         testDirId,
-					ParentPath: testRootPath,
+					Name: testDirName,
+					Root: testRootPath,
 				}
 				cFile = model.ContentFile{
-					Id:         testContentId,
-					ParentPath: dir.GetPath(),
+					Id:     testContentId,
+					Parent: dir.Path(),
 				}
 				file = model.File{
 					Key:       testKey,
 					ContentId: testContentId,
 				}
-				content = model.Content{
-					Size:   testSize,
-					Reader: testReader,
-				}
+				content = testReader
 			)
 			td := newTestDeps(t)
 
@@ -88,15 +85,15 @@ func TestUseCase_Get_Success(t *testing.T) {
 				Return(&cFile, nil)
 
 			td.cRepo.EXPECT().
-				Get(gomock.Any(), cFile.GetPath()).
-				Return(&content, nil)
+				Get(gomock.Any(), cFile.Path()).
+				Return(content, nil)
 
 			uc := td.newUseCase()
 
 			actContent, err := uc.Get(testCtx, testKey)
 
 			require.NoError(t, err)
-			require.Equal(t, &content, actContent)
+			require.Equal(t, content, actContent)
 		})
 	}
 }
@@ -168,8 +165,8 @@ func TestUseCase_Get_Error(t *testing.T) {
 				td.cfRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
 					Return(&model.ContentFile{
-						Id:         testContentId,
-						ParentPath: testRootPath,
+						Id:     testContentId,
+						Parent: testRootPath,
 					}, nil)
 
 				td.cRepo.EXPECT().

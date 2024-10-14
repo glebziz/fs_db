@@ -15,7 +15,6 @@ const (
 var (
 	testCtx     = context.Background()
 	testContent = bytes.Repeat([]byte("1"), 1<<15)
-	testSize    = uint64(len(testContent))
 )
 
 func testGoN(t testing.TB, n int, fn func(t testing.TB)) {

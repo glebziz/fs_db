@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/glebziz/fs_db"
+	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
 func (r *rep) Delete(_ context.Context, path string) error {

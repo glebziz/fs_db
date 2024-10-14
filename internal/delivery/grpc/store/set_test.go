@@ -11,7 +11,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
@@ -22,12 +21,11 @@ func TestImplementation_SetFile_Success(t *testing.T) {
 
 	td.suc.EXPECT().
 		Set(gomock.Any(), testKey, gomock.Any()).
-		Do(func(ctx context.Context, s string, content *model.Content) error {
-			data, err := io.ReadAll(content.Reader)
+		Do(func(ctx context.Context, s string, content io.Reader) error {
+			data, err := io.ReadAll(content)
 
 			require.NoError(t, err)
 			require.Equal(t, testContent, data)
-			require.Equal(t, testContentLen, content.Size)
 
 			return nil
 		}).
@@ -40,8 +38,7 @@ func TestImplementation_SetFile_Success(t *testing.T) {
 	err = stream.Send(&store.SetFileRequest{
 		Data: &store.SetFileRequest_Header{
 			Header: &store.FileHeader{
-				Key:  testKey,
-				Size: testContentLen,
+				Key: testKey,
 			},
 		},
 	})
@@ -101,8 +98,7 @@ func TestImplementation_SetFile_Error(t *testing.T) {
 		err = stream.Send(&store.SetFileRequest{
 			Data: &store.SetFileRequest_Header{
 				Header: &store.FileHeader{
-					Key:  testKey,
-					Size: testContentLen,
+					Key: testKey,
 				},
 			},
 		})

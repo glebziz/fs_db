@@ -9,7 +9,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
-func (db *db) SetReader(ctx context.Context, key string, reader io.Reader, size uint64) error {
+func (db *db) SetReader(ctx context.Context, key string, reader io.Reader) error {
 	stream, err := db.client.SetFile(ctx)
 	if err != nil {
 		return fmt.Errorf("set file: %w", grpc.ClientError(err))
@@ -18,8 +18,7 @@ func (db *db) SetReader(ctx context.Context, key string, reader io.Reader, size 
 	err = stream.Send(&store.SetFileRequest{
 		Data: &store.SetFileRequest_Header{
 			Header: &store.FileHeader{
-				Key:  key,
-				Size: size,
+				Key: key,
 			},
 		},
 	})

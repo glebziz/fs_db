@@ -1,22 +1,19 @@
-//go:build !windows
-
 package disk
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"syscall"
 
 	diskUtil "github.com/shirou/gopsutil/disk"
 
 	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
-func (d *disk) Usage(ctx context.Context, path string) (*model.Stat, error) {
+func Usage(ctx context.Context, path string) (*model.Stat, error) {
 	st, err := diskUtil.UsageWithContext(ctx, path)
-	if errors.Is(err, syscall.ENOENT) {
+	if errors.Is(err, os.ErrPathNotFound) {
 		err = os.MkdirAll(path, 0700)
 		if err != nil {
 			return nil, fmt.Errorf("mkdir all: %w", err)

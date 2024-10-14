@@ -3,13 +3,14 @@ package store
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
-func (u *useCase) Get(ctx context.Context, key string) (*model.Content, error) {
+func (u *useCase) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	txId := model.GetTxId(ctx)
 	tx, err := u.txRepo.Get(ctx, txId)
 	if err != nil {
@@ -41,7 +42,7 @@ func (u *useCase) Get(ctx context.Context, key string) (*model.Content, error) {
 		return nil, fmt.Errorf("content file repository get: %w", err)
 	}
 
-	content, err := u.cRepo.Get(ctx, cf.GetPath())
+	content, err := u.cRepo.Get(ctx, cf.Path())
 	if err != nil {
 		return nil, fmt.Errorf("content repository get: %w", err)
 	}

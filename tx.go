@@ -47,8 +47,8 @@ func (t *tx) Set(ctx context.Context, key string, b []byte) error {
 	return nil
 }
 
-func (t *tx) SetReader(ctx context.Context, key string, reader io.Reader, size uint64) error {
-	err := t.store.SetReader(t.ctxFn(ctx), key, reader, size)
+func (t *tx) SetReader(ctx context.Context, key string, reader io.Reader) error {
+	err := t.store.SetReader(t.ctxFn(ctx), key, reader)
 	if err != nil {
 		return fmt.Errorf("store set reader: %w", err)
 	}

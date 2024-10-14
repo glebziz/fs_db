@@ -10,73 +10,11 @@ package mock_dir
 
 import (
 	context "context"
-	model "github.com/glebziz/fs_db/internal/model"
 	reflect "reflect"
 
+	model "github.com/glebziz/fs_db/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
-
-// MockrootUseCase is a mock of rootUseCase interface.
-type MockrootUseCase struct {
-	ctrl     *gomock.Controller
-	recorder *MockrootUseCaseMockRecorder
-}
-
-// MockrootUseCaseMockRecorder is the mock recorder for MockrootUseCase.
-type MockrootUseCaseMockRecorder struct {
-	mock *MockrootUseCase
-}
-
-// NewMockrootUseCase creates a new mock instance.
-func NewMockrootUseCase(ctrl *gomock.Controller) *MockrootUseCase {
-	mock := &MockrootUseCase{ctrl: ctrl}
-	mock.recorder = &MockrootUseCaseMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockrootUseCase) EXPECT() *MockrootUseCaseMockRecorder {
-	return m.recorder
-}
-
-// Get mocks base method.
-func (m *MockrootUseCase) Get(ctx context.Context) (model.RootMap, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx)
-	ret0, _ := ret[0].(model.RootMap)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Get indicates an expected call of Get.
-func (mr *MockrootUseCaseMockRecorder) Get(ctx any) *rootUseCaseGetCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockrootUseCase)(nil).Get), ctx)
-	return &rootUseCaseGetCall{Call: call}
-}
-
-// rootUseCaseGetCall wrap *gomock.Call
-type rootUseCaseGetCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *rootUseCaseGetCall) Return(arg0 model.RootMap, arg1 error) *rootUseCaseGetCall {
-	c.Call = c.Call.Return(arg0, arg1)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *rootUseCaseGetCall) Do(f func(context.Context) (model.RootMap, error)) *rootUseCaseGetCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *rootUseCaseGetCall) DoAndReturn(f func(context.Context) (model.RootMap, error)) *rootUseCaseGetCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
 
 // MockdirRepository is a mock of dirRepository interface.
 type MockdirRepository struct {
@@ -140,10 +78,10 @@ func (c *dirRepositoryCreateCall) DoAndReturn(f func(context.Context, model.Dir)
 }
 
 // Get mocks base method.
-func (m *MockdirRepository) Get(ctx context.Context) ([]model.Dir, error) {
+func (m *MockdirRepository) Get(ctx context.Context) (model.Dirs, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx)
-	ret0, _ := ret[0].([]model.Dir)
+	ret0, _ := ret[0].(model.Dirs)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -161,19 +99,96 @@ type dirRepositoryGetCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *dirRepositoryGetCall) Return(arg0 []model.Dir, arg1 error) *dirRepositoryGetCall {
+func (c *dirRepositoryGetCall) Return(arg0 model.Dirs, arg1 error) *dirRepositoryGetCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *dirRepositoryGetCall) Do(f func(context.Context) ([]model.Dir, error)) *dirRepositoryGetCall {
+func (c *dirRepositoryGetCall) Do(f func(context.Context) (model.Dirs, error)) *dirRepositoryGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *dirRepositoryGetCall) DoAndReturn(f func(context.Context) ([]model.Dir, error)) *dirRepositoryGetCall {
+func (c *dirRepositoryGetCall) DoAndReturn(f func(context.Context) (model.Dirs, error)) *dirRepositoryGetCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// GetRoots mocks base method.
+func (m *MockdirRepository) GetRoots(ctx context.Context) ([]model.Root, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRoots", ctx)
+	ret0, _ := ret[0].([]model.Root)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRoots indicates an expected call of GetRoots.
+func (mr *MockdirRepositoryMockRecorder) GetRoots(ctx any) *dirRepositoryGetRootsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoots", reflect.TypeOf((*MockdirRepository)(nil).GetRoots), ctx)
+	return &dirRepositoryGetRootsCall{Call: call}
+}
+
+// dirRepositoryGetRootsCall wrap *gomock.Call
+type dirRepositoryGetRootsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *dirRepositoryGetRootsCall) Return(arg0 []model.Root, arg1 error) *dirRepositoryGetRootsCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *dirRepositoryGetRootsCall) Do(f func(context.Context) ([]model.Root, error)) *dirRepositoryGetRootsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *dirRepositoryGetRootsCall) DoAndReturn(f func(context.Context) ([]model.Root, error)) *dirRepositoryGetRootsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// Remove mocks base method.
+func (m *MockdirRepository) Remove(ctx context.Context, d model.Dir) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Remove", ctx, d)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Remove indicates an expected call of Remove.
+func (mr *MockdirRepositoryMockRecorder) Remove(ctx, d any) *dirRepositoryRemoveCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockdirRepository)(nil).Remove), ctx, d)
+	return &dirRepositoryRemoveCall{Call: call}
+}
+
+// dirRepositoryRemoveCall wrap *gomock.Call
+type dirRepositoryRemoveCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *dirRepositoryRemoveCall) Return(arg0 error) *dirRepositoryRemoveCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *dirRepositoryRemoveCall) Do(f func(context.Context, model.Dir) error) *dirRepositoryRemoveCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *dirRepositoryRemoveCall) DoAndReturn(f func(context.Context, model.Dir) error) *dirRepositoryRemoveCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

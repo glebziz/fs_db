@@ -21,7 +21,7 @@ func (r *rep) Get(ctx context.Context, id string) (*model.ContentFile, error) {
 	if rows.Next() {
 		var file model.ContentFile
 
-		err = rows.Scan(&file.Id, &file.ParentPath)
+		err = rows.Scan(&file.Id, &file.Parent)
 		if err != nil {
 			return nil, fmt.Errorf("scan: %w", err)
 		}

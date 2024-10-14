@@ -42,8 +42,8 @@ func TestCleaner_deleteContent_Success(t *testing.T) {
 				td.cfRepo.EXPECT().
 					GetIn(gomock.Any(), []string{testContentId}).
 					Return([]model.ContentFile{{
-						Id:         testContentId,
-						ParentPath: testParent,
+						Id:     testContentId,
+						Parent: testParent,
 					}}, nil)
 
 				td.cRepo.EXPECT().
@@ -64,11 +64,11 @@ func TestCleaner_deleteContent_Success(t *testing.T) {
 				td.cfRepo.EXPECT().
 					GetIn(gomock.Any(), []string{testContentId, testContentId2}).
 					Return([]model.ContentFile{{
-						Id:         testContentId,
-						ParentPath: testParent,
+						Id:     testContentId,
+						Parent: testParent,
 					}, {
-						Id:         testContentId2,
-						ParentPath: testParent,
+						Id:     testContentId2,
+						Parent: testParent,
 					}}, nil)
 
 				td.cRepo.EXPECT().

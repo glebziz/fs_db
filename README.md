@@ -24,7 +24,7 @@ type Store interface {
 Set(ctx context.Context, key string, b []byte) error
 
 // SetReader sets the reader content using the key.
-SetReader(ctx context.Context, key string, reader io.Reader, size uint64) error
+SetReader(ctx context.Context, key string, reader io.Reader) error
 
 // Get returns content by key.
 Get(ctx context.Context, key string) ([]byte, error)

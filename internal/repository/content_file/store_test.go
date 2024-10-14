@@ -16,13 +16,13 @@ func TestRep_Store_Success(t *testing.T) {
 
 	var (
 		file1 = model.ContentFile{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
+			Id:     gofakeit.UUID(),
+			Parent: gofakeit.UUID(),
 		}
 
 		file2 = model.ContentFile{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
+			Id:     gofakeit.UUID(),
+			Parent: gofakeit.UUID(),
 		}
 	)
 
@@ -46,8 +46,8 @@ func TestRep_Create_Error(t *testing.T) {
 
 	var (
 		file = model.ContentFile{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
+			Id:     gofakeit.UUID(),
+			Parent: gofakeit.UUID(),
 		}
 	)
 
@@ -60,8 +60,8 @@ func TestRep_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 
 	err = r.Store(ctx, model.ContentFile{
-		Id:         file.Id,
-		ParentPath: gofakeit.UUID(),
+		Id:     file.Id,
+		Parent: gofakeit.UUID(),
 	})
 	require.Error(t, err)
 }

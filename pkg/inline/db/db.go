@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"fmt"
+	"io"
+	"math/rand/v2"
 
 	"github.com/reugn/go-quartz/quartz"
 
@@ -16,10 +18,8 @@ import (
 	txRepo "github.com/glebziz/fs_db/internal/repository/transaction"
 	cleanerUseCase "github.com/glebziz/fs_db/internal/usecase/cleaner"
 	dirUseCase "github.com/glebziz/fs_db/internal/usecase/dir"
-	rootUseCase "github.com/glebziz/fs_db/internal/usecase/root"
 	storeUseCase "github.com/glebziz/fs_db/internal/usecase/store"
 	txUseCase "github.com/glebziz/fs_db/internal/usecase/transaction"
-	"github.com/glebziz/fs_db/internal/utils/disk"
 	"github.com/glebziz/fs_db/internal/utils/generator"
 )
 
@@ -31,8 +31,8 @@ type cleaner interface {
 }
 
 type storeUsecase interface {
-	Set(ctx context.Context, key string, content *model.Content) error
-	Get(ctx context.Context, key string) (*model.Content, error)
+	Set(ctx context.Context, key string, content io.Reader) error
+	Get(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 }
 
@@ -67,9 +67,13 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 
 	contentRep := contentRepo.New()
 	contentFileRep := contentFileRepo.New(manager)
-	dirRep := dirRepo.New(manager)
 	fileRep := fileRepo.New(manager)
 	txRep := txRepo.New()
+
+	dirRep, err := dirRepo.New(cfg.RootDirs)
+	if err != nil {
+		return nil, fmt.Errorf("dir new: %w", err)
+	}
 
 	cl := cleanerUseCase.New(
 		sched, contentRep,
@@ -77,12 +81,12 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		txRep,
 	)
 
-	rootUc := rootUseCase.New(cfg.RootDirs, disk.GetDisk(), dirRep)
-	dirUc := dirUseCase.New(cfg.MaxDirCount, rootUc, dirRep, gen)
+	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)
 	storeUc := storeUseCase.New(
 		dirUc, contentRep,
 		contentFileRep, fileRep,
 		txRep, gen,
+		rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64())),
 	)
 	txUx := txUseCase.New(cl, fileRep, txRep, gen)
 

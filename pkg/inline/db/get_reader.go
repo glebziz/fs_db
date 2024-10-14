@@ -12,5 +12,5 @@ func (db *db) GetReader(ctx context.Context, key string) (io.ReadCloser, error) 
 		return nil, fmt.Errorf("store usecase get: %w", err)
 	}
 
-	return content.Reader, nil
+	return content, nil
 }

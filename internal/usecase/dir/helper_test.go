@@ -11,19 +11,17 @@ import (
 
 var (
 	testMaxCount  = uint64(10_000)
-	testId        = gofakeit.UUID()
+	testName      = gofakeit.UUID()
+	testName2     = gofakeit.UUID()
 	testRootPath  = gofakeit.UUID()
 	testRootPath2 = gofakeit.UUID()
-	testFileCount = uint64(1000)
-	testSize      = uint64(10)
 )
 
 type prepareFunc func(td *testDeps) error
 
 type testDeps struct {
-	root  *mock_dir.MockrootUseCase
-	dRepo *mock_dir.MockdirRepository
-	idGen *mock_dir.Mockgenerator
+	dRepo   *mock_dir.MockdirRepository
+	nameGen *mock_dir.Mockgenerator
 }
 
 func newTestDeps(t *testing.T) *testDeps {
@@ -33,15 +31,14 @@ func newTestDeps(t *testing.T) *testDeps {
 	idGen.EXPECT().
 		Generate().
 		AnyTimes().
-		Return(testId)
+		Return(testName)
 
 	return &testDeps{
-		root:  mock_dir.NewMockrootUseCase(ctrl),
-		dRepo: mock_dir.NewMockdirRepository(ctrl),
-		idGen: idGen,
+		dRepo:   mock_dir.NewMockdirRepository(ctrl),
+		nameGen: idGen,
 	}
 }
 
 func (d *testDeps) newUseCase() *useCase {
-	return New(testMaxCount, d.root, d.dRepo, d.idGen)
+	return New(testMaxCount, d.dRepo, d.nameGen)
 }
