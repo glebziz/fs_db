@@ -17,8 +17,8 @@ func TestRep_Delete_Success(t *testing.T) {
 
 	var (
 		tx = model.Transaction{
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 1,
 		}
 	)
 

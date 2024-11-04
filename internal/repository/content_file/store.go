@@ -8,21 +8,9 @@ import (
 )
 
 func (r *rep) Store(ctx context.Context, file model.ContentFile) error {
-	res, err := r.p.DB(ctx).Exec(ctx, `
-		insert into content_file(id, parent_path)
-		values ($1, $2)`,
-		file.Id, file.Parent)
+	err := r.p.DB(ctx).Set(r.key(file.Id), []byte(file.Parent))
 	if err != nil {
-		return fmt.Errorf("exec: %w", err)
-	}
-
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("rows affected: %w", err)
-	}
-
-	if affected == 0 {
-		return fmt.Errorf("no rows are affected")
+		return fmt.Errorf("db set: %w", err)
 	}
 
 	return nil

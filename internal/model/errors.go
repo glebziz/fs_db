@@ -5,6 +5,10 @@ import (
 	"io"
 )
 
+var (
+	ErrInvalidFileFormat = fmt.Errorf("invalid file format")
+)
+
 type NotEnoughSpaceError struct {
 	Err error
 

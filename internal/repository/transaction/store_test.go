@@ -17,12 +17,12 @@ func TestRep_Store_Success(t *testing.T) {
 
 	var (
 		tx1 = model.Transaction{
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 1,
 		}
 		tx2 = model.Transaction{
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 2,
 		}
 	)
 
@@ -46,8 +46,8 @@ func TestRep_Create_Error(t *testing.T) {
 
 	var (
 		tx = model.Transaction{
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 1,
 		}
 	)
 
@@ -55,8 +55,8 @@ func TestRep_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 
 	err = r.Store(testCtx, model.Transaction{
-		Id:       tx.Id,
-		CreateTs: gofakeit.Date(),
+		Id:  tx.Id,
+		Seq: 1,
 	})
 	require.ErrorIs(t, err, fs_db.TxAlreadyExistsErr)
 }

@@ -26,6 +26,7 @@ func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error 
 		}
 		file = model.File{
 			Key:       key,
+			TxId:      model.GetTxId(ctx),
 			ContentId: cFile.Id,
 		}
 	)
@@ -76,8 +77,7 @@ func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error 
 		return fmt.Errorf("content file repository store: %w", err)
 	}
 
-	txId := model.GetTxId(ctx)
-	err = u.fRepo.Store(ctx, txId, file)
+	err = u.fRepo.Store(ctx, file)
 	if err != nil {
 		return fmt.Errorf("file repository store: %w", err)
 	}

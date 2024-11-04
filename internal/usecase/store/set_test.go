@@ -39,6 +39,7 @@ func TestUseCase_Set_Success(t *testing.T) {
 		}
 		file = model.File{
 			Key:       testKey,
+			TxId:      testTxId,
 			ContentId: testContentId,
 		}
 		content = testReader
@@ -74,7 +75,7 @@ func TestUseCase_Set_Success(t *testing.T) {
 		Return(nil)
 
 	td.fRepo.EXPECT().
-		Store(gomock.Any(), testTxId, file).
+		Store(gomock.Any(), file).
 		Return(nil)
 
 	uc := td.newUseCase()
@@ -181,7 +182,7 @@ func TestUseCase_Set_Error(t *testing.T) {
 					Return(nil)
 
 				td.fRepo.EXPECT().
-					Store(gomock.Any(), gomock.Any(), gomock.Any()).
+					Store(gomock.Any(), gomock.Any()).
 					Return(assert.AnError)
 
 				return assert.AnError

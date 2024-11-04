@@ -9,7 +9,7 @@ import (
 	"github.com/reugn/go-quartz/quartz"
 
 	"github.com/glebziz/fs_db/config"
-	dbManager "github.com/glebziz/fs_db/internal/db"
+	"github.com/glebziz/fs_db/internal/db/badger"
 	"github.com/glebziz/fs_db/internal/model"
 	contentRepo "github.com/glebziz/fs_db/internal/repository/content"
 	contentFileRepo "github.com/glebziz/fs_db/internal/repository/content_file"
@@ -17,6 +17,7 @@ import (
 	fileRepo "github.com/glebziz/fs_db/internal/repository/file"
 	txRepo "github.com/glebziz/fs_db/internal/repository/transaction"
 	cleanerUseCase "github.com/glebziz/fs_db/internal/usecase/cleaner"
+	"github.com/glebziz/fs_db/internal/usecase/core"
 	dirUseCase "github.com/glebziz/fs_db/internal/usecase/dir"
 	storeUseCase "github.com/glebziz/fs_db/internal/usecase/store"
 	txUseCase "github.com/glebziz/fs_db/internal/usecase/transaction"
@@ -48,7 +49,7 @@ type db struct {
 	sUc  storeUsecase
 	txUc txUsecase
 
-	manager *dbManager.Manager
+	manager io.Closer
 }
 
 func New(ctx context.Context, cfg *config.Storage) (*db, error) {
@@ -56,7 +57,7 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		return nil, fmt.Errorf("invalid config: %w", err)
 	}
 
-	manager, err := dbManager.New(ctx, cfg.DbPath)
+	manager, err := badger.New(cfg.DbPath)
 	if err != nil {
 		return nil, fmt.Errorf("db new: %w", err)
 	}
@@ -75,20 +76,22 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		return nil, fmt.Errorf("dir new: %w", err)
 	}
 
+	coreUseCase := core.New(fileRep)
+
 	cl := cleanerUseCase.New(
 		sched, contentRep,
-		contentFileRep, fileRep,
+		contentFileRep, coreUseCase,
 		txRep,
 	)
 
 	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)
 	storeUc := storeUseCase.New(
 		dirUc, contentRep,
-		contentFileRep, fileRep,
+		contentFileRep, coreUseCase,
 		txRep, gen,
 		rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64())),
 	)
-	txUx := txUseCase.New(cl, fileRep, txRep, gen)
+	txUx := txUseCase.New(coreUseCase, txRep, gen)
 
 	err = cl.Run(ctx)
 	if err != nil {

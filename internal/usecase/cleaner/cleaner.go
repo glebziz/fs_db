@@ -7,6 +7,7 @@ import (
 	"github.com/reugn/go-quartz/quartz"
 
 	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
 const (
@@ -28,12 +29,12 @@ type contentRepository interface {
 }
 
 type contentFileRepository interface {
-	GetIn(ctx context.Context, ids []string) ([]model.ContentFile, error)
-	Delete(ctx context.Context, ids []string) error
+	Get(ctx context.Context, id string) (model.ContentFile, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type fileRepository interface {
-	HardDelete(ctx context.Context, txId string, filter *model.FileFilter) (contentIds []string, err error)
+	DeleteOld(ctx context.Context, txId string, beforeSeq sequence.Seq)
 }
 
 type transactionRepository interface {

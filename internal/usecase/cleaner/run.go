@@ -10,6 +10,7 @@ import (
 )
 
 func (c *Cleaner) Run(ctx context.Context) error {
+	return nil
 	err := c.sched.ScheduleJob(
 		quartz.NewJobDetail(
 			job.NewFunctionJob(func(ctx context.Context) (any, error) {

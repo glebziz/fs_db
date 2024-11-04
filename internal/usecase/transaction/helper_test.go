@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/brianvoe/gofakeit/v6"
 	"go.uber.org/mock/gomock"
 
 	"github.com/glebziz/fs_db"
@@ -12,18 +11,18 @@ import (
 	"github.com/glebziz/fs_db/internal/usecase/transaction/mocks"
 )
 
-var (
-	testId       = gofakeit.UUID()
+const (
+	testId       = "testId"
 	testIsoLevel = fs_db.IsoLevelDefault
+)
 
+var (
 	testCtx = model.StoreTxId(context.Background(), testId)
 )
 
-type prepareFunc func(td *testDeps) error
+type prepareFunc func(td *testDeps)
 
 type testDeps struct {
-	cleaner *mock_transaction.Mockcleaner
-
 	fRepo  *mock_transaction.MockfileRepository
 	txRepo *mock_transaction.MocktxRepository
 
@@ -40,16 +39,12 @@ func newTestDeps(t *testing.T) *testDeps {
 		Return(testId)
 
 	return &testDeps{
-		cleaner: mock_transaction.NewMockcleaner(ctrl),
-		fRepo:   mock_transaction.NewMockfileRepository(ctrl),
-		txRepo:  mock_transaction.NewMocktxRepository(ctrl),
-		idGen:   idGen,
+		fRepo:  mock_transaction.NewMockfileRepository(ctrl),
+		txRepo: mock_transaction.NewMocktxRepository(ctrl),
+		idGen:  idGen,
 	}
 }
 
 func (d *testDeps) newUseCase() *useCase {
-	return New(
-		d.cleaner, d.fRepo,
-		d.txRepo, d.idGen,
-	)
+	return New(d.fRepo, d.txRepo, d.idGen)
 }

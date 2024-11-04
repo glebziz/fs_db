@@ -11,40 +11,52 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func TestUseCase_Begin_Success(t *testing.T) {
-	t.Parallel()
+func TestUseCase_Begin(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		prepare prepareFunc
+		txId    string
+		err     error
+	}{
+		{
+			name: "success",
+			prepare: func(td *testDeps) {
+				td.txRepo.EXPECT().
+					Store(gomock.Any(), gomock.Cond(func(x any) bool {
+						tx, ok := x.(model.Transaction)
+						if !ok {
+							return false
+						}
 
-	td := newTestDeps(t)
+						return tx.Id == testId && tx.IsoLevel == testIsoLevel
+					})).
+					Times(1).
+					Return(nil)
+			},
+			txId: testId,
+		},
+		{
+			name: "begin error",
+			prepare: func(td *testDeps) {
+				td.txRepo.EXPECT().
+					Store(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(assert.AnError)
+			},
+			err: assert.AnError,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	td.txRepo.EXPECT().
-		Store(gomock.Any(), gomock.Any()).
-		DoAndReturn(func(_ context.Context, tx model.Transaction) error {
-			require.Equal(t, testId, tx.Id)
-			require.Equal(t, testIsoLevel, tx.IsoLevel)
-			return nil
+			td := newTestDeps(t)
+			tc.prepare(td)
+
+			u := td.newUseCase()
+			txId, err := u.Begin(context.Background(), testIsoLevel)
+
+			require.ErrorIs(t, err, tc.err)
+			require.Equal(t, tc.txId, txId)
 		})
-
-	uc := td.newUseCase()
-
-	txId, err := uc.Begin(context.Background(), testIsoLevel)
-
-	require.NoError(t, err)
-	require.Equal(t, testId, txId)
-}
-
-func TestUseCase_Begin_Error(t *testing.T) {
-	t.Parallel()
-
-	td := newTestDeps(t)
-
-	td.txRepo.EXPECT().
-		Store(gomock.Any(), gomock.Any()).
-		Return(assert.AnError)
-
-	uc := td.newUseCase()
-
-	txId, err := uc.Begin(context.Background(), testIsoLevel)
-
-	require.ErrorIs(t, err, assert.AnError)
-	require.Zero(t, txId)
+	}
 }

@@ -16,67 +16,6 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// Mockcleaner is a mock of cleaner interface.
-type Mockcleaner struct {
-	ctrl     *gomock.Controller
-	recorder *MockcleanerMockRecorder
-}
-
-// MockcleanerMockRecorder is the mock recorder for Mockcleaner.
-type MockcleanerMockRecorder struct {
-	mock *Mockcleaner
-}
-
-// NewMockcleaner creates a new mock instance.
-func NewMockcleaner(ctrl *gomock.Controller) *Mockcleaner {
-	mock := &Mockcleaner{ctrl: ctrl}
-	mock.recorder = &MockcleanerMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *Mockcleaner) EXPECT() *MockcleanerMockRecorder {
-	return m.recorder
-}
-
-// Clean mocks base method.
-func (m *Mockcleaner) Clean(contentIds []string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Clean", contentIds)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Clean indicates an expected call of Clean.
-func (mr *MockcleanerMockRecorder) Clean(contentIds any) *cleanerCleanCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clean", reflect.TypeOf((*Mockcleaner)(nil).Clean), contentIds)
-	return &cleanerCleanCall{Call: call}
-}
-
-// cleanerCleanCall wrap *gomock.Call
-type cleanerCleanCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *cleanerCleanCall) Return(arg0 error) *cleanerCleanCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *cleanerCleanCall) Do(f func([]string) error) *cleanerCleanCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *cleanerCleanCall) DoAndReturn(f func([]string) error) *cleanerCleanCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // MockfileRepository is a mock of fileRepository interface.
 type MockfileRepository struct {
 	ctrl     *gomock.Controller
@@ -100,47 +39,44 @@ func (m *MockfileRepository) EXPECT() *MockfileRepositoryMockRecorder {
 	return m.recorder
 }
 
-// HardDelete mocks base method.
-func (m *MockfileRepository) HardDelete(ctx context.Context, txId string, filter *model.FileFilter) ([]string, error) {
+// DeleteTx mocks base method.
+func (m *MockfileRepository) DeleteTx(ctx context.Context, txId string) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HardDelete", ctx, txId, filter)
-	ret0, _ := ret[0].([]string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	m.ctrl.Call(m, "DeleteTx", ctx, txId)
 }
 
-// HardDelete indicates an expected call of HardDelete.
-func (mr *MockfileRepositoryMockRecorder) HardDelete(ctx, txId, filter any) *fileRepositoryHardDeleteCall {
+// DeleteTx indicates an expected call of DeleteTx.
+func (mr *MockfileRepositoryMockRecorder) DeleteTx(ctx, txId any) *fileRepositoryDeleteTxCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HardDelete", reflect.TypeOf((*MockfileRepository)(nil).HardDelete), ctx, txId, filter)
-	return &fileRepositoryHardDeleteCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTx", reflect.TypeOf((*MockfileRepository)(nil).DeleteTx), ctx, txId)
+	return &fileRepositoryDeleteTxCall{Call: call}
 }
 
-// fileRepositoryHardDeleteCall wrap *gomock.Call
-type fileRepositoryHardDeleteCall struct {
+// fileRepositoryDeleteTxCall wrap *gomock.Call
+type fileRepositoryDeleteTxCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *fileRepositoryHardDeleteCall) Return(contentIds []string, err error) *fileRepositoryHardDeleteCall {
-	c.Call = c.Call.Return(contentIds, err)
+func (c *fileRepositoryDeleteTxCall) Return() *fileRepositoryDeleteTxCall {
+	c.Call = c.Call.Return()
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *fileRepositoryHardDeleteCall) Do(f func(context.Context, string, *model.FileFilter) ([]string, error)) *fileRepositoryHardDeleteCall {
+func (c *fileRepositoryDeleteTxCall) Do(f func(context.Context, string)) *fileRepositoryDeleteTxCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *fileRepositoryHardDeleteCall) DoAndReturn(f func(context.Context, string, *model.FileFilter) ([]string, error)) *fileRepositoryHardDeleteCall {
+func (c *fileRepositoryDeleteTxCall) DoAndReturn(f func(context.Context, string)) *fileRepositoryDeleteTxCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // UpdateTx mocks base method.
-func (m *MockfileRepository) UpdateTx(ctx context.Context, oldTxId, newTxId string, filter *model.FileFilter) error {
+func (m *MockfileRepository) UpdateTx(ctx context.Context, oldTxId, newTxId string, filter model.FileFilter) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateTx", ctx, oldTxId, newTxId, filter)
 	ret0, _ := ret[0].(error)
@@ -166,13 +102,13 @@ func (c *fileRepositoryUpdateTxCall) Return(arg0 error) *fileRepositoryUpdateTxC
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *fileRepositoryUpdateTxCall) Do(f func(context.Context, string, string, *model.FileFilter) error) *fileRepositoryUpdateTxCall {
+func (c *fileRepositoryUpdateTxCall) Do(f func(context.Context, string, string, model.FileFilter) error) *fileRepositoryUpdateTxCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *fileRepositoryUpdateTxCall) DoAndReturn(f func(context.Context, string, string, *model.FileFilter) error) *fileRepositoryUpdateTxCall {
+func (c *fileRepositoryUpdateTxCall) DoAndReturn(f func(context.Context, string, string, model.FileFilter) error) *fileRepositoryUpdateTxCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

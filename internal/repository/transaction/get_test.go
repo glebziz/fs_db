@@ -17,11 +17,11 @@ func TestRep_Get_Success(t *testing.T) {
 
 	var (
 		txs = []model.Transaction{{
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 1,
 		}, {
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 2,
 		}}
 	)
 

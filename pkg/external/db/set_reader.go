@@ -28,7 +28,8 @@ func (db *db) SetReader(ctx context.Context, key string, reader io.Reader) error
 
 	buf := make([]byte, store.ChunkSize_MAX)
 	for {
-		n, err := reader.Read(buf)
+		var n int
+		n, err = reader.Read(buf)
 		if err == io.EOF {
 			break
 		}

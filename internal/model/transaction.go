@@ -2,7 +2,8 @@ package model
 
 import (
 	"context"
-	"time"
+
+	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
 const (
@@ -16,7 +17,7 @@ type TxIsoLevel uint8
 type Transaction struct {
 	Id       string
 	IsoLevel TxIsoLevel
-	CreateTs time.Time
+	Seq      sequence.Seq
 }
 
 func StoreTxId(ctx context.Context, txId string) context.Context {

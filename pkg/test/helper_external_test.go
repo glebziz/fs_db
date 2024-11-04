@@ -42,7 +42,7 @@ func newTestDb(t testing.TB) fs_db.DB {
 
 	cl, err := inlineDb.New(testCtx, &config.Storage{
 		MaxDirCount: 100,
-		DbPath:      path.Join(dir, "test.db"),
+		DbPath:      path.Join(dir, "test_db"),
 		RootDirs:    []string{path.Join(dir, gofakeit.UUID()), path.Join(dir, gofakeit.UUID())},
 	})
 	require.NoError(t, err)

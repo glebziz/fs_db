@@ -21,13 +21,12 @@ type contentRepository interface {
 
 type contentFileRepository interface {
 	Store(ctx context.Context, file model.ContentFile) error
-	Get(ctx context.Context, id string) (*model.ContentFile, error)
+	Get(ctx context.Context, id string) (model.ContentFile, error)
 }
 
 type fileRepository interface {
-	Store(ctx context.Context, txId string, file model.File) error
-	Get(ctx context.Context, txId, key string, filter *model.FileFilter) (*model.File, error)
-	Delete(ctx context.Context, txId, key string) error
+	Store(ctx context.Context, file model.File) error
+	Get(ctx context.Context, txId, key string, filter model.FileFilter) (model.File, error)
 }
 
 type txRepository interface {
