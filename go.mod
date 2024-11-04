@@ -5,7 +5,6 @@ go 1.23.0
 require (
 	github.com/brianvoe/gofakeit/v6 v6.26.3
 	github.com/dgraph-io/badger/v3 v3.2103.5
-	github.com/dusted-go/logging v1.1.3
 	github.com/glebziz/containers v1.0.2
 	github.com/google/uuid v1.5.0
 	github.com/mattn/go-sqlite3 v1.14.19

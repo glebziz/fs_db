@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-
-	"github.com/dusted-go/logging/prettylog"
 )
 
 var (
@@ -13,7 +11,7 @@ var (
 )
 
 func init() {
-	logger = slog.New(prettylog.NewHandler(nil))
+	logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	slog.SetDefault(logger)
 }
