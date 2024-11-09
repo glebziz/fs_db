@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"sync"
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/core"
@@ -19,9 +18,6 @@ type fileRepository interface {
 type useCase struct {
 	txStore  core.Transactions
 	allStore core.Transaction
-
-	m           sync.Mutex
-	deleteFiles []model.File
 
 	fileRepo fileRepository
 }

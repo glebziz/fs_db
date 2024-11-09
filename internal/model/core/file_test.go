@@ -140,7 +140,7 @@ func TestFile_PushBack(t *testing.T) {
 			n: nil,
 			requireF: func(t *testing.T, f *file) {
 				require.Empty(t, f.arr)
-				require.True(t, f.l.isEmpty())
+				require.True(t, f.l.IsEmpty())
 			},
 		},
 		{
@@ -157,7 +157,7 @@ func TestFile_PushBack(t *testing.T) {
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Len(t, f.arr, 1)
-				require.True(t, f.arr[0] == f.l.back())
+				require.True(t, f.arr[0] == f.l.Back())
 			},
 		},
 		{
@@ -172,7 +172,7 @@ func TestFile_PushBack(t *testing.T) {
 					},
 				}
 
-				f.l.pushBack(n)
+				f.l.PushBack(n)
 				f.arr = append(f.arr, n)
 
 				return f
@@ -186,8 +186,8 @@ func TestFile_PushBack(t *testing.T) {
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Len(t, f.arr, 2)
-				require.True(t, f.arr[1] == f.l.back())
-				require.True(t, f.arr[0] == f.l.front())
+				require.True(t, f.arr[1] == f.l.Back())
+				require.True(t, f.arr[0] == f.l.Front())
 			},
 		},
 	} {
@@ -225,7 +225,7 @@ func TestFile_PopBack(t *testing.T) {
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Empty(t, f.arr)
-				require.True(t, f.l.isEmpty())
+				require.True(t, f.l.IsEmpty())
 			},
 			n: nil,
 		},
@@ -242,7 +242,7 @@ func TestFile_PopBack(t *testing.T) {
 					},
 				}
 
-				f.l.pushBack(n)
+				f.l.PushBack(n)
 				f.arr = append(f.arr, n)
 
 				return f
@@ -256,7 +256,7 @@ func TestFile_PopBack(t *testing.T) {
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Empty(t, f.arr)
-				require.True(t, f.l.isEmpty())
+				require.True(t, f.l.IsEmpty())
 			},
 		},
 		{
@@ -278,15 +278,15 @@ func TestFile_PopBack(t *testing.T) {
 					},
 				}
 
-				f.l.pushBack(n1)
-				f.l.pushBack(n2)
+				f.l.PushBack(n1)
+				f.l.PushBack(n2)
 				f.arr = append(f.arr, n1, n2)
 
 				return f
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Len(t, f.arr, 1)
-				require.True(t, f.arr[0] == f.l.back())
+				require.True(t, f.arr[0] == f.l.Back())
 			},
 			n: &Node[model.File]{
 				v: model.File{
@@ -332,7 +332,7 @@ func TestFile_PopFront(t *testing.T) {
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Empty(t, f.arr)
-				require.True(t, f.l.isEmpty())
+				require.True(t, f.l.IsEmpty())
 			},
 			n: nil,
 		},
@@ -348,7 +348,7 @@ func TestFile_PopFront(t *testing.T) {
 					},
 				}
 
-				f.l.pushBack(n)
+				f.l.PushBack(n)
 				f.arr = append(f.arr, n)
 
 				return f
@@ -362,7 +362,7 @@ func TestFile_PopFront(t *testing.T) {
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Empty(t, f.arr)
-				require.True(t, f.l.isEmpty())
+				require.True(t, f.l.IsEmpty())
 			},
 		},
 		{
@@ -384,15 +384,15 @@ func TestFile_PopFront(t *testing.T) {
 					},
 				}
 
-				f.l.pushBack(n1)
-				f.l.pushBack(n2)
+				f.l.PushBack(n1)
+				f.l.PushBack(n2)
 				f.arr = append(f.arr, n1, n2)
 
 				return f
 			},
 			requireF: func(t *testing.T, f *file) {
 				require.Len(t, f.arr, 1)
-				require.True(t, f.arr[0] == f.l.back())
+				require.True(t, f.arr[0] == f.l.Back())
 			},
 			n: &Node[model.File]{
 				v: model.File{

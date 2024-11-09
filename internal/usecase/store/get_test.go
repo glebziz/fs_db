@@ -74,7 +74,7 @@ func TestUseCase_Get_Success(t *testing.T) {
 
 			td.txRepo.EXPECT().
 				Get(gomock.Any(), testTxId).
-				Return(&tx, nil)
+				Return(tx, nil)
 
 			td.fRepo.EXPECT().
 				Get(gomock.Any(), testTxId, testKey, tc.filter).
@@ -108,7 +108,7 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(nil, assert.AnError)
+					Return(model.Transaction{}, assert.AnError)
 
 				return assert.AnError
 			},
@@ -118,7 +118,7 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(&model.Transaction{}, nil)
+					Return(model.Transaction{}, nil)
 
 				td.fRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
@@ -132,7 +132,7 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(&model.Transaction{}, nil)
+					Return(model.Transaction{}, nil)
 
 				td.fRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
@@ -154,7 +154,7 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(&model.Transaction{}, nil)
+					Return(model.Transaction{}, nil)
 
 				td.fRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).

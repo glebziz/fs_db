@@ -10,21 +10,19 @@ import (
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/core"
-	mock_core "github.com/glebziz/fs_db/internal/usecase/core/mocks"
 )
 
 func TestUseCase_Store(t *testing.T) {
 	for _, tc := range []struct {
-		name       string
-		newUseCase func(t *testing.T) *useCase
-		requireU   func(t *testing.T, u *useCase)
-		err        error
+		name        string
+		initUseCase initUseCaseFunc
+		requireU    requireUseCaseFunc
+		err         error
 	}{
 		{
 			name: "new tx",
-			newUseCase: func(t *testing.T) *useCase {
-				fRepo := mock_core.NewMockfileRepository(gomock.NewController(t))
-				fRepo.EXPECT().
+			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+				td.fileRepo.EXPECT().
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).
 					DoAndReturn(func(_ context.Context, file model.File) error {
@@ -37,7 +35,7 @@ func TestUseCase_Store(t *testing.T) {
 						return nil
 					})
 
-				return New(fRepo)
+				return td.newUseCase(), model.FileFilter{}
 			},
 			requireU: func(t *testing.T, u *useCase) {
 				tx, ok := u.txStore.Get(testTxId)
@@ -57,9 +55,8 @@ func TestUseCase_Store(t *testing.T) {
 		},
 		{
 			name: "tx already exists",
-			newUseCase: func(t *testing.T) *useCase {
-				fRepo := mock_core.NewMockfileRepository(gomock.NewController(t))
-				fRepo.EXPECT().
+			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+				td.fileRepo.EXPECT().
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).
 					DoAndReturn(func(_ context.Context, file model.File) error {
@@ -72,7 +69,7 @@ func TestUseCase_Store(t *testing.T) {
 						return nil
 					})
 
-				u := New(fRepo)
+				u := td.newUseCase()
 				tx := &core.Transaction{}
 
 				tx.PushBack((&core.Node[model.File]{}).SetV(model.File{
@@ -85,7 +82,7 @@ func TestUseCase_Store(t *testing.T) {
 				}))
 				u.txStore.Put(testTxId, tx)
 
-				return u
+				return u, model.FileFilter{}
 			},
 			requireU: func(t *testing.T, u *useCase) {
 				tx, ok := u.txStore.Get(testTxId)
@@ -105,14 +102,13 @@ func TestUseCase_Store(t *testing.T) {
 		},
 		{
 			name: "file repo error",
-			newUseCase: func(t *testing.T) *useCase {
-				fRepo := mock_core.NewMockfileRepository(gomock.NewController(t))
-				fRepo.EXPECT().
+			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+				td.fileRepo.EXPECT().
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(assert.AnError)
 
-				return New(fRepo)
+				return td.newUseCase(), model.FileFilter{}
 			},
 			err: assert.AnError,
 		},
@@ -120,14 +116,13 @@ func TestUseCase_Store(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			file := model.File{
+			td := newTestDeps(t)
+			u, _ := tc.initUseCase(td)
+			err := u.Store(context.Background(), model.File{
 				Key:       testKey,
 				TxId:      testTxId,
 				ContentId: testContentId,
-			}
-
-			u := tc.newUseCase(t)
-			err := u.Store(context.Background(), file)
+			})
 
 			require.ErrorIs(t, err, tc.err)
 

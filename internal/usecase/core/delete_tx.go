@@ -6,10 +6,10 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (u *useCase) DeleteTx(_ context.Context, txId string) {
+func (u *useCase) DeleteTx(_ context.Context, txId string) []model.File {
 	tx := u.txStore.Delete(txId)
 	if tx == nil {
-		return
+		return nil
 	}
 
 	tx.Lock()
@@ -22,11 +22,6 @@ func (u *useCase) DeleteTx(_ context.Context, txId string) {
 	defer u.allStore.Unlock()
 
 	deleteFiles := make([]model.File, 0, tx.Len())
-	defer func() {
-		u.m.Lock()
-		u.deleteFiles = append(u.deleteFiles, deleteFiles...)
-		u.m.Unlock()
-	}()
 	for _, f := range tx.Files() {
 		for n := f.PopFront(); n != nil; n = f.PopFront() {
 			deleteFiles = append(deleteFiles, n.V())
@@ -34,4 +29,6 @@ func (u *useCase) DeleteTx(_ context.Context, txId string) {
 			// TODO free node
 		}
 	}
+
+	return deleteFiles
 }

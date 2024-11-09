@@ -403,10 +403,10 @@ func (m *MocktxRepository) EXPECT() *MocktxRepositoryMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MocktxRepository) Get(ctx context.Context, id string) (*model.Transaction, error) {
+func (m *MocktxRepository) Get(ctx context.Context, id string) (model.Transaction, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, id)
-	ret0, _ := ret[0].(*model.Transaction)
+	ret0, _ := ret[0].(model.Transaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -424,19 +424,19 @@ type txRepositoryGetCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *txRepositoryGetCall) Return(arg0 *model.Transaction, arg1 error) *txRepositoryGetCall {
+func (c *txRepositoryGetCall) Return(arg0 model.Transaction, arg1 error) *txRepositoryGetCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *txRepositoryGetCall) Do(f func(context.Context, string) (*model.Transaction, error)) *txRepositoryGetCall {
+func (c *txRepositoryGetCall) Do(f func(context.Context, string) (model.Transaction, error)) *txRepositoryGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *txRepositoryGetCall) DoAndReturn(f func(context.Context, string) (*model.Transaction, error)) *txRepositoryGetCall {
+func (c *txRepositoryGetCall) DoAndReturn(f func(context.Context, string) (model.Transaction, error)) *txRepositoryGetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

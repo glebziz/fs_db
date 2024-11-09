@@ -8,14 +8,18 @@ import (
 
 //go:generate mockgen -source usecase.go -destination mocks/mocks.go -typed true
 
+type cleaner interface {
+	DeleteFilesAsync(ctx context.Context, files []model.File)
+}
+
 type fileRepository interface {
-	UpdateTx(ctx context.Context, oldTxId string, newTxId string, filter model.FileFilter) error
-	DeleteTx(ctx context.Context, txId string)
+	UpdateTx(ctx context.Context, oldTxId string, newTxId string, filter model.FileFilter) ([]model.File, error)
+	DeleteTx(ctx context.Context, txId string) []model.File
 }
 
 type txRepository interface {
 	Store(ctx context.Context, tx model.Transaction) error
-	Delete(ctx context.Context, id string) (*model.Transaction, error)
+	Delete(ctx context.Context, id string) (model.Transaction, error)
 }
 
 type generator interface {
@@ -23,19 +27,21 @@ type generator interface {
 }
 
 type useCase struct {
-	fRepo  fileRepository
-	txRepo txRepository
+	cleaner cleaner
+	fRepo   fileRepository
+	txRepo  txRepository
 
 	idGen generator
 }
 
 func New(
-	fRepo fileRepository, txRepo txRepository,
-	idGen generator,
+	cleaner cleaner, fRepo fileRepository,
+	txRepo txRepository, idGen generator,
 ) *useCase {
 	return &useCase{
-		fRepo:  fRepo,
-		txRepo: txRepo,
-		idGen:  idGen,
+		cleaner: cleaner,
+		fRepo:   fRepo,
+		txRepo:  txRepo,
+		idGen:   idGen,
 	}
 }

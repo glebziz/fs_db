@@ -30,7 +30,7 @@ type fileRepository interface {
 }
 
 type txRepository interface {
-	Get(ctx context.Context, id string) (*model.Transaction, error)
+	Get(ctx context.Context, id string) (model.Transaction, error)
 }
 
 type generator interface {

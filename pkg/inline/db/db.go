@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
-
-	"github.com/reugn/go-quartz/quartz"
+	"time"
 
 	"github.com/glebziz/fs_db/config"
 	"github.com/glebziz/fs_db/internal/db/badger"
@@ -22,13 +21,13 @@ import (
 	storeUseCase "github.com/glebziz/fs_db/internal/usecase/store"
 	txUseCase "github.com/glebziz/fs_db/internal/usecase/transaction"
 	"github.com/glebziz/fs_db/internal/utils/generator"
+	"github.com/glebziz/fs_db/internal/utils/wpool"
 )
 
 //go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
 
-type cleaner interface {
-	Run(ctx context.Context) error
-	Stop(ctx context.Context) error
+type pool interface {
+	Stop()
 }
 
 type storeUsecase interface {
@@ -44,7 +43,7 @@ type txUsecase interface {
 }
 
 type db struct {
-	cleaner cleaner
+	pool pool
 
 	sUc  storeUsecase
 	txUc txUsecase
@@ -64,7 +63,10 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 
 	gen := generator.New()
 
-	sched := quartz.NewStdScheduler()
+	p := wpool.New(wpool.Options{
+		NumWorkers:   10,
+		SendDuration: time.Millisecond,
+	})
 
 	contentRep := contentRepo.New()
 	contentFileRep := contentFileRepo.New(manager)
@@ -78,11 +80,17 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 
 	coreUseCase := core.New(fileRep)
 
-	cl := cleanerUseCase.New(
-		sched, contentRep,
-		contentFileRep, coreUseCase,
-		txRep,
+	cleaner := cleanerUseCase.New(
+		coreUseCase, contentRep,
+		contentFileRep, fileRep,
+		p, txRep,
 	)
+	p.Sched(ctx, wpool.Event{
+		Caller: "DeleteOld every minute",
+		Fn: func(ctx context.Context) error {
+			return cleaner.DeleteOld(ctx)
+		},
+	}, time.Minute)
 
 	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)
 	storeUc := storeUseCase.New(
@@ -91,15 +99,11 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		txRep, gen,
 		rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64())),
 	)
-	txUx := txUseCase.New(coreUseCase, txRep, gen)
-
-	err = cl.Run(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("cleaner run: %w", err)
-	}
+	txUx := txUseCase.New(cleaner, coreUseCase, txRep, gen)
+	p.Run(ctx)
 
 	return &db{
-		cleaner: cl,
+		pool:    p,
 		sUc:     storeUc,
 		txUc:    txUx,
 		manager: manager,
@@ -115,12 +119,8 @@ func (db *db) GetTxUseCase() txUsecase {
 }
 
 func (db *db) Close() error {
-	err := db.cleaner.Stop(context.Background())
-	if err != nil {
-		return fmt.Errorf("cleaner stop: %w", err)
-	}
-
-	err = db.manager.Close()
+	db.pool.Stop()
+	err := db.manager.Close()
 	if err != nil {
 		return fmt.Errorf("manager close: %w", err)
 	}

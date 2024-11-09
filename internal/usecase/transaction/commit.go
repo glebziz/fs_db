@@ -25,7 +25,10 @@ func (u *useCase) Commit(ctx context.Context) error {
 		filter.BeforeSeq = ptr.Ptr(tx.Seq)
 	}
 
-	err = u.fRepo.UpdateTx(ctx, txId, model.MainTxId, filter)
+	deleteFiles, err := u.fRepo.UpdateTx(ctx, txId, model.MainTxId, filter)
+	if len(deleteFiles) > 0 {
+		u.cleaner.DeleteFilesAsync(ctx, deleteFiles)
+	}
 	if err != nil {
 		return fmt.Errorf("file repository update tx: %w", err)
 	}

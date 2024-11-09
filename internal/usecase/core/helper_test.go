@@ -4,9 +4,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/core"
+	mock_core "github.com/glebziz/fs_db/internal/usecase/core/mocks"
 )
 
 const (
@@ -25,6 +27,27 @@ const (
 	testContentId6 = "testContentId6"
 )
 
+type initUseCaseFunc func(td *testDeps) (*useCase, model.FileFilter)
+type requireUseCaseFunc func(t *testing.T, u *useCase)
+
+type testDeps struct {
+	t        *testing.T
+	fileRepo *mock_core.MockfileRepository
+}
+
+func newTestDeps(t *testing.T) *testDeps {
+	ctrl := gomock.NewController(t)
+
+	return &testDeps{
+		t:        t,
+		fileRepo: mock_core.NewMockfileRepository(ctrl),
+	}
+}
+
+func (td *testDeps) newUseCase() *useCase {
+	return New(td.fileRepo)
+}
+
 func requireEqualFiles(t *testing.T, a, b model.File) {
 	t.Helper()
 
@@ -33,8 +56,8 @@ func requireEqualFiles(t *testing.T, a, b model.File) {
 	require.Equal(t, a.TxId, b.TxId)
 }
 
-func (u *useCase) testStore(t *testing.T, f model.File) {
-	t.Helper()
+func (u *useCase) testStore(td *testDeps, f model.File) {
+	td.t.Helper()
 
 	tx, ok := u.txStore.Get(f.TxId)
 	if !ok {
@@ -45,8 +68,8 @@ func (u *useCase) testStore(t *testing.T, f model.File) {
 	u.storeToTx(tx, f)
 }
 
-func (u *useCase) testAddEmptyTx(t *testing.T, txId string, keys ...string) {
-	t.Helper()
+func (u *useCase) testAddEmptyTx(td *testDeps, txId string, keys ...string) {
+	td.t.Helper()
 
 	tx := &core.Transaction{}
 	u.txStore.Put(txId, tx)

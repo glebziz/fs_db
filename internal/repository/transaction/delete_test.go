@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"context"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -24,9 +25,9 @@ func TestRep_Delete_Success(t *testing.T) {
 
 	testCreateTransaction(t, r, tx)
 
-	actual, err := r.Delete(testCtx, tx.Id)
+	actual, err := r.Delete(context.Background(), tx.Id)
 	require.NoError(t, err)
-	require.Equal(t, &tx, actual)
+	require.Equal(t, tx, actual)
 }
 
 func TestRep_Delete_Error(t *testing.T) {
@@ -34,7 +35,7 @@ func TestRep_Delete_Error(t *testing.T) {
 
 	r := New()
 
-	actual, err := r.Delete(testCtx, gofakeit.UUID())
+	actual, err := r.Delete(context.Background(), gofakeit.UUID())
 	require.ErrorIs(t, err, fs_db.TxNotFoundErr)
-	require.Nil(t, actual)
+	require.Equal(t, model.Transaction{}, actual)
 }

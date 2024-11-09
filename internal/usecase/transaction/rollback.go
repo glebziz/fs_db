@@ -14,6 +14,9 @@ func (u *useCase) Rollback(ctx context.Context) error {
 		return fmt.Errorf("tx repository delete: %w", err)
 	}
 
-	u.fRepo.DeleteTx(ctx, txId)
+	deleteFiles := u.fRepo.DeleteTx(ctx, txId)
+	if len(deleteFiles) > 0 {
+		u.cleaner.DeleteFilesAsync(ctx, deleteFiles)
+	}
 	return nil
 }

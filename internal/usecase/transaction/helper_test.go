@@ -23,8 +23,9 @@ var (
 type prepareFunc func(td *testDeps)
 
 type testDeps struct {
-	fRepo  *mock_transaction.MockfileRepository
-	txRepo *mock_transaction.MocktxRepository
+	cleaner *mock_transaction.Mockcleaner
+	fRepo   *mock_transaction.MockfileRepository
+	txRepo  *mock_transaction.MocktxRepository
 
 	idGen *mock_transaction.Mockgenerator
 }
@@ -39,12 +40,13 @@ func newTestDeps(t *testing.T) *testDeps {
 		Return(testId)
 
 	return &testDeps{
-		fRepo:  mock_transaction.NewMockfileRepository(ctrl),
-		txRepo: mock_transaction.NewMocktxRepository(ctrl),
-		idGen:  idGen,
+		cleaner: mock_transaction.NewMockcleaner(ctrl),
+		fRepo:   mock_transaction.NewMockfileRepository(ctrl),
+		txRepo:  mock_transaction.NewMocktxRepository(ctrl),
+		idGen:   idGen,
 	}
 }
 
-func (d *testDeps) newUseCase() *useCase {
-	return New(d.fRepo, d.txRepo, d.idGen)
+func (td *testDeps) newUseCase() *useCase {
+	return New(td.cleaner, td.fRepo, td.txRepo, td.idGen)
 }

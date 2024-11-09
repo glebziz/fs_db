@@ -6,23 +6,63 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestList_isEmpty(t *testing.T) {
+func TestList_Clear(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		l    func() *List[int]
+	}{
+		{
+			name: "uninitiated list",
+			l: func() *List[int] {
+				return &List[int]{}
+			},
+		},
+		{
+			name: "empty list",
+			l: func() *List[int] {
+				l := List[int]{}
+				l.root.next = &l.root
+				l.root.prev = &l.root
+				return &l
+			},
+		},
+		{
+			name: "non empty list",
+			l: func() *List[int] {
+				l := List[int]{}
+				l.PushBack(&Node[int]{})
+				return &l
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			l := tc.l()
+			l.Clear()
+
+			require.True(t, l.IsEmpty())
+		})
+	}
+}
+
+func TestList_IsEmpty(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
-		l       func() *list[int]
+		l       func() *List[int]
 		isEmpty bool
 	}{
 		{
-			name: "empty list with nil root",
-			l: func() *list[int] {
-				return &list[int]{}
+			name: "empty List with nil root",
+			l: func() *List[int] {
+				return &List[int]{}
 			},
 			isEmpty: true,
 		},
 		{
-			name: "empty list",
-			l: func() *list[int] {
-				l := &list[int]{}
+			name: "empty List",
+			l: func() *List[int] {
+				l := &List[int]{}
 
 				l.root.next = &l.root
 				l.root.prev = &l.root
@@ -32,9 +72,9 @@ func TestList_isEmpty(t *testing.T) {
 			isEmpty: true,
 		},
 		{
-			name: "non empty list",
-			l: func() *list[int] {
-				l := &list[int]{}
+			name: "non empty List",
+			l: func() *List[int] {
+				l := &List[int]{}
 				n := &Node[int]{
 					next: &l.root,
 					prev: &l.root,
@@ -51,27 +91,27 @@ func TestList_isEmpty(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			isEmpty := tc.l().isEmpty()
+			isEmpty := tc.l().IsEmpty()
 			require.Equal(t, tc.isEmpty, isEmpty)
 		})
 	}
 }
 
-func TestList_back(t *testing.T) {
+func TestList_Back(t *testing.T) {
 	for _, tc := range []struct {
 		name string
-		l    func() (*list[int], *Node[int])
+		l    func() (*List[int], *Node[int])
 	}{
 		{
-			name: "empty list with nil root",
-			l: func() (*list[int], *Node[int]) {
-				return &list[int]{}, nil
+			name: "empty List with nil root",
+			l: func() (*List[int], *Node[int]) {
+				return &List[int]{}, nil
 			},
 		},
 		{
-			name: "empty list",
-			l: func() (*list[int], *Node[int]) {
-				l := &list[int]{}
+			name: "empty List",
+			l: func() (*List[int], *Node[int]) {
+				l := &List[int]{}
 
 				l.root.next = &l.root
 				l.root.prev = &l.root
@@ -80,9 +120,9 @@ func TestList_back(t *testing.T) {
 			},
 		},
 		{
-			name: "list with one node",
-			l: func() (*list[int], *Node[int]) {
-				l := &list[int]{}
+			name: "List with one node",
+			l: func() (*List[int], *Node[int]) {
+				l := &List[int]{}
 				n := &Node[int]{
 					next: &l.root,
 					prev: &l.root,
@@ -95,9 +135,9 @@ func TestList_back(t *testing.T) {
 			},
 		},
 		{
-			name: "list with multiple nodes",
-			l: func() (*list[int], *Node[int]) {
-				l := &list[int]{}
+			name: "List with multiple nodes",
+			l: func() (*List[int], *Node[int]) {
+				l := &List[int]{}
 				n1 := &Node[int]{}
 				n2 := &Node[int]{}
 
@@ -117,27 +157,27 @@ func TestList_back(t *testing.T) {
 
 			l, n := tc.l()
 
-			back := l.back()
+			back := l.Back()
 			require.Equal(t, n, back)
 		})
 	}
 }
 
-func TestList_front(t *testing.T) {
+func TestList_Front(t *testing.T) {
 	for _, tc := range []struct {
 		name string
-		l    func() (*list[int], *Node[int])
+		l    func() (*List[int], *Node[int])
 	}{
 		{
-			name: "empty list with nil root",
-			l: func() (*list[int], *Node[int]) {
-				return &list[int]{}, nil
+			name: "empty List with nil root",
+			l: func() (*List[int], *Node[int]) {
+				return &List[int]{}, nil
 			},
 		},
 		{
-			name: "empty list",
-			l: func() (*list[int], *Node[int]) {
-				l := &list[int]{}
+			name: "empty List",
+			l: func() (*List[int], *Node[int]) {
+				l := &List[int]{}
 
 				l.root.next = &l.root
 				l.root.prev = &l.root
@@ -146,9 +186,9 @@ func TestList_front(t *testing.T) {
 			},
 		},
 		{
-			name: "list with one node",
-			l: func() (*list[int], *Node[int]) {
-				l := &list[int]{}
+			name: "List with one node",
+			l: func() (*List[int], *Node[int]) {
+				l := &List[int]{}
 				n := &Node[int]{
 					next: &l.root,
 					prev: &l.root,
@@ -161,9 +201,9 @@ func TestList_front(t *testing.T) {
 			},
 		},
 		{
-			name: "list with multiple nodes",
-			l: func() (*list[int], *Node[int]) {
-				l := &list[int]{}
+			name: "List with multiple nodes",
+			l: func() (*List[int], *Node[int]) {
+				l := &List[int]{}
 				n1 := &Node[int]{}
 				n2 := &Node[int]{}
 
@@ -183,28 +223,28 @@ func TestList_front(t *testing.T) {
 
 			l, n := tc.l()
 
-			front := l.front()
+			front := l.Front()
 			require.Equal(t, n, front)
 		})
 	}
 }
 
-func TestList_pushBack(t *testing.T) {
+func TestList_PushBack(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
-		l        func() *list[int]
+		l        func() *List[int]
 		n        *Node[int]
-		requireL func(t *testing.T, l *list[int])
+		requireL func(t *testing.T, l *List[int])
 	}{
 		{
-			name: "push to empty list",
-			l: func() *list[int] {
-				return &list[int]{}
+			name: "push to empty List",
+			l: func() *List[int] {
+				return &List[int]{}
 			},
 			n: &Node[int]{
 				v: 1,
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next == l.root.next)
 				require.True(t, l.root.next.next == &l.root)
 				require.True(t, l.root.next.prev == &l.root)
@@ -212,9 +252,9 @@ func TestList_pushBack(t *testing.T) {
 			},
 		},
 		{
-			name: "push to non empty list",
-			l: func() *list[int] {
-				l := &list[int]{}
+			name: "push to non empty List",
+			l: func() *List[int] {
+				l := &List[int]{}
 				n := &Node[int]{
 					v:    1,
 					next: &l.root,
@@ -229,7 +269,7 @@ func TestList_pushBack(t *testing.T) {
 			n: &Node[int]{
 				v: 2,
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next != l.root.prev)
 				require.True(t, l.root.next.prev == &l.root)
 				require.True(t, l.root.prev.next == &l.root)
@@ -244,25 +284,25 @@ func TestList_pushBack(t *testing.T) {
 			t.Parallel()
 
 			l := tc.l()
-			l.pushBack(tc.n)
+			l.PushBack(tc.n)
 			tc.requireL(t, l)
 		})
 	}
 }
 
-func TestList_popBack(t *testing.T) {
+func TestList_PopBack(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
-		l        func() *list[int]
-		requireL func(t *testing.T, l *list[int])
+		l        func() *List[int]
+		requireL func(t *testing.T, l *List[int])
 		n        *Node[int]
 	}{
 		{
-			name: "pop from empty list",
-			l: func() *list[int] {
-				return &list[int]{}
+			name: "pop from empty List",
+			l: func() *List[int] {
+				return &List[int]{}
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next == l.root.prev)
 				require.Nil(t, l.root.next)
 				require.Nil(t, l.root.prev)
@@ -270,9 +310,9 @@ func TestList_popBack(t *testing.T) {
 			n: nil,
 		},
 		{
-			name: "pop from list with one node",
-			l: func() *list[int] {
-				l := &list[int]{}
+			name: "pop from List with one node",
+			l: func() *List[int] {
+				l := &List[int]{}
 				n := &Node[int]{
 					v:    1,
 					next: &l.root,
@@ -284,7 +324,7 @@ func TestList_popBack(t *testing.T) {
 
 				return l
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next == l.root.prev)
 				require.True(t, l.root.next == &l.root)
 			},
@@ -293,9 +333,9 @@ func TestList_popBack(t *testing.T) {
 			},
 		},
 		{
-			name: "pop from list with multiple nodes",
-			l: func() *list[int] {
-				l := &list[int]{}
+			name: "pop from List with multiple nodes",
+			l: func() *List[int] {
+				l := &List[int]{}
 				n1 := &Node[int]{
 					v: 1,
 				}
@@ -312,7 +352,7 @@ func TestList_popBack(t *testing.T) {
 
 				return l
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next == l.root.prev)
 				require.True(t, l.root.next.next == &l.root)
 				require.True(t, l.root.prev.prev == &l.root)
@@ -327,26 +367,26 @@ func TestList_popBack(t *testing.T) {
 			t.Parallel()
 
 			l := tc.l()
-			n := l.popBack()
+			n := l.PopBack()
 			tc.requireL(t, l)
 			require.Equal(t, tc.n, n)
 		})
 	}
 }
 
-func TestList_popFront(t *testing.T) {
+func TestList_PopFront(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
-		l        func() *list[int]
-		requireL func(t *testing.T, l *list[int])
+		l        func() *List[int]
+		requireL func(t *testing.T, l *List[int])
 		n        *Node[int]
 	}{
 		{
-			name: "pop from empty list",
-			l: func() *list[int] {
-				return &list[int]{}
+			name: "pop from empty List",
+			l: func() *List[int] {
+				return &List[int]{}
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next == l.root.prev)
 				require.Nil(t, l.root.next)
 				require.Nil(t, l.root.prev)
@@ -354,9 +394,9 @@ func TestList_popFront(t *testing.T) {
 			n: nil,
 		},
 		{
-			name: "pop from list with one node",
-			l: func() *list[int] {
-				l := &list[int]{}
+			name: "pop from List with one node",
+			l: func() *List[int] {
+				l := &List[int]{}
 				n := &Node[int]{
 					v:    1,
 					next: &l.root,
@@ -368,7 +408,7 @@ func TestList_popFront(t *testing.T) {
 
 				return l
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next == l.root.prev)
 				require.True(t, l.root.next == &l.root)
 			},
@@ -377,9 +417,9 @@ func TestList_popFront(t *testing.T) {
 			},
 		},
 		{
-			name: "pop from list with multiple nodes",
-			l: func() *list[int] {
-				l := &list[int]{}
+			name: "pop from List with multiple nodes",
+			l: func() *List[int] {
+				l := &List[int]{}
 				n1 := &Node[int]{
 					v: 1,
 				}
@@ -396,7 +436,7 @@ func TestList_popFront(t *testing.T) {
 
 				return l
 			},
-			requireL: func(t *testing.T, l *list[int]) {
+			requireL: func(t *testing.T, l *List[int]) {
 				require.True(t, l.root.next == l.root.prev)
 				require.True(t, l.root.next.next == &l.root)
 				require.True(t, l.root.prev.prev == &l.root)
@@ -411,7 +451,7 @@ func TestList_popFront(t *testing.T) {
 			t.Parallel()
 
 			l := tc.l()
-			n := l.popFront()
+			n := l.PopFront()
 			tc.requireL(t, l)
 			require.Equal(t, tc.n, n)
 		})

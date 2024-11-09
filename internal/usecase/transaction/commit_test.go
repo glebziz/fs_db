@@ -25,7 +25,7 @@ func TestUseCase_Commit(t *testing.T) {
 				td.txRepo.EXPECT().
 					Delete(gomock.Any(), testId).
 					Times(1).
-					Return(&model.Transaction{
+					Return(model.Transaction{
 						Id:       testId,
 						IsoLevel: fs_db.IsoLevelReadCommitted,
 						Seq:      sequence.Next(),
@@ -34,7 +34,11 @@ func TestUseCase_Commit(t *testing.T) {
 				td.fRepo.EXPECT().
 					UpdateTx(gomock.Any(), testId, model.MainTxId, model.FileFilter{}).
 					Times(1).
-					Return(nil)
+					Return([]model.File{{}}, nil)
+
+				td.cleaner.EXPECT().
+					DeleteFilesAsync(gomock.Any(), []model.File{{}}).
+					Times(1)
 			},
 		},
 		{
@@ -45,7 +49,7 @@ func TestUseCase_Commit(t *testing.T) {
 				td.txRepo.EXPECT().
 					Delete(gomock.Any(), testId).
 					Times(1).
-					Return(&model.Transaction{
+					Return(model.Transaction{
 						Id:       testId,
 						IsoLevel: fs_db.IsoLevelSerializable,
 						Seq:      seq,
@@ -56,7 +60,7 @@ func TestUseCase_Commit(t *testing.T) {
 						BeforeSeq: ptr.Ptr(seq),
 					}).
 					Times(1).
-					Return(nil)
+					Return([]model.File{}, nil)
 			},
 		},
 		{
@@ -65,7 +69,7 @@ func TestUseCase_Commit(t *testing.T) {
 				td.txRepo.EXPECT().
 					Delete(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, assert.AnError)
+					Return(model.Transaction{}, assert.AnError)
 			},
 			err: assert.AnError,
 		},
@@ -75,12 +79,16 @@ func TestUseCase_Commit(t *testing.T) {
 				td.txRepo.EXPECT().
 					Delete(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(&model.Transaction{}, nil)
+					Return(model.Transaction{}, nil)
 
 				td.fRepo.EXPECT().
 					UpdateTx(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(assert.AnError)
+					Return([]model.File{{}}, assert.AnError)
+
+				td.cleaner.EXPECT().
+					DeleteFilesAsync(gomock.Any(), []model.File{{}}).
+					Times(1)
 			},
 			err: assert.AnError,
 		},

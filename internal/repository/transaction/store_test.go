@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"context"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -26,17 +27,17 @@ func TestRep_Store_Success(t *testing.T) {
 		}
 	)
 
-	err := r.Store(testCtx, tx1)
+	err := r.Store(context.Background(), tx1)
 	require.NoError(t, err)
 
-	err = r.Store(testCtx, tx2)
+	err = r.Store(context.Background(), tx2)
 	require.NoError(t, err)
 
 	actual := testGetTransaction(t, r, tx1.Id)
-	require.Equal(t, &tx1, actual)
+	require.Equal(t, tx1, actual)
 
 	actual = testGetTransaction(t, r, tx2.Id)
-	require.Equal(t, &tx2, actual)
+	require.Equal(t, tx2, actual)
 }
 
 func TestRep_Create_Error(t *testing.T) {
@@ -51,10 +52,10 @@ func TestRep_Create_Error(t *testing.T) {
 		}
 	)
 
-	err := r.Store(testCtx, tx)
+	err := r.Store(context.Background(), tx)
 	require.NoError(t, err)
 
-	err = r.Store(testCtx, model.Transaction{
+	err = r.Store(context.Background(), model.Transaction{
 		Id:  tx.Id,
 		Seq: 1,
 	})

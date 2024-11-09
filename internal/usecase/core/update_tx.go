@@ -10,10 +10,10 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, filter model.FileFilter) error {
+func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, filter model.FileFilter) (deleteFiles []model.File, err error) {
 	tx := u.txStore.Delete(oldTxId)
 	if tx == nil {
-		return nil
+		return nil, nil
 	}
 
 	tx.Lock()
@@ -30,18 +30,18 @@ func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, 
 
 	newTx.RLock()
 	var (
-		err error
-
-		files       = make([]model.File, 0, tx.Len())
-		freeNodes   = make([]*core.Node[model.File], 0, tx.Len())
-		deleteFiles = make([]model.File, 0, tx.Len())
+		files     = make([]model.File, 0, tx.Len())
+		freeNodes = make([]*core.Node[model.File], 0, tx.Len())
 	)
 	defer func() {
-		u.m.Lock()
-		u.deleteFiles = append(u.deleteFiles, deleteFiles...)
-		u.m.Unlock()
+		for _, n := range freeNodes {
+			n.DeleteLink() // TODO free link node
+			// TODO free node
+		}
+		deleteFiles = append(deleteFiles, files...)
 	}()
 
+	deleteFiles = make([]model.File, 0, tx.Len())
 	for key, f := range tx.Files() {
 		if filter.BeforeSeq != nil && newTx.File(key).Latest().Seq.After(*filter.BeforeSeq) {
 			err = fs_db.TxSerializationErr
@@ -65,17 +65,24 @@ func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, 
 	}
 	newTx.RUnlock()
 	if err != nil {
-		deleteFiles = append(deleteFiles, files...)
-		return err
+		return
 	}
 
 	if len(files) == 0 {
-		return nil
+		return
 	}
 
+	newTx.Lock()
+	u.allStore.Lock()
+	defer func() {
+		u.allStore.Unlock()
+		newTx.Unlock()
+	}()
+
 	err = u.fileRepo.RunTransaction(ctx, func(ctx context.Context) error {
-		for _, f := range files {
-			err = u.fileRepo.Set(ctx, f)
+		for i := range files {
+			files[i].Seq = sequence.Next()
+			err = u.fileRepo.Set(ctx, files[i])
 			if err != nil {
 				return fmt.Errorf("store to tx: %w", err)
 			}
@@ -84,21 +91,13 @@ func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, 
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("run transaction: %w", err)
+		return
 	}
 
-	newTx.Lock()
-	u.allStore.Lock()
 	for _, f := range files {
 		u.storeToTx(newTx, f)
 	}
-	newTx.Unlock()
 
-	for _, n := range freeNodes {
-		n.DeleteLink() // TODO free link node
-		// TODO free node
-	}
-	u.allStore.Unlock()
-
-	return nil
+	files = nil
+	return
 }

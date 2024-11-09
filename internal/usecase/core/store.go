@@ -10,10 +10,6 @@ import (
 )
 
 func (u *useCase) Store(ctx context.Context, f model.File) error {
-	err := u.fileRepo.Set(ctx, f)
-	if err != nil {
-		return fmt.Errorf("db set: %w", err)
-	}
 
 	tx, ok := u.txStore.Get(f.TxId)
 	if !ok {
@@ -23,16 +19,23 @@ func (u *useCase) Store(ctx context.Context, f model.File) error {
 
 	tx.Lock()
 	u.allStore.Lock()
+	defer func() {
+		u.allStore.Unlock()
+		tx.Unlock()
+	}()
+
+	f.Seq = sequence.Next()
+	err := u.fileRepo.Set(ctx, f)
+	if err != nil {
+		return fmt.Errorf("db set: %w", err)
+	}
+
 	u.storeToTx(tx, f)
-	u.allStore.Unlock()
-	tx.Unlock()
 
 	return nil
 }
 
 func (u *useCase) storeToTx(tx *core.Transaction, f model.File) {
-	f.Seq = sequence.Next()
-
 	var (
 		link = (&core.Node[model.File]{}).
 			SetV(f)

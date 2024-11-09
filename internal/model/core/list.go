@@ -1,47 +1,51 @@
 package core
 
-type list[T any] struct {
+type List[T any] struct {
 	root Node[T]
 }
 
-func (l *list[T]) isEmpty() bool {
+func (l *List[T]) Clear() {
+	l.root.next = &l.root
+	l.root.prev = &l.root
+}
+
+func (l *List[T]) IsEmpty() bool {
 	return l.root.next == nil || l.root.next == &l.root
 }
 
-func (l *list[T]) back() *Node[T] {
-	if l.isEmpty() {
+func (l *List[T]) Back() *Node[T] {
+	if l.IsEmpty() {
 		return nil
 	}
 
 	return l.root.prev
 }
 
-func (l *list[T]) front() *Node[T] {
-	if l.isEmpty() {
+func (l *List[T]) Front() *Node[T] {
+	if l.IsEmpty() {
 		return nil
 	}
 
 	return l.root.next
 }
 
-func (l *list[T]) pushBack(n *Node[T]) {
+func (l *List[T]) PushBack(n *Node[T]) {
 	if l.root.next == nil {
-		l.root.next = &l.root
-		l.root.prev = &l.root
+		l.Clear()
 	}
 
 	l.root.prev.insert(n)
 }
 
-func (l *list[T]) popBack() *Node[T] {
-	n := l.back()
+func (l *List[T]) PopBack() *Node[T] {
+	n := l.Back()
 	n.Delete()
 
 	return n
 }
 
-func (l *list[T]) popFront() *Node[T] {
-	n := l.front()
+func (l *List[T]) PopFront() *Node[T] {
+	n := l.Front()
 	n.Delete()
 
 	return n

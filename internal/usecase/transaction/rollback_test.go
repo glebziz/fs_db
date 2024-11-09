@@ -23,7 +23,7 @@ func TestUseCase_Rollback(t *testing.T) {
 				td.txRepo.EXPECT().
 					Delete(gomock.Any(), testId).
 					Times(1).
-					Return(&model.Transaction{
+					Return(model.Transaction{
 						Id:       testId,
 						IsoLevel: testIsoLevel,
 						Seq:      sequence.Next(),
@@ -32,7 +32,29 @@ func TestUseCase_Rollback(t *testing.T) {
 				td.fRepo.EXPECT().
 					DeleteTx(gomock.Any(), testId).
 					Times(1).
-					Return()
+					Return([]model.File{{}})
+
+				td.cleaner.EXPECT().
+					DeleteFilesAsync(gomock.Any(), []model.File{{}}).
+					Times(1)
+			},
+		},
+		{
+			name: "success with empty deleteFiles",
+			prepare: func(td *testDeps) {
+				td.txRepo.EXPECT().
+					Delete(gomock.Any(), testId).
+					Times(1).
+					Return(model.Transaction{
+						Id:       testId,
+						IsoLevel: testIsoLevel,
+						Seq:      sequence.Next(),
+					}, nil)
+
+				td.fRepo.EXPECT().
+					DeleteTx(gomock.Any(), testId).
+					Times(1).
+					Return(nil)
 			},
 		},
 		{
@@ -41,7 +63,7 @@ func TestUseCase_Rollback(t *testing.T) {
 				td.txRepo.EXPECT().
 					Delete(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, assert.AnError)
+					Return(model.Transaction{}, assert.AnError)
 			},
 			err: assert.AnError,
 		},
