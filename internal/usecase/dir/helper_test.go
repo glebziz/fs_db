@@ -3,21 +3,21 @@ package dir
 import (
 	"testing"
 
-	"github.com/brianvoe/gofakeit/v6"
 	"go.uber.org/mock/gomock"
 
 	"github.com/glebziz/fs_db/internal/usecase/dir/mocks"
 )
 
-var (
+const (
 	testMaxCount  = uint64(10_000)
-	testName      = gofakeit.UUID()
-	testName2     = gofakeit.UUID()
-	testRootPath  = gofakeit.UUID()
-	testRootPath2 = gofakeit.UUID()
+	testName      = "testName"
+	testName2     = "testName2"
+	testNewName   = "testNewName"
+	testRootPath  = "testRootPath"
+	testRootPath2 = "testRootPath2"
 )
 
-type prepareFunc func(td *testDeps) error
+type prepareFunc func(td *testDeps)
 
 type testDeps struct {
 	dRepo   *mock_dir.MockdirRepository
@@ -31,7 +31,7 @@ func newTestDeps(t *testing.T) *testDeps {
 	idGen.EXPECT().
 		Generate().
 		AnyTimes().
-		Return(testName)
+		Return(testNewName)
 
 	return &testDeps{
 		dRepo:   mock_dir.NewMockdirRepository(ctrl),
