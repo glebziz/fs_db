@@ -83,8 +83,8 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 
 	cleaner := cleanerUseCase.New(
 		coreUseCase, contentRep,
-		contentFileRep, fileRep,
-		p, txRep,
+		contentFileRep, dirRep,
+		fileRep, p, txRep,
 	)
 
 	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)

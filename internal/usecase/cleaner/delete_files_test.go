@@ -105,6 +105,14 @@ func TestUseCase_DeleteFiles(t *testing.T) {
 					Times(1).
 					Return(nil)
 
+				td.dRepo.EXPECT().
+					Add(gomock.Any(), model.Dir{
+						Name: testParent,
+						Root: ".",
+					}).
+					Times(1).
+					Return(nil)
+
 				td.cfRepo.EXPECT().
 					Delete(gomock.Any(), testContentId).
 					Times(1).
@@ -124,6 +132,14 @@ func TestUseCase_DeleteFiles(t *testing.T) {
 						Id:     testContentId2,
 						Parent: testParent2,
 					}, nil)
+
+				td.dRepo.EXPECT().
+					Add(gomock.Any(), model.Dir{
+						Name: testParent2,
+						Root: ".",
+					}).
+					Times(1).
+					Return(nil)
 
 				td.cRepo.EXPECT().
 					Delete(gomock.Any(), path.Join(testParent2, testContentId2)).
@@ -182,6 +198,32 @@ func TestUseCase_DeleteFiles(t *testing.T) {
 			err: assert.AnError,
 		},
 		{
+			name: "dir repo add error",
+			files: []model.File{{
+				ContentId: testContentId,
+			}},
+			prepare: func(td *testDeps) {
+				td.cfRepo.EXPECT().
+					Get(gomock.Any(), testContentId).
+					Times(1).
+					Return(model.ContentFile{
+						Id:     testContentId,
+						Parent: testParent,
+					}, nil)
+
+				td.cRepo.EXPECT().
+					Delete(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil)
+
+				td.dRepo.EXPECT().
+					Add(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(assert.AnError)
+			},
+			err: assert.AnError,
+		},
+		{
 			name: "content file delete error and file delete error",
 			files: []model.File{{
 				ContentId: testContentId,
@@ -207,6 +249,11 @@ func TestUseCase_DeleteFiles(t *testing.T) {
 
 				td.cRepo.EXPECT().
 					Delete(gomock.Any(), gomock.Any()).
+					Times(2).
+					Return(nil)
+
+				td.dRepo.EXPECT().
+					Add(gomock.Any(), gomock.Any()).
 					Times(2).
 					Return(nil)
 

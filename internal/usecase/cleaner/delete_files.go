@@ -65,6 +65,11 @@ func (u *useCase) deleteFile(ctx context.Context, file model.File) error {
 		return fmt.Errorf("content repo delete: %w", err)
 	}
 
+	err = u.dRepo.Add(ctx, model.ParseDir(cf.Parent))
+	if err != nil {
+		return fmt.Errorf("dir repo add: %w", err)
+	}
+
 	err = u.cfRepo.Delete(ctx, file.ContentId)
 	if err != nil {
 		return fmt.Errorf("content file repo delete: %w", err)

@@ -23,6 +23,10 @@ type contentFileRepository interface {
 	Delete(ctx context.Context, id string) error
 }
 
+type dirRepository interface {
+	Add(ctx context.Context, dir model.Dir) error
+}
+
 type fileRepository interface {
 	Delete(ctx context.Context, file model.File) error
 }
@@ -39,6 +43,7 @@ type useCase struct {
 	core   core
 	cRepo  contentRepository
 	cfRepo contentFileRepository
+	dRepo  dirRepository
 	fRepo  fileRepository
 	sender sender
 	txRepo transactionRepository
@@ -46,12 +51,14 @@ type useCase struct {
 
 func New(
 	core core, cRepo contentRepository,
-	cfRepo contentFileRepository, fRepo fileRepository,
-	sender sender, txRepo transactionRepository,
+	cfRepo contentFileRepository, dirRepo dirRepository,
+	fRepo fileRepository, sender sender,
+	txRepo transactionRepository,
 ) *useCase {
 	return &useCase{
 		core: core, cRepo: cRepo,
-		cfRepo: cfRepo, fRepo: fRepo,
-		sender: sender, txRepo: txRepo,
+		cfRepo: cfRepo, dRepo: dirRepo,
+		fRepo: fRepo, sender: sender,
+		txRepo: txRepo,
 	}
 }

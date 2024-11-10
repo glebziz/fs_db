@@ -240,6 +240,67 @@ func (c *contentFileRepositoryGetCall) DoAndReturn(f func(context.Context, strin
 	return c
 }
 
+// MockdirRepository is a mock of dirRepository interface.
+type MockdirRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockdirRepositoryMockRecorder
+}
+
+// MockdirRepositoryMockRecorder is the mock recorder for MockdirRepository.
+type MockdirRepositoryMockRecorder struct {
+	mock *MockdirRepository
+}
+
+// NewMockdirRepository creates a new mock instance.
+func NewMockdirRepository(ctrl *gomock.Controller) *MockdirRepository {
+	mock := &MockdirRepository{ctrl: ctrl}
+	mock.recorder = &MockdirRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockdirRepository) EXPECT() *MockdirRepositoryMockRecorder {
+	return m.recorder
+}
+
+// Add mocks base method.
+func (m *MockdirRepository) Add(ctx context.Context, dir model.Dir) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Add", ctx, dir)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Add indicates an expected call of Add.
+func (mr *MockdirRepositoryMockRecorder) Add(ctx, dir any) *dirRepositoryAddCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockdirRepository)(nil).Add), ctx, dir)
+	return &dirRepositoryAddCall{Call: call}
+}
+
+// dirRepositoryAddCall wrap *gomock.Call
+type dirRepositoryAddCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *dirRepositoryAddCall) Return(arg0 error) *dirRepositoryAddCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *dirRepositoryAddCall) Do(f func(context.Context, model.Dir) error) *dirRepositoryAddCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *dirRepositoryAddCall) DoAndReturn(f func(context.Context, model.Dir) error) *dirRepositoryAddCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // MockfileRepository is a mock of fileRepository interface.
 type MockfileRepository struct {
 	ctrl     *gomock.Controller

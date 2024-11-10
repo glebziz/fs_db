@@ -12,6 +12,13 @@ type Dir struct {
 	Free  uint64
 }
 
+func ParseDir(dirPath string) Dir {
+	return Dir{
+		Name: path.Base(dirPath),
+		Root: path.Dir(dirPath),
+	}
+}
+
 func (d *Dir) Path() string {
 	return path.Join(d.Root, d.Name)
 }
