@@ -22,7 +22,7 @@ func TestUseCase_DeleteFilesAsync(t *testing.T) {
 	}{
 		{
 			name:  "success",
-			files: []model.File{},
+			files: []model.File{{}},
 			prepare: func(td *testDeps) {
 				td.sender.EXPECT().
 					Send(gomock.Any(), gomock.Cond(func(x any) bool {
@@ -38,10 +38,15 @@ func TestUseCase_DeleteFilesAsync(t *testing.T) {
 						e.Fn(ctx)
 					}).
 					Times(1)
+
+				td.cfRepo.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(model.ContentFile{}, fs_db.NotFoundErr)
 			},
 		},
 		{
-			name:  "success",
+			name:  "Get content file error",
 			files: []model.File{{}},
 			prepare: func(td *testDeps) {
 				td.sender.EXPECT().

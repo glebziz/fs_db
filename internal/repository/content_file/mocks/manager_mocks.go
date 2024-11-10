@@ -118,18 +118,18 @@ func (c *QueryManagerGetCall) DoAndReturn(f func([]byte) ([]byte, error)) *Query
 }
 
 // GetAll mocks base method.
-func (m *MockQueryManager) GetAll() ([]badger.Item, error) {
+func (m *MockQueryManager) GetAll(prefix []byte) ([]badger.Item, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll")
+	ret := m.ctrl.Call(m, "GetAll", prefix)
 	ret0, _ := ret[0].([]badger.Item)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockQueryManagerMockRecorder) GetAll() *QueryManagerGetAllCall {
+func (mr *MockQueryManagerMockRecorder) GetAll(prefix any) *QueryManagerGetAllCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockQueryManager)(nil).GetAll))
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockQueryManager)(nil).GetAll), prefix)
 	return &QueryManagerGetAllCall{Call: call}
 }
 
@@ -145,13 +145,13 @@ func (c *QueryManagerGetAllCall) Return(arg0 []badger.Item, arg1 error) *QueryMa
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *QueryManagerGetAllCall) Do(f func() ([]badger.Item, error)) *QueryManagerGetAllCall {
+func (c *QueryManagerGetAllCall) Do(f func([]byte) ([]badger.Item, error)) *QueryManagerGetAllCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *QueryManagerGetAllCall) DoAndReturn(f func() ([]badger.Item, error)) *QueryManagerGetAllCall {
+func (c *QueryManagerGetAllCall) DoAndReturn(f func([]byte) ([]badger.Item, error)) *QueryManagerGetAllCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

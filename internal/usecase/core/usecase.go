@@ -13,6 +13,7 @@ import (
 type fileRepository interface {
 	transactor.Transactor
 	Set(ctx context.Context, file model.File) error
+	GetAll(ctx context.Context) ([]model.File, error)
 }
 
 type useCase struct {

@@ -2,6 +2,7 @@ package badger
 
 import (
 	"errors"
+	"slices"
 
 	"github.com/dgraph-io/badger/v3"
 
@@ -12,17 +13,17 @@ type transaction struct {
 	*badger.Txn
 }
 
-func (t transaction) GetAll() ([]Item, error) {
+func (t transaction) GetAll(prefix []byte) ([]Item, error) {
 	it := t.Txn.NewIterator(badger.DefaultIteratorOptions)
 	defer it.Close()
 
 	var items []Item
-	for it.Rewind(); it.Valid(); it.Next() {
+	for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
 		item := it.Item()
 		err := item.Value(func(val []byte) error {
 			items = append(items, Item{
-				Key:   item.Key(),
-				Value: val,
+				Key:   slices.Clone(item.Key()),
+				Value: slices.Clone(val),
 			})
 
 			return nil

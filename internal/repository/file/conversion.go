@@ -2,7 +2,6 @@ package file
 
 import (
 	"encoding/binary"
-	"unsafe"
 
 	"github.com/google/uuid"
 
@@ -54,7 +53,7 @@ func unmarshalFile(data []byte, f *model.File) error {
 	f.ContentId = uuid.UUID(data[timeLen+uuidLen : fileLenWithoutKey]).String()
 
 	if len(data)-fileLenWithoutKey > 0 {
-		f.Key = unsafe.String(&data[fileLenWithoutKey], len(data)-fileLenWithoutKey)
+		f.Key = string(data[fileLenWithoutKey:])
 	}
 
 	return nil

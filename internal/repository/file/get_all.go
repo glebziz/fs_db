@@ -7,7 +7,7 @@ import (
 )
 
 func (r *rep) GetAll(ctx context.Context) ([]model.File, error) {
-	items, err := r.p.DB(ctx).GetAll()
+	items, err := r.p.DB(ctx).GetAll(r.key(""))
 	if err != nil {
 		return nil, err
 	}

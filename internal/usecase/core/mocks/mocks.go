@@ -40,6 +40,45 @@ func (m *MockfileRepository) EXPECT() *MockfileRepositoryMockRecorder {
 	return m.recorder
 }
 
+// GetAll mocks base method.
+func (m *MockfileRepository) GetAll(ctx context.Context) ([]model.File, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret0, _ := ret[0].([]model.File)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockfileRepositoryMockRecorder) GetAll(ctx any) *fileRepositoryGetAllCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockfileRepository)(nil).GetAll), ctx)
+	return &fileRepositoryGetAllCall{Call: call}
+}
+
+// fileRepositoryGetAllCall wrap *gomock.Call
+type fileRepositoryGetAllCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *fileRepositoryGetAllCall) Return(arg0 []model.File, arg1 error) *fileRepositoryGetAllCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *fileRepositoryGetAllCall) Do(f func(context.Context) ([]model.File, error)) *fileRepositoryGetAllCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *fileRepositoryGetAllCall) DoAndReturn(f func(context.Context) ([]model.File, error)) *fileRepositoryGetAllCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // RunTransaction mocks base method.
 func (m *MockfileRepository) RunTransaction(ctx context.Context, fn transactor.TransactionFn) error {
 	m.ctrl.T.Helper()

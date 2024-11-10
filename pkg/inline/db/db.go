@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
+	"runtime"
 	"time"
 
 	"github.com/glebziz/fs_db/config"
@@ -64,7 +65,7 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 	gen := generator.New()
 
 	p := wpool.New(wpool.Options{
-		NumWorkers:   10,
+		NumWorkers:   runtime.GOMAXPROCS(0),
 		SendDuration: time.Millisecond,
 	})
 
@@ -85,12 +86,6 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		contentFileRep, fileRep,
 		p, txRep,
 	)
-	p.Sched(ctx, wpool.Event{
-		Caller: "DeleteOld every minute",
-		Fn: func(ctx context.Context) error {
-			return cleaner.DeleteOld(ctx)
-		},
-	}, time.Minute)
 
 	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)
 	storeUc := storeUseCase.New(
@@ -101,6 +96,18 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 	)
 	txUx := txUseCase.New(cleaner, coreUseCase, txRep, gen)
 	p.Run(ctx)
+
+	deleteFiles, err := coreUseCase.Load(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("load core: %w", err)
+	}
+	cleaner.DeleteFilesAsync(ctx, deleteFiles)
+	p.Sched(ctx, wpool.Event{
+		Caller: "DeleteOld every minute",
+		Fn: func(ctx context.Context) error {
+			return cleaner.DeleteOld(ctx)
+		},
+	}, time.Minute)
 
 	return &db{
 		pool:    p,

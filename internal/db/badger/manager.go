@@ -20,7 +20,7 @@ type manager struct {
 
 type QueryManager interface {
 	Set(key []byte, val []byte) error
-	GetAll() ([]Item, error)
+	GetAll(prefix []byte) ([]Item, error)
 	Get(key []byte) ([]byte, error)
 	Delete(key []byte) error
 }
@@ -49,9 +49,9 @@ func (m *manager) Set(key []byte, val []byte) error {
 	})
 }
 
-func (m *manager) GetAll() (items []Item, err error) {
+func (m *manager) GetAll(prefix []byte) (items []Item, err error) {
 	return items, m.db.View(func(txn *badger.Txn) error {
-		items, err = transaction{txn}.GetAll()
+		items, err = transaction{txn}.GetAll(prefix)
 		if err != nil {
 			return err
 		}

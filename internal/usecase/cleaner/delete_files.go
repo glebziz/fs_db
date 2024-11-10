@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
@@ -12,20 +13,24 @@ import (
 
 const (
 	deleteFilesAsyncCaller = "cleaner.DeleteFileAsync"
+
+	chunkSize = 1_000
 )
 
 func (u *useCase) DeleteFilesAsync(ctx context.Context, files []model.File) {
-	u.sender.Send(ctx, wpool.Event{
-		Caller: deleteFilesAsyncCaller,
-		Fn: func(ctx context.Context) error {
-			err := u.DeleteFiles(ctx, files)
-			if err != nil {
-				return fmt.Errorf("delete files: %w", err)
-			}
+	for cFiles := range slices.Chunk(files, chunkSize) {
+		u.sender.Send(ctx, wpool.Event{
+			Caller: deleteFilesAsyncCaller,
+			Fn: func(ctx context.Context) error {
+				err := u.DeleteFiles(ctx, cFiles)
+				if err != nil {
+					return fmt.Errorf("delete files: %w", err)
+				}
 
-			return nil
-		},
-	})
+				return nil
+			},
+		})
+	}
 }
 
 func (u *useCase) DeleteFiles(ctx context.Context, files []model.File) error {

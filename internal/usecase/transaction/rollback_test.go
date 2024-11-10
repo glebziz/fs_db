@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
+	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
@@ -55,6 +56,15 @@ func TestUseCase_Rollback(t *testing.T) {
 					DeleteTx(gomock.Any(), testId).
 					Times(1).
 					Return(nil)
+			},
+		},
+		{
+			name: "tx repo delete not found",
+			prepare: func(td *testDeps) {
+				td.txRepo.EXPECT().
+					Delete(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(model.Transaction{}, fs_db.TxNotFoundErr)
 			},
 		},
 		{

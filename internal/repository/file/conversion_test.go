@@ -113,6 +113,18 @@ func Test_marshalFile(t *testing.T) {
 			result: make([]byte, fileLenWithoutKey+len(testKey)),
 			err:    model.ErrInvalidFileFormat,
 		},
+		{
+			name: "invalid contentId format",
+			f: model.File{
+				Key:       testKey,
+				TxId:      testContentId,
+				ContentId: "testContentId",
+				Seq:       testSeq,
+			},
+			data:   make([]byte, fileLenWithoutKey+len(testKey)),
+			result: make([]byte, fileLenWithoutKey+len(testKey)),
+			err:    model.ErrInvalidFileFormat,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

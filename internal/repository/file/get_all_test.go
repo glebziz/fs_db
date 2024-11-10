@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	"github.com/glebziz/fs_db/internal/db/badger"
 	"github.com/glebziz/fs_db/internal/model"
@@ -40,7 +41,7 @@ func TestRep_GetAll(t *testing.T) {
 				require.NoError(t, err)
 
 				td.qm.EXPECT().
-					GetAll().
+					GetAll([]byte("file/")).
 					Times(1).
 					Return([]badger.Item{{
 						Key:   []byte(testContentId),
@@ -66,7 +67,7 @@ func TestRep_GetAll(t *testing.T) {
 			name: "files not found",
 			prepare: func(td *testDeps) {
 				td.qm.EXPECT().
-					GetAll().
+					GetAll(gomock.Any()).
 					Times(1).
 					Return(nil, nil)
 			},
@@ -76,7 +77,7 @@ func TestRep_GetAll(t *testing.T) {
 			name: "db get all error",
 			prepare: func(td *testDeps) {
 				td.qm.EXPECT().
-					GetAll().
+					GetAll(gomock.Any()).
 					Times(1).
 					Return(nil, assert.AnError)
 			},
@@ -95,7 +96,7 @@ func TestRep_GetAll(t *testing.T) {
 				require.NoError(t, err)
 
 				td.qm.EXPECT().
-					GetAll().
+					GetAll(gomock.Any()).
 					Times(1).
 					Return([]badger.Item{{
 						Key:   []byte(testContentId),
@@ -151,10 +152,10 @@ func TestRep_GetAll_Int(t *testing.T) {
 				}, data2)
 				require.NoError(t, err)
 
-				err = p.DB(context.Background()).Set([]byte(testContentId), data)
+				err = p.DB(context.Background()).Set(append([]byte("file/"), testContentId...), data)
 				require.NoError(t, err)
 
-				err = p.DB(context.Background()).Set([]byte(testContentId2), data2)
+				err = p.DB(context.Background()).Set(append([]byte("file/"), testContentId2...), data2)
 				require.NoError(t, err)
 			},
 			files: []model.File{{
