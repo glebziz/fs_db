@@ -41,13 +41,14 @@ func (u *useCase) Load(ctx context.Context) ([]model.File, error) {
 		maxSeq = sequence.Seq(1)
 		mainTx = &core.Transaction{}
 	)
+	u.txStore.Put(model.MainTxId, mainTx)
+
 	for _, file := range mainFiles {
 		maxSeq = max(maxSeq, file.Seq)
 		u.storeToTx(mainTx, file)
 	}
 
 	sequence.Set(maxSeq)
-	u.txStore.Put(model.MainTxId, mainTx)
 
 	return deleteFiles, nil
 }
