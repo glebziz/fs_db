@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/glebziz/fs_db/config"
-	"github.com/glebziz/fs_db/internal/utils/log"
+	_ "github.com/glebziz/fs_db/internal/utils/log"
 	"github.com/glebziz/fs_db/pkg/inline"
 )
 

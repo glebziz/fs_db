@@ -240,6 +240,65 @@ func (c *contentFileRepositoryGetCall) DoAndReturn(f func(context.Context, strin
 	return c
 }
 
+// MockdbProvider is a mock of dbProvider interface.
+type MockdbProvider struct {
+	ctrl     *gomock.Controller
+	recorder *MockdbProviderMockRecorder
+}
+
+// MockdbProviderMockRecorder is the mock recorder for MockdbProvider.
+type MockdbProviderMockRecorder struct {
+	mock *MockdbProvider
+}
+
+// NewMockdbProvider creates a new mock instance.
+func NewMockdbProvider(ctrl *gomock.Controller) *MockdbProvider {
+	mock := &MockdbProvider{ctrl: ctrl}
+	mock.recorder = &MockdbProviderMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockdbProvider) EXPECT() *MockdbProviderMockRecorder {
+	return m.recorder
+}
+
+// GC mocks base method.
+func (m *MockdbProvider) GC() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "GC")
+}
+
+// GC indicates an expected call of GC.
+func (mr *MockdbProviderMockRecorder) GC() *dbProviderGCCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GC", reflect.TypeOf((*MockdbProvider)(nil).GC))
+	return &dbProviderGCCall{Call: call}
+}
+
+// dbProviderGCCall wrap *gomock.Call
+type dbProviderGCCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *dbProviderGCCall) Return() *dbProviderGCCall {
+	c.Call = c.Call.Return()
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *dbProviderGCCall) Do(f func()) *dbProviderGCCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *dbProviderGCCall) DoAndReturn(f func()) *dbProviderGCCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // MockdirRepository is a mock of dirRepository interface.
 type MockdirRepository struct {
 	ctrl     *gomock.Controller

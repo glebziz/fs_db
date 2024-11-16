@@ -18,6 +18,7 @@ type Transactions struct {
 type Transaction struct {
 	m     sync.RWMutex
 	store map[string]*file
+	pool  Pool[file]
 
 	WithoutSearch bool
 }
@@ -129,9 +130,8 @@ func (tx *Transaction) PushBack(n *Node[model.File]) {
 
 	fs, ok := tx.store[n.v.Key]
 	if !ok {
-		fs = &file{
-			withoutSearch: tx.WithoutSearch,
-		} // TODO use pool
+		fs = tx.pool.Acquire()
+		fs.withoutSearch = tx.WithoutSearch
 	}
 
 	fs.PushBack(n)
@@ -146,15 +146,11 @@ func (tx *Transaction) Clear() {
 		return
 	}
 
-	//fs := make([]*file, 0, defaultMapCap)
+	fs := make([]*file, 0, defaultMapCap)
 	for key, f := range tx.store {
-		_ = f
-		//fs = append(fs, f)
+		fs = append(fs, f)
 		delete(tx.store, key)
 	}
 
-	// TODO release files
-	//for _, f := range fs {
-	// release f
-	//}
+	tx.pool.Release(fs...)
 }

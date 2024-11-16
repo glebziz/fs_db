@@ -1,6 +1,7 @@
 package model
 
 import (
+	"iter"
 	"math/rand/v2"
 	"path"
 )
@@ -25,19 +26,18 @@ func (d *Dir) Path() string {
 
 type Dirs []Dir
 
-func (ds Dirs) Iterate(r *rand.Rand) (nextFn func() (Dir, bool)) {
+func (ds Dirs) Iterate(r *rand.Rand) iter.Seq2[Dir, bool] {
 	r.Shuffle(len(ds), func(i, j int) {
 		ds[i], ds[j] = ds[j], ds[i]
 	})
 
-	var i int
-	return func() (Dir, bool) {
-		defer func() { i++ }()
-
-		if i >= len(ds) {
-			return Dir{}, false
+	return func(yield func(dir Dir, ok bool) bool) {
+		for _, dir := range ds {
+			if !yield(dir, true) {
+				return
+			}
 		}
 
-		return ds[i], true
+		yield(Dir{}, false)
 	}
 }

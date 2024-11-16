@@ -15,7 +15,8 @@ type pool struct {
 	lazySendM sync.Mutex
 	listM     sync.Mutex
 
-	el core.List[Event]
+	el   core.List[Event]
+	pool core.Pool[core.Node[Event]]
 
 	ch     chan Event
 	sendWg sync.WaitGroup

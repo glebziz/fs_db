@@ -1,19 +1,12 @@
 package core
 
 import (
+	"iter"
 	"sync"
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/sequence"
 	"github.com/glebziz/fs_db/internal/utils/ptr"
-)
-
-type NextFunc func() *Node[model.File]
-
-var (
-	emptyNextFunc = func() *Node[model.File] {
-		return nil
-	}
 )
 
 type file struct {
@@ -110,22 +103,21 @@ func (f *file) LastBefore(seq sequence.Seq) model.File {
 	return ptr.Val(binarySearch(f.arr, seq)).v
 }
 
-func (f *file) IterateBeforeSeq(seq sequence.Seq) NextFunc {
+func (f *file) IterateBeforeSeq(seq sequence.Seq) iter.Seq[model.File] {
 	if f == nil || f.l.IsEmpty() {
-		return emptyNextFunc
+		return func(func(model.File) bool) {}
 	}
 
-	n := f.l.Front()
-	return func() *Node[model.File] {
-		v := n.next.v
-		if v.Seq.Zero() || v.Seq.After(seq) {
-			return nil
-		}
-		defer func() {
-			n = n.next
-		}()
+	return func(yield func(model.File) bool) {
+		n := f.l.Front()
 
-		return n
+		for !(n.next.v.Seq.Zero() || n.next.v.Seq.After(seq)) {
+			next := n.next
+			if !yield(n.v) {
+				return
+			}
+			n = next
+		}
 	}
 }
 

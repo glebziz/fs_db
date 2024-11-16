@@ -758,10 +758,16 @@ func TestFile_IterateBeforeTs(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			files := make([]model.File, 0, len(tc.files))
-			nextFn := tc.f().IterateBeforeSeq(tc.beforeSeq)
-			for n := nextFn(); n != nil; n = nextFn() {
-				files = append(files, n.v)
+			var (
+				f     = tc.f()
+				files = make([]model.File, 0, len(tc.files))
+			)
+			for v := range f.IterateBeforeSeq(tc.beforeSeq) {
+				files = append(files, v)
+			}
+			for v := range f.IterateBeforeSeq(tc.beforeSeq) {
+				_ = v
+				break
 			}
 
 			require.Equal(t, len(tc.files), len(files))

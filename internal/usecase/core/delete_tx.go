@@ -15,7 +15,7 @@ func (u *useCase) DeleteTx(_ context.Context, txId string) []model.File {
 	tx.Lock()
 	defer func() {
 		tx.Unlock()
-		// TODO free tx
+		u.txPool.Release(tx)
 	}()
 
 	u.allStore.Lock()
@@ -25,8 +25,8 @@ func (u *useCase) DeleteTx(_ context.Context, txId string) []model.File {
 	for _, f := range tx.Files() {
 		for n := f.PopFront(); n != nil; n = f.PopFront() {
 			deleteFiles = append(deleteFiles, n.V())
-			n.DeleteLink() // TODO free linked node
-			// TODO free node
+			link := n.DeleteLink()
+			u.nodePool.Release(link, n)
 		}
 	}
 

@@ -34,11 +34,8 @@ func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error 
 	var (
 		minSize uint64
 		closer  io.Closer
-
-		nextFunc = dirs.Iterate(u.randGen)
 	)
-	for {
-		dir, ok := nextFunc()
+	for dir, ok := range dirs.Iterate(u.randGen) {
 		if !ok {
 			return fs_db.SizeErr
 		}

@@ -19,6 +19,8 @@ type fileRepository interface {
 type useCase struct {
 	txStore  core.Transactions
 	allStore core.Transaction
+	txPool   *core.Pool[core.Transaction]
+	nodePool core.Pool[core.Node[model.File]]
 
 	fileRepo fileRepository
 }
@@ -28,6 +30,9 @@ func New(fileRepo fileRepository) *useCase {
 		allStore: core.Transaction{
 			WithoutSearch: true,
 		},
+		txPool: core.NewPool(func(tx *core.Transaction) {
+			tx.Clear()
+		}),
 
 		fileRepo: fileRepo,
 	}

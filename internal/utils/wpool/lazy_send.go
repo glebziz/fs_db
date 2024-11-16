@@ -1,12 +1,10 @@
 package wpool
 
-import "github.com/glebziz/fs_db/internal/model/core"
-
 func (p *pool) lazySend(e Event) {
 	p.listM.Lock()
 	defer p.listM.Unlock()
 
-	p.el.PushBack((&core.Node[Event]{}).SetV(e)) // TODO use pool
+	p.el.PushBack(p.pool.Acquire().SetV(e))
 	p.lazyResend()
 }
 
@@ -34,7 +32,7 @@ func (p *pool) lazyResend() {
 			case <-p.ctx.Done():
 				return
 			case p.ch <- n.V():
-				// TODO free node
+				p.pool.Release(n)
 			}
 		}
 	}()

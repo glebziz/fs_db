@@ -43,6 +43,10 @@ func TestUseCase_DeleteFilesAsync(t *testing.T) {
 					Get(gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(model.ContentFile{}, fs_db.NotFoundErr)
+
+				td.db.EXPECT().
+					GC().
+					Times(1)
 			},
 		},
 		{
@@ -162,6 +166,10 @@ func TestUseCase_DeleteFiles(t *testing.T) {
 					Get(gomock.Any(), testContentId3).
 					Times(1).
 					Return(model.ContentFile{}, fs_db.NotFoundErr)
+
+				td.db.EXPECT().
+					GC().
+					Times(1)
 			},
 		},
 		{

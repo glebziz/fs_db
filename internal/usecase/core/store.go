@@ -13,7 +13,7 @@ func (u *useCase) Store(ctx context.Context, f model.File) error {
 
 	tx, ok := u.txStore.Get(f.TxId)
 	if !ok {
-		tx = &core.Transaction{}
+		tx = u.txPool.Acquire()
 		u.txStore.Put(f.TxId, tx)
 	}
 
@@ -37,11 +37,8 @@ func (u *useCase) Store(ctx context.Context, f model.File) error {
 
 func (u *useCase) storeToTx(tx *core.Transaction, f model.File) {
 	var (
-		link = (&core.Node[model.File]{}).
-			SetV(f)
-		n = (&core.Node[model.File]{}).
-			SetV(f).
-			SetLink(link)
+		link = u.nodePool.Acquire().SetV(f)
+		n    = u.nodePool.Acquire().SetV(f).SetLink(link)
 	)
 
 	tx.PushBack(n)

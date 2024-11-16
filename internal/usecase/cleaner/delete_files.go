@@ -49,6 +49,8 @@ func (u *useCase) DeleteFiles(ctx context.Context, files []model.File) error {
 		return fmt.Errorf("delete file: %w", err)
 	}
 
+	u.db.GC()
+
 	return nil
 }
 

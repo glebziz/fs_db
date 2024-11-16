@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/model/core"
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
@@ -39,7 +38,7 @@ func (u *useCase) Load(ctx context.Context) ([]model.File, error) {
 
 	var (
 		maxSeq = sequence.Seq(1)
-		mainTx = &core.Transaction{}
+		mainTx = u.txPool.Acquire()
 	)
 	u.txStore.Put(model.MainTxId, mainTx)
 

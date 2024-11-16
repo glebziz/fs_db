@@ -24,6 +24,7 @@ type testDeps struct {
 	core   *mock_cleaner.Mockcore
 	cRepo  *mock_cleaner.MockcontentRepository
 	cfRepo *mock_cleaner.MockcontentFileRepository
+	db     *mock_cleaner.MockdbProvider
 	dRepo  *mock_cleaner.MockdirRepository
 	fRepo  *mock_cleaner.MockfileRepository
 	sender *mock_cleaner.Mocksender
@@ -37,6 +38,7 @@ func newTestDeps(t *testing.T) *testDeps {
 		core:   mock_cleaner.NewMockcore(ctrl),
 		cRepo:  mock_cleaner.NewMockcontentRepository(ctrl),
 		cfRepo: mock_cleaner.NewMockcontentFileRepository(ctrl),
+		db:     mock_cleaner.NewMockdbProvider(ctrl),
 		dRepo:  mock_cleaner.NewMockdirRepository(ctrl),
 		fRepo:  mock_cleaner.NewMockfileRepository(ctrl),
 		sender: mock_cleaner.NewMocksender(ctrl),
@@ -47,8 +49,8 @@ func newTestDeps(t *testing.T) *testDeps {
 func (td *testDeps) newUseCase() *useCase {
 	return New(
 		td.core, td.cRepo,
-		td.cfRepo, td.dRepo,
-		td.fRepo, td.sender,
-		td.txRepo,
+		td.cfRepo, td.db,
+		td.dRepo, td.fRepo,
+		td.sender, td.txRepo,
 	)
 }

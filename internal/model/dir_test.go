@@ -110,17 +110,19 @@ func TestDirs_Iterate(t *testing.T) {
 			Root: gofakeit.UUID(),
 		}}
 
-		nextFn = dirs.Iterate(r)
-		dirs2  = make(Dirs, 0, len(dirs))
+		dirs2 = make(Dirs, 0, len(dirs))
 	)
 
-	for {
-		dir, ok := nextFn()
+	for dir, ok := range dirs.Iterate(r) {
 		if !ok {
 			break
 		}
 
 		dirs2 = append(dirs2, dir)
+	}
+	for dir, ok := range dirs.Iterate(r) {
+		_, _ = dir, ok
+		break
 	}
 
 	require.Equal(t, dirs, dirs2)

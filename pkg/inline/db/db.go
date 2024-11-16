@@ -25,8 +25,6 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/wpool"
 )
 
-//go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
-
 type pool interface {
 	Stop()
 }
@@ -83,8 +81,8 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 
 	cleaner := cleanerUseCase.New(
 		coreUseCase, contentRep,
-		contentFileRep, dirRep,
-		fileRep, p, txRep,
+		contentFileRep, manager,
+		dirRep, fileRep, p, txRep,
 	)
 
 	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)

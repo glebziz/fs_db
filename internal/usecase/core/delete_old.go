@@ -18,11 +18,13 @@ func (u *useCase) DeleteOld(_ context.Context, txId string, beforeSeq sequence.S
 
 	deleteFiles := make([]model.File, 0, tx.Len())
 	for _, f := range tx.Files() {
-		nextFn := f.IterateBeforeSeq(beforeSeq)
-		for n := nextFn(); n != nil; n = nextFn() {
-			deleteFiles = append(deleteFiles, n.V())
-			n.DeleteLink() // TODO free link node
-			n.Delete()     // TODO free node
+		for file := range f.IterateBeforeSeq(beforeSeq) {
+			deleteFiles = append(deleteFiles, file)
+
+			n := f.PopFront()
+			link := n.DeleteLink()
+
+			u.nodePool.Release(link, n)
 		}
 	}
 

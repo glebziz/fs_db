@@ -77,6 +77,10 @@ func (m *manager) Delete(key []byte) error {
 	})
 }
 
+func (m *manager) GC() {
+	m.db.RunValueLogGC(0.5)
+}
+
 func (m *manager) DB(ctx context.Context) QueryManager {
 	txn, ok := ctx.Value(ctxTxn).(*badger.Txn)
 	if ok && txn != nil {

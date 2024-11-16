@@ -19,12 +19,12 @@ func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, 
 	tx.Lock()
 	defer func() {
 		tx.Unlock()
-		// TODO free tx
+		u.txPool.Release(tx)
 	}()
 
 	newTx, ok := u.txStore.Get(newTxId)
 	if !ok {
-		newTx = &core.Transaction{} // TODO use pool
+		newTx = u.txPool.Acquire()
 		u.txStore.Put(newTxId, newTx)
 	}
 
@@ -35,8 +35,8 @@ func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, 
 	)
 	defer func() {
 		for _, n := range freeNodes {
-			n.DeleteLink() // TODO free link node
-			// TODO free node
+			link := n.DeleteLink()
+			u.nodePool.Release(link, n)
 		}
 		deleteFiles = append(deleteFiles, files...)
 	}()
