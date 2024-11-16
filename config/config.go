@@ -100,7 +100,7 @@ func (s *Storage) Valid() error {
 }
 
 // ParseEnv fills the storage options with environment variables.
-func (s *Storage) ParseEnv() (err error) {
+func (s *Storage) ParseEnv() (err error) { //nolint:cyclop // TODO fix
 	if env, ok := os.LookupEnv(envDbPath); ok && env != "" {
 		s.DbPath = env
 	}

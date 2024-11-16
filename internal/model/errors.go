@@ -1,12 +1,13 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"io"
 )
 
 var (
-	ErrInvalidFileFormat = fmt.Errorf("invalid file format")
+	ErrInvalidFileFormat = errors.New("invalid file format")
 )
 
 type NotEnoughSpaceError struct {

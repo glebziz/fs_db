@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 
@@ -30,7 +31,7 @@ func (db *db) SetReader(ctx context.Context, key string, reader io.Reader) error
 	for {
 		var n int
 		n, err = reader.Read(buf)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {

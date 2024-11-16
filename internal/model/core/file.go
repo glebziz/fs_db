@@ -126,7 +126,7 @@ func binarySearch(arr []*Node[model.File], seq sequence.Seq) *Node[model.File] {
 		n int
 	)
 	for len(arr) > 0 {
-		n = len(arr) / 2
+		n = len(arr) / 2 //nolint:mnd
 		if !arr[n].v.Seq.Before(seq) {
 			arr = arr[:n]
 		} else {

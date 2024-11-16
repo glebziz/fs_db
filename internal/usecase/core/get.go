@@ -9,7 +9,7 @@ import (
 
 func (u *useCase) Get(_ context.Context, txId, key string, filter model.FileFilter) (model.File, error) {
 	var f, s model.File
-	if filter.BeforeSeq == nil && filter.TxId == nil {
+	if filter.BeforeSeq == nil && filter.TxId == nil { //nolint:nestif // TODO fix
 		u.allStore.RLock()
 		defer u.allStore.RUnlock()
 

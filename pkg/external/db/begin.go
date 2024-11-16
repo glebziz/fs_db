@@ -27,7 +27,7 @@ func (db *db) Begin(ctx context.Context, level ...model.TxIsoLevel) (fs_db.Tx, e
 	}
 
 	t := tx{
-		id:     resp.Id,
+		id:     resp.GetId(),
 		client: db.client,
 	}
 

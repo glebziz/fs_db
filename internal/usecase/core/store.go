@@ -10,7 +10,6 @@ import (
 )
 
 func (u *useCase) Store(ctx context.Context, f model.File) error {
-
 	tx, ok := u.txStore.Get(f.TxId)
 	if !ok {
 		tx = u.txPool.Acquire()

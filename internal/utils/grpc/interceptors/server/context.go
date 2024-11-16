@@ -13,7 +13,7 @@ const (
 	TxIdKey = "mdTxIdKey"
 )
 
-func ContextInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+func ContextInterceptor(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		txId := md.Get(TxIdKey)

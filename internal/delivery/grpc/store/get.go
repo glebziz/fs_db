@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
@@ -9,7 +10,7 @@ import (
 )
 
 func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFileServer) error {
-	content, err := i.sUsecase.Get(stream.Context(), req.Key)
+	content, err := i.sUsecase.Get(stream.Context(), req.GetKey())
 	if err != nil {
 		return grpc.Error(fmt.Errorf("store usecase get: %w", err))
 	}
@@ -18,7 +19,7 @@ func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1
 	err = stream.Send(&store.GetFileResponse{
 		Data: &store.GetFileResponse_Header{
 			Header: &store.FileHeader{
-				Key: req.Key,
+				Key: req.GetKey(),
 			},
 		},
 	})
@@ -30,7 +31,7 @@ func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1
 	for {
 		var n int
 		n, err = content.Read(chunk)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {

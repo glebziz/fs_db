@@ -34,7 +34,7 @@ func Error(err error) error {
 
 func ClientError(err error) error {
 	st := status.Convert(err)
-	switch st.Code() {
+	switch st.Code() { //nolint:exhaustive
 	case codes.InvalidArgument:
 		return fmt.Errorf("%s: %w", st.Message(), fs_db.EmptyKeyErr)
 	case codes.NotFound:
@@ -48,7 +48,7 @@ func ClientError(err error) error {
 	case codes.Aborted:
 		return fmt.Errorf("%s: %w", st.Message(), fs_db.TxNotFoundErr)
 	case codes.Internal:
-		return fmt.Errorf("%s", st.Message())
+		return fmt.Errorf("%s", st.Message()) //nolint:err113
 	default:
 		return err
 	}

@@ -19,12 +19,13 @@ const (
 
 	// IsoLevelSerializable transaction iso level serializable.
 	//
-	// Since the set operation contains insert and update operations, the serializable level is equal to the repeatable read.
+	// Since the set operation contains insert and update operations,
+	// the serializable level is equal to the repeatable read.
 	IsoLevelSerializable
 )
 
 const (
-	// IsoLevelDefault the default transaction iso level is ReadCommitted
+	// IsoLevelDefault the default transaction iso level is ReadCommitted.
 	IsoLevelDefault = IsoLevelReadCommitted
 )
 

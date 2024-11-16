@@ -48,7 +48,7 @@ type db struct {
 	manager io.Closer
 }
 
-func New(ctx context.Context, cfg config.Config) (*db, error) {
+func New(ctx context.Context, cfg config.Config) (*db, error) { //nolint:funlen // TODO fix
 	if err := cfg.Storage.Valid(); err != nil {
 		return nil, fmt.Errorf("invalid config: %w", err)
 	}

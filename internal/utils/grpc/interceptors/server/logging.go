@@ -11,7 +11,7 @@ import (
 
 const unknownValue = "unknown"
 
-func LoggingInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+func LoggingInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	service, method := splitFullMethodName(info.FullMethod)
 	logger := slog.With(
 		slog.Group(
@@ -26,7 +26,7 @@ func LoggingInterceptor(ctx context.Context, req interface{}, info *grpc.UnarySe
 		"body", req,
 	)
 
-	resp, err = handler(ctx, req)
+	resp, err := handler(ctx, req)
 	if err != nil {
 		st := status.Convert(err)
 

@@ -7,7 +7,7 @@ var (
 )
 
 func init() {
-	SetSpaceLimit(1 << 40)
+	SetSpaceLimit(1 << 40) //nolint:mnd
 }
 
 func SetSpaceLimit(limit int64) {

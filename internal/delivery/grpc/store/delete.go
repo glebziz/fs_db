@@ -10,7 +10,7 @@ import (
 )
 
 func (i *implementation) DeleteFile(ctx context.Context, req *store.DeleteFileRequest) (*store.DeleteFileResponse, error) {
-	err := i.sUsecase.Delete(ctx, req.Key)
+	err := i.sUsecase.Delete(ctx, req.GetKey())
 	if err != nil {
 		return nil, grpc.Error(fmt.Errorf("store usecase delete: %w", err))
 	}

@@ -1,0 +1,22 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+
+env:
+  GO_VERSION: stable
+  GOLANGCI_LINT_VERSION: v1.62
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}

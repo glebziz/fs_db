@@ -57,17 +57,17 @@ func (n *Node[T]) DeleteLink() *Node[T] {
 	return link
 }
 
-func (n *Node[T]) insert(new *Node[T]) {
-	if n == nil || new == nil {
+func (n *Node[T]) insert(newN *Node[T]) {
+	if n == nil || newN == nil {
 		return
 	}
 
-	new.prev = n
-	new.next = n.next
+	newN.prev = n
+	newN.next = n.next
 
 	if n.next != nil {
-		n.next.prev = new
+		n.next.prev = newN
 	}
 
-	n.next = new
+	n.next = newN
 }

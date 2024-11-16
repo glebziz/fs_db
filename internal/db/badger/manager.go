@@ -30,7 +30,7 @@ type Provider interface {
 	DB(ctx context.Context) QueryManager
 }
 
-const ctxTxn = "ctxQuerierKey"
+type ctxTxn struct{}
 
 func New(dbPath string) (*manager, error) {
 	db, err := badger.Open(badger.DefaultOptions(dbPath).WithLogger(nil))
@@ -78,11 +78,11 @@ func (m *manager) Delete(key []byte) error {
 }
 
 func (m *manager) GC() {
-	m.db.RunValueLogGC(0.5)
+	m.db.RunValueLogGC(0.5) //nolint:errcheck,mnd
 }
 
 func (m *manager) DB(ctx context.Context) QueryManager {
-	txn, ok := ctx.Value(ctxTxn).(*badger.Txn)
+	txn, ok := ctx.Value(ctxTxn{}).(*badger.Txn)
 	if ok && txn != nil {
 		return transaction{txn}
 	}
@@ -91,13 +91,13 @@ func (m *manager) DB(ctx context.Context) QueryManager {
 }
 
 func (m *manager) RunTransaction(ctx context.Context, fn transactor.TransactionFn) error {
-	querier, ok := ctx.Value(ctxTxn).(QueryManager)
+	querier, ok := ctx.Value(ctxTxn{}).(QueryManager)
 	if ok && querier != nil {
 		return fn(ctx)
 	}
 
 	return m.db.Update(func(txn *badger.Txn) error {
-		return fn(context.WithValue(ctx, ctxTxn, txn))
+		return fn(context.WithValue(ctx, ctxTxn{}, txn))
 	})
 }
 

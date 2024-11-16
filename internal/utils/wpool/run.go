@@ -12,10 +12,10 @@ func (p *pool) Run(ctx context.Context) {
 	}
 
 	p.ctx, p.cancel = context.WithCancel(ctx)
-	p.ch = make(chan Event, p.opts.NumWorkers*2)
+	p.ch = make(chan Event, p.opts.NumWorkers*2) //nolint:mnd
 	for range p.opts.NumWorkers {
 		p.runWg.Add(1)
-		go p.run()
+		go p.run() //nolint:contextcheck
 	}
 }
 

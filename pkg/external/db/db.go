@@ -15,8 +15,7 @@ type db struct {
 }
 
 func New(ctx context.Context, url string) (*db, error) {
-	conn, err := grpc.DialContext(
-		ctx, fmt.Sprintf(url),
+	conn, err := grpc.DialContext(ctx, url,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

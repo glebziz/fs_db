@@ -16,9 +16,8 @@ import (
 )
 
 const (
-	testId      = "testId"
-	testParent  = "testParent"
-	testParent2 = "testParent2"
+	testId     = "testId"
+	testParent = "testParent"
 )
 
 type testDeps struct {

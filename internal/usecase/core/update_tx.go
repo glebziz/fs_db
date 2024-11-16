@@ -10,7 +10,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) UpdateTx(ctx context.Context, oldTxId string, newTxId string, filter model.FileFilter) (deleteFiles []model.File, err error) {
+func (u *useCase) UpdateTx(ctx context.Context, oldTxId, newTxId string, filter model.FileFilter) (deleteFiles []model.File, err error) { //nolint:funlen,cyclop,lll // TODO fix
 	tx := u.txStore.Delete(oldTxId)
 	if tx == nil {
 		return nil, nil

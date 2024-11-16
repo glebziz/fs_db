@@ -10,7 +10,7 @@ import (
 )
 
 func (i *implementation) BeginTx(ctx context.Context, req *store.BeginTxRequest) (*store.BeginTxResponse, error) {
-	txId, err := i.txUsecase.Begin(ctx, isoLevel.Convert(req.IsoLevel))
+	txId, err := i.txUsecase.Begin(ctx, isoLevel.Convert(req.GetIsoLevel()))
 	if err != nil {
 		return nil, grpc.Error(fmt.Errorf("tx usecase begin: %w", err))
 	}

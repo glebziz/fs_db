@@ -18,7 +18,7 @@ func main() {
 
 	if len(os.Args) < 3 {
 		fmt.Printf("Usage: %s <sqlite_db> <badger_db>\n", os.Args[0])
-		os.Exit(1)
+		return
 	}
 
 	sqlitePath := os.Args[1]
@@ -36,7 +36,7 @@ loop:
 			slog.Error("Read string",
 				slog.Any("err", err),
 			)
-			os.Exit(1)
+			return
 		}
 
 		choice = strings.TrimSpace(choice)
@@ -45,28 +45,28 @@ loop:
 			break loop
 		case "n", "no", "":
 			fmt.Println("Aborting...")
-			os.Exit(0)
+			return
 		}
 	}
 
 	db, err := setupSqlite(ctx, sqlitePath)
 	if err != nil {
 		fmt.Printf("Setup sqlite error: %v\n", err)
-		os.Exit(1)
+		return
 	}
 	defer db.Close()
 
 	r, err := setupRepos(badgerPath)
 	if err != nil {
 		fmt.Printf("Setup repos error: %v\n", err)
-		os.Exit(1)
+		return
 	}
 	defer r.p.Close()
 
 	err = migrateAll(ctx, db, r)
 	if err != nil {
 		fmt.Printf("Migrate all error: %v\n", err)
-		os.Exit(1)
+		return
 	}
 
 	fmt.Println("Migration complete.")

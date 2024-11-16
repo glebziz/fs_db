@@ -10,7 +10,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error {
+func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error { //nolint:funlen,cyclop // TODO fix
 	if key == "" {
 		return fs_db.EmptyKeyErr
 	}
