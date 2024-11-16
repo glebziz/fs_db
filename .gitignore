@@ -1,3 +1,5 @@
 .idea
 testStorage
 test.db
+test_db
+config/local_config.yaml

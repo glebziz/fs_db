@@ -10,7 +10,7 @@ import (
 )
 
 // Open returns the client for the inlined fs db.
-func Open(ctx context.Context, cfg *config.Storage) (fs_db.DB, error) {
+func Open(ctx context.Context, cfg config.Config) (fs_db.DB, error) {
 	b, err := db.New(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("new inline db: %w", err)

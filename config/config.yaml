@@ -1,6 +1,9 @@
 port: 8888
 storage:
-  dbPath: test.db
+  dbPath: test_db
   maxDirCount: 100
   rootDirs:
     - ./testStorage
+  gcPeriod: 1m
+wPool:
+  sendDuration: 1ms

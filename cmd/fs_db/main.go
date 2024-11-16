@@ -32,7 +32,7 @@ func main() {
 		log.Fatalln("Parse config:", err)
 	}
 
-	cl, err := db.New(context.Background(), &conf.Storage)
+	cl, err := db.New(context.Background(), conf)
 	if err != nil {
 		log.Fatalln("Inline client: ", err)
 	}

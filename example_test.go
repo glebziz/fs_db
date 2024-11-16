@@ -6,18 +6,28 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
+	"runtime"
+	"time"
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/config"
-	"github.com/glebziz/fs_db/internal/utils/log"
+	_ "github.com/glebziz/fs_db/internal/utils/log"
 	"github.com/glebziz/fs_db/pkg/inline"
 )
 
 func ExampleStore_Set() {
-	db, err := inline.Open(context.Background(), &config.Storage{
-		DbPath:      "test.db",
-		MaxDirCount: 1,
-		RootDirs:    []string{"./testStorage"},
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
 	})
 	if err != nil {
 		log.Fatalln("Open:", err)
@@ -30,10 +40,17 @@ func ExampleStore_Set() {
 }
 
 func ExampleStore_SetReader() {
-	db, err := inline.Open(context.Background(), &config.Storage{
-		DbPath:      "test.db",
-		MaxDirCount: 1,
-		RootDirs:    []string{"./testStorage"},
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
 	})
 	if err != nil {
 		log.Fatalln("Open:", err)
@@ -47,10 +64,17 @@ func ExampleStore_SetReader() {
 }
 
 func ExampleStore_Get() {
-	db, err := inline.Open(context.Background(), &config.Storage{
-		DbPath:      "test.db",
-		MaxDirCount: 1,
-		RootDirs:    []string{"./testStorage"},
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
 	})
 	if err != nil {
 		log.Fatalln("Open:", err)
@@ -74,10 +98,17 @@ func ExampleStore_Get() {
 }
 
 func ExampleStore_GetReader() {
-	db, err := inline.Open(context.Background(), &config.Storage{
-		DbPath:      "test.db",
-		MaxDirCount: 1,
-		RootDirs:    []string{"./testStorage"},
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
 	})
 	if err != nil {
 		log.Fatalln("Open:", err)
@@ -107,10 +138,17 @@ func ExampleStore_GetReader() {
 }
 
 func ExampleStore_Delete() {
-	db, err := inline.Open(context.Background(), &config.Storage{
-		DbPath:      "test.db",
-		MaxDirCount: 1,
-		RootDirs:    []string{"./testStorage"},
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
 	})
 	if err != nil {
 		log.Fatalln("Open:", err)
@@ -139,10 +177,17 @@ func ExampleStore_Delete() {
 }
 
 func ExampleDB_Begin() {
-	db, err := inline.Open(context.Background(), &config.Storage{
-		DbPath:      "test.db",
-		MaxDirCount: 1,
-		RootDirs:    []string{"./testStorage"},
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
 	})
 	if err != nil {
 		log.Fatalln("Open:", err)

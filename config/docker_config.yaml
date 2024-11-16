@@ -1,6 +1,9 @@
 port: 8888
 storage:
-  dbPath: /var/lib/fs_db/fs.db
+  dbPath: /var/lib/fs_db/fs_db
   maxDirCount: 100000
   rootDirs:
     - /var/lib/fs_db/storage/
+  gcPeriod: 1m
+wPool:
+  sendDuration: 1ms

@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
-	"runtime"
-	"time"
 
 	"github.com/glebziz/fs_db/config"
 	"github.com/glebziz/fs_db/internal/db/badger"
@@ -50,12 +48,12 @@ type db struct {
 	manager io.Closer
 }
 
-func New(ctx context.Context, cfg *config.Storage) (*db, error) {
-	if err := cfg.Valid(); err != nil {
+func New(ctx context.Context, cfg config.Config) (*db, error) {
+	if err := cfg.Storage.Valid(); err != nil {
 		return nil, fmt.Errorf("invalid config: %w", err)
 	}
 
-	manager, err := badger.New(cfg.DbPath)
+	manager, err := badger.New(cfg.Storage.DbPath)
 	if err != nil {
 		return nil, fmt.Errorf("db new: %w", err)
 	}
@@ -63,8 +61,8 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 	gen := generator.New()
 
 	p := wpool.New(wpool.Options{
-		NumWorkers:   runtime.GOMAXPROCS(0),
-		SendDuration: time.Millisecond,
+		NumWorkers:   cfg.WPool.NumWorkers,
+		SendDuration: cfg.WPool.SendDuration,
 	})
 
 	contentRep := contentRepo.New()
@@ -72,7 +70,7 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 	fileRep := fileRepo.New(manager)
 	txRep := txRepo.New()
 
-	dirRep, err := dirRepo.New(cfg.RootDirs)
+	dirRep, err := dirRepo.New(cfg.Storage.RootDirs)
 	if err != nil {
 		return nil, fmt.Errorf("dir new: %w", err)
 	}
@@ -85,7 +83,7 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		dirRep, fileRep, p, txRep,
 	)
 
-	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)
+	dirUc := dirUseCase.New(cfg.Storage.MaxDirCount, dirRep, gen)
 	storeUc := storeUseCase.New(
 		dirUc, contentRep,
 		contentFileRep, coreUseCase,
@@ -105,7 +103,7 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		Fn: func(ctx context.Context) error {
 			return cleaner.DeleteOld(ctx)
 		},
-	}, time.Minute)
+	}, cfg.Storage.GCPeriod)
 
 	return &db{
 		pool:    p,
