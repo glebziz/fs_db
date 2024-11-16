@@ -7,11 +7,11 @@ import (
 )
 
 type rep struct {
-	storage *omap.OMap[string, *model.Transaction]
+	storage *omap.OMap[string, model.Transaction]
 }
 
 func New() *rep {
 	return &rep{
-		storage: omap.New[string, *model.Transaction](),
+		storage: omap.New[string, model.Transaction](),
 	}
 }

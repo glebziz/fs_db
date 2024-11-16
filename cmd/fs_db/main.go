@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 
 	"google.golang.org/grpc"
@@ -12,7 +13,7 @@ import (
 	storeService "github.com/glebziz/fs_db/internal/delivery/grpc/store"
 	store "github.com/glebziz/fs_db/internal/proto"
 	"github.com/glebziz/fs_db/internal/utils/grpc/interceptors/server"
-	"github.com/glebziz/fs_db/internal/utils/log"
+	_ "github.com/glebziz/fs_db/internal/utils/log"
 	"github.com/glebziz/fs_db/pkg/inline/db"
 )
 

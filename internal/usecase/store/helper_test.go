@@ -12,12 +12,13 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/model/sequence"
 	"github.com/glebziz/fs_db/internal/usecase/store/mocks"
 )
 
 var (
-	testTxId = gofakeit.UUID()
-	testTxTs = gofakeit.Date()
+	testTxId  = gofakeit.UUID()
+	testTxSeq = sequence.Next()
 
 	testKey       = gofakeit.UUID()
 	testContentId = gofakeit.UUID()

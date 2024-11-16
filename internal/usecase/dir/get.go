@@ -42,7 +42,12 @@ func (u *useCase) Get(ctx context.Context) (model.Dirs, error) {
 			return nil, fmt.Errorf("remove: %w", err)
 		}
 
-		dirs = append(dirs[:i], dirs[i+1:]...)
+		dirs[i].Count = 0
+		dirs[i].Name = u.nameGen.Generate()
+		err = u.dRepo.Create(ctx, dirs[i])
+		if err != nil {
+			return nil, fmt.Errorf("create: %w", err)
+		}
 	}
 
 	return dirs, nil

@@ -3,6 +3,7 @@ package dir
 import (
 	"errors"
 	"fmt"
+	"path"
 	"sync"
 
 	"github.com/google/uuid"
@@ -31,7 +32,10 @@ func New(rootDirs []string) (*rep, error) {
 		counts: make(map[string]uint64, len(rootDirs)),
 	}
 
-	for _, root := range rootDirs {
+	for i, root := range rootDirs {
+		root = path.Join(root)
+		r.roots[i] = root
+
 		entries, err := os.ReadDir(root)
 		if errors.Is(err, os.ErrNotExist) {
 			err = os.MkdirAll(root, mkdirPerm)

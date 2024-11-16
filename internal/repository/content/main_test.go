@@ -1,10 +1,11 @@
 package content
 
 import (
+	"log"
 	"os"
 	"testing"
 
-	"github.com/glebziz/fs_db/internal/utils/log"
+	_ "github.com/glebziz/fs_db/internal/utils/log"
 )
 
 var rootPath string

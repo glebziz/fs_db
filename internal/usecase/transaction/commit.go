@@ -2,7 +2,6 @@ package transaction
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/glebziz/fs_db"
@@ -17,35 +16,21 @@ func (u *useCase) Commit(ctx context.Context) error {
 		return fmt.Errorf("tx repository delete: %w", err)
 	}
 
-	var filter *model.FileFilter
+	var filter model.FileFilter
 	switch tx.IsoLevel {
 	case fs_db.IsoLevelReadUncommitted,
 		fs_db.IsoLevelReadCommitted:
 	case fs_db.IsoLevelRepeatableRead,
 		fs_db.IsoLevelSerializable:
-		filter = &model.FileFilter{
-			BeforeTs: ptr.Ptr(tx.CreateTs),
-		}
+		filter.BeforeSeq = ptr.Ptr(tx.Seq)
 	}
 
-	err = u.fRepo.UpdateTx(ctx, txId, model.MainTxId, filter)
+	deleteFiles, err := u.fRepo.UpdateTx(ctx, txId, model.MainTxId, filter)
+	if len(deleteFiles) > 0 {
+		u.cleaner.DeleteFilesAsync(ctx, deleteFiles)
+	}
 	if err != nil {
 		return fmt.Errorf("file repository update tx: %w", err)
-	}
-
-	if filter != nil {
-		contentIds, err := u.fRepo.HardDelete(ctx, txId, nil)
-		if errors.Is(err, fs_db.NotFoundErr) {
-			return nil
-		} else if err != nil {
-			return fmt.Errorf("file repository delete by tx: %w", err)
-		}
-
-		err = u.cleaner.Clean(contentIds)
-		if err != nil {
-			return fmt.Errorf("clean: %w", err)
-		}
-		return fs_db.TxSerializationErr
 	}
 
 	return nil

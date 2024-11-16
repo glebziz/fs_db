@@ -9,9 +9,9 @@
 package mock_streamreader
 
 import (
-	streamreader "github.com/glebziz/fs_db/internal/utils/grpc/streamreader"
 	reflect "reflect"
 
+	streamreader "github.com/glebziz/fs_db/internal/utils/grpc/streamreader"
 	gomock "go.uber.org/mock/gomock"
 )
 

@@ -3,11 +3,11 @@ package dir
 import (
 	"context"
 	"path"
-	"slices"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/utils/disk"
@@ -43,11 +43,7 @@ func TestRep_Get(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, dirs, 2)
 
-	slices.SortFunc(dirs, func(a, b model.Dir) int {
-		return int(b.Count - a.Count)
-	})
-
-	require.Equal(t, model.Dirs{{
+	require.True(t, gomock.InAnyOrder(model.Dirs{{
 		Name:  dir1,
 		Root:  rootPath,
 		Count: 2,
@@ -57,5 +53,5 @@ func TestRep_Get(t *testing.T) {
 		Root:  rootPath,
 		Count: 1,
 		Free:  st.Free,
-	}}, dirs)
+	}}).Matches(dirs))
 }

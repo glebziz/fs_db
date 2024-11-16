@@ -13,7 +13,7 @@ func (r *rep) Store(_ context.Context, tx model.Transaction) error {
 		return fs_db.TxAlreadyExistsErr
 	}
 
-	r.storage.Store(tx.Id, &tx)
+	r.storage.Store(tx.Id, tx)
 
 	return nil
 }

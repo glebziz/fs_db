@@ -3,58 +3,73 @@ package file
 import (
 	"context"
 	"fmt"
-	"os"
 	"path"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
-	"github.com/glebziz/fs_db/internal/db"
-	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/db/badger"
+	"github.com/glebziz/fs_db/internal/model/transactor"
+	cf_mock "github.com/glebziz/fs_db/internal/repository/content_file/mocks"
 )
 
-func newTestRep(t *testing.T) (*rep, context.Context) {
+const (
+	testId      = "testId"
+	testParent  = "testParent"
+	testParent2 = "testParent2"
+)
+
+type testDeps struct {
+	p  badger.Provider
+	qm *cf_mock.MockQueryManager
+}
+
+type prepareFunc func(td *testDeps)
+type prepareIntFunc func(t *testing.T, p badger.Provider)
+
+func newTestDeps(t *testing.T) *testDeps {
+	ctrl := gomock.NewController(t)
+	p := cf_mock.NewMockProvider(ctrl)
+	qm := cf_mock.NewMockQueryManager(ctrl)
+
+	p.EXPECT().
+		DB(gomock.Any()).
+		MaxTimes(1).
+		Return(qm)
+
+	p.EXPECT().
+		RunTransaction(gomock.Any(), gomock.Any()).
+		MaxTimes(1).
+		DoAndReturn(func(ctx context.Context, fn transactor.TransactionFn) error {
+			return fn(ctx)
+		})
+
+	return &testDeps{
+		p:  p,
+		qm: qm,
+	}
+}
+
+func (td *testDeps) newRep() *rep {
+	return New(td.p)
+}
+
+func newTestRep(t *testing.T) *rep {
 	t.Helper()
 
 	var (
-		dbPath = path.Join(os.TempDir(), fmt.Sprintf("test_dir_%s.db", gofakeit.UUID()))
+		dbPath = path.Join(t.TempDir(), fmt.Sprintf("test_content_file_%s", gofakeit.UUID()))
 	)
 
-	manager, err := db.New(context.Background(), dbPath)
+	manager, err := badger.New(dbPath)
 	require.NoError(t, err)
+
 	t.Cleanup(func() {
-		manager.Close()
-		err = os.Remove(dbPath)
+		err = manager.Close()
 		require.NoError(t, err)
 	})
 
-	return New(manager), context.Background()
-}
-
-func testCreateContentFile(ctx context.Context, t *testing.T, p db.Provider, file *model.ContentFile) {
-	t.Helper()
-
-	_, err := p.DB(ctx).Exec(ctx, `
-		insert into content_file(id, parent_path) VALUES ($1, $2)`,
-		file.Id, file.Parent)
-	require.NoError(t, err)
-}
-
-func testGetContentFile(ctx context.Context, t *testing.T, p db.Provider, id string) *model.ContentFile {
-	t.Helper()
-
-	var file model.ContentFile
-	rows, err := p.DB(ctx).Query(ctx, `
-		select id, parent_path 
-		from content_file where id = $1`, id)
-	require.NoError(t, err)
-	defer rows.Close()
-	require.True(t, rows.Next())
-
-	err = rows.Scan(&file.Id, &file.Parent)
-	require.NoError(t, err)
-	require.NoError(t, rows.Err())
-
-	return &file
+	return New(manager)
 }

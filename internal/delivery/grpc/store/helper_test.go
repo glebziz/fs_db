@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log"
 	"net"
 	"testing"
 
@@ -17,7 +18,7 @@ import (
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/delivery/grpc/store/mocks"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/log"
+	_ "github.com/glebziz/fs_db/internal/utils/log"
 )
 
 type errReader struct{}

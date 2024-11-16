@@ -40,7 +40,6 @@ func TestFile_Path(t *testing.T) {
 			name: "empty id and empty parent",
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			file := ContentFile{
 				Id:     tc.id,

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
-
-	"github.com/reugn/go-quartz/quartz"
+	"runtime"
+	"time"
 
 	"github.com/glebziz/fs_db/config"
-	dbManager "github.com/glebziz/fs_db/internal/db"
+	"github.com/glebziz/fs_db/internal/db/badger"
 	"github.com/glebziz/fs_db/internal/model"
 	contentRepo "github.com/glebziz/fs_db/internal/repository/content"
 	contentFileRepo "github.com/glebziz/fs_db/internal/repository/content_file"
@@ -17,17 +17,16 @@ import (
 	fileRepo "github.com/glebziz/fs_db/internal/repository/file"
 	txRepo "github.com/glebziz/fs_db/internal/repository/transaction"
 	cleanerUseCase "github.com/glebziz/fs_db/internal/usecase/cleaner"
+	"github.com/glebziz/fs_db/internal/usecase/core"
 	dirUseCase "github.com/glebziz/fs_db/internal/usecase/dir"
 	storeUseCase "github.com/glebziz/fs_db/internal/usecase/store"
 	txUseCase "github.com/glebziz/fs_db/internal/usecase/transaction"
 	"github.com/glebziz/fs_db/internal/utils/generator"
+	"github.com/glebziz/fs_db/internal/utils/wpool"
 )
 
-//go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
-
-type cleaner interface {
-	Run(ctx context.Context) error
-	Stop(ctx context.Context) error
+type pool interface {
+	Stop()
 }
 
 type storeUsecase interface {
@@ -43,12 +42,12 @@ type txUsecase interface {
 }
 
 type db struct {
-	cleaner cleaner
+	pool pool
 
 	sUc  storeUsecase
 	txUc txUsecase
 
-	manager *dbManager.Manager
+	manager io.Closer
 }
 
 func New(ctx context.Context, cfg *config.Storage) (*db, error) {
@@ -56,14 +55,17 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		return nil, fmt.Errorf("invalid config: %w", err)
 	}
 
-	manager, err := dbManager.New(ctx, cfg.DbPath)
+	manager, err := badger.New(cfg.DbPath)
 	if err != nil {
 		return nil, fmt.Errorf("db new: %w", err)
 	}
 
 	gen := generator.New()
 
-	sched := quartz.NewStdScheduler()
+	p := wpool.New(wpool.Options{
+		NumWorkers:   runtime.GOMAXPROCS(0),
+		SendDuration: time.Millisecond,
+	})
 
 	contentRep := contentRepo.New()
 	contentFileRep := contentFileRepo.New(manager)
@@ -75,28 +77,38 @@ func New(ctx context.Context, cfg *config.Storage) (*db, error) {
 		return nil, fmt.Errorf("dir new: %w", err)
 	}
 
-	cl := cleanerUseCase.New(
-		sched, contentRep,
-		contentFileRep, fileRep,
-		txRep,
+	coreUseCase := core.New(fileRep)
+
+	cleaner := cleanerUseCase.New(
+		coreUseCase, contentRep,
+		contentFileRep, manager,
+		dirRep, fileRep, p, txRep,
 	)
 
 	dirUc := dirUseCase.New(cfg.MaxDirCount, dirRep, gen)
 	storeUc := storeUseCase.New(
 		dirUc, contentRep,
-		contentFileRep, fileRep,
+		contentFileRep, coreUseCase,
 		txRep, gen,
 		rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64())),
 	)
-	txUx := txUseCase.New(cl, fileRep, txRep, gen)
+	txUx := txUseCase.New(cleaner, coreUseCase, txRep, gen)
+	p.Run(ctx)
 
-	err = cl.Run(ctx)
+	deleteFiles, err := coreUseCase.Load(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("cleaner run: %w", err)
+		return nil, fmt.Errorf("load core: %w", err)
 	}
+	cleaner.DeleteFilesAsync(ctx, deleteFiles)
+	p.Sched(ctx, wpool.Event{
+		Caller: "DeleteOld every minute",
+		Fn: func(ctx context.Context) error {
+			return cleaner.DeleteOld(ctx)
+		},
+	}, time.Minute)
 
 	return &db{
-		cleaner: cl,
+		pool:    p,
 		sUc:     storeUc,
 		txUc:    txUx,
 		manager: manager,
@@ -112,12 +124,8 @@ func (db *db) GetTxUseCase() txUsecase {
 }
 
 func (db *db) Close() error {
-	err := db.cleaner.Stop(context.Background())
-	if err != nil {
-		return fmt.Errorf("cleaner stop: %w", err)
-	}
-
-	err = db.manager.Close()
+	db.pool.Stop()
+	err := db.manager.Close()
 	if err != nil {
 		return fmt.Errorf("manager close: %w", err)
 	}

@@ -26,6 +26,7 @@ func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error 
 		}
 		file = model.File{
 			Key:       key,
+			TxId:      model.GetTxId(ctx),
 			ContentId: cFile.Id,
 		}
 	)
@@ -33,11 +34,8 @@ func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error 
 	var (
 		minSize uint64
 		closer  io.Closer
-
-		nextFunc = dirs.Iterate(u.randGen)
 	)
-	for {
-		dir, ok := nextFunc()
+	for dir, ok := range dirs.Iterate(u.randGen) {
 		if !ok {
 			return fs_db.SizeErr
 		}
@@ -76,8 +74,7 @@ func (u *useCase) Set(ctx context.Context, key string, content io.Reader) error 
 		return fmt.Errorf("content file repository store: %w", err)
 	}
 
-	txId := model.GetTxId(ctx)
-	err = u.fRepo.Store(ctx, txId, file)
+	err = u.fRepo.Store(ctx, file)
 	if err != nil {
 		return fmt.Errorf("file repository store: %w", err)
 	}
