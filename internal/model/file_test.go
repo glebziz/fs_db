@@ -68,35 +68,3 @@ func TestFile_Latest(t *testing.T) {
 		})
 	}
 }
-
-func TestFile_Deleted(t *testing.T) {
-	var (
-		contentId = gofakeit.UUID()
-	)
-
-	for _, tc := range []struct {
-		name    string
-		file    File
-		deleted bool
-	}{
-		{
-			name:    "deleted file",
-			file:    File{},
-			deleted: true,
-		},
-		{
-			name: "not deleted file",
-			file: File{
-				ContentId: contentId,
-			},
-			deleted: false,
-		},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			deleted := tc.file.Deleted()
-			require.Equal(t, tc.deleted, deleted)
-		})
-	}
-}

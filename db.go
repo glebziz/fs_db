@@ -43,6 +43,9 @@ type Store interface {
 	// GetReader returns content as io.ReadCloser by key.
 	GetReader(ctx context.Context, key string) (io.ReadCloser, error)
 
+	// GetKeys returns all keys from the database.
+	GetKeys(ctx context.Context) ([]string, error)
+
 	// Delete delete content by key.
 	Delete(ctx context.Context, key string) error
 }

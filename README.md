@@ -22,20 +22,23 @@ go get -u github.com/glebziz/fs_db
 FS DB provides the following store key-value interface:
 ```go
 type Store interface {
-// Set sets the contents of b using the key.
-Set(ctx context.Context, key string, b []byte) error
+	// Set sets the contents of b using the key. 
+	Set(ctx context.Context, key string, b []byte) error
 
-// SetReader sets the reader content using the key.
-SetReader(ctx context.Context, key string, reader io.Reader) error
+	// SetReader sets the reader content using the key. 
+	SetReader(ctx context.Context, key string, reader io.Reader) error
 
-// Get returns content by key.
-Get(ctx context.Context, key string) ([]byte, error)
+	// Get returns content by key. 
+	Get(ctx context.Context, key string) ([]byte, error)
 
-// GetReader returns content as io.ReadCloser by key.
-GetReader(ctx context.Context, key string) (io.ReadCloser, error)
+	// GetReader returns content as io.ReadCloser by key. 
+	GetReader(ctx context.Context, key string) (io.ReadCloser, error)
 
-// Delete delete content by key.
-Delete(ctx context.Context, key string) error
+	// GetKeys returns all keys from the database. 
+	GetKeys(ctx context.Context) ([]string, error)
+
+	// Delete delete content by key. 
+	Delete(ctx context.Context, key string) error
 }
 ```
 
@@ -44,11 +47,11 @@ Delete(ctx context.Context, key string) error
 FS DB provides the following transaction interface:
 ```go
 type TxOps interface {
-// Commit commits the transaction.
-Commit(ctx context.Context) error
+	// Commit commits the transaction. 
+	Commit(ctx context.Context) error
 
-// Rollback rolls back the transaction.
-Rollback(ctx context.Context) error
+	// Rollback rolls back the transaction. 
+	Rollback(ctx context.Context) error
 }
 ```
 
@@ -59,7 +62,7 @@ FS DB provides the following client interface:
 type DB interface {
 	Store
 
-	// Begin starts a transaction with isoLevel.
+	// Begin starts a transaction with isoLevel. 
 	Begin(ctx context.Context, isoLevel ...model.TxIsoLevel) (Tx, error)
 }
 ```

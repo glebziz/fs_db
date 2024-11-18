@@ -30,6 +30,7 @@ type pool interface {
 type storeUsecase interface {
 	Set(ctx context.Context, key string, content io.Reader) error
 	Get(ctx context.Context, key string) (io.ReadCloser, error)
+	GetKeys(ctx context.Context) ([]string, error)
 	Delete(ctx context.Context, key string) error
 }
 

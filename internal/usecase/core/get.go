@@ -5,40 +5,44 @@ import (
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/model/core"
+	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
 func (u *useCase) Get(_ context.Context, txId, key string, filter model.FileFilter) (model.File, error) {
 	var f, s model.File
-	if filter.BeforeSeq == nil && filter.TxId == nil { //nolint:nestif // TODO fix
-		u.allStore.RLock()
-		defer u.allStore.RUnlock()
-
-		f = u.allStore.File(key).Latest()
+	if filter.BeforeSeq == nil && filter.TxId == nil {
+		f = u.getFileFromTx(&u.allStore, key, nil)
 	} else if filter.TxId != nil {
 		tx, ok := u.txStore.Get(txId)
 		if ok {
-			f = tx.File(key).Latest()
+			f = u.getFileFromTx(tx, key, nil)
 		}
-		tx.RLock()
-		defer tx.RUnlock()
 
 		sTx, ok := u.txStore.Get(*filter.TxId)
 		if ok {
-			sTx.RLock()
-			defer sTx.RUnlock()
-
-			if filter.BeforeSeq == nil {
-				s = sTx.File(key).Latest()
-			} else {
-				s = sTx.File(key).LastBefore(*filter.BeforeSeq)
-			}
+			s = u.getFileFromTx(sTx, key, filter.BeforeSeq)
 		}
 	}
 
 	latest := f.Latest(s)
-	if latest.Seq.Zero() || latest.Deleted() {
+	if latest.Seq.Zero() {
 		return model.File{}, fs_db.NotFoundErr
 	}
 
 	return latest, nil
+}
+
+func (u *useCase) getFileFromTx(tx *core.Transaction, key string, beforeSeq *sequence.Seq) model.File {
+	tx.RLock()
+	defer tx.RUnlock()
+
+	var f model.File
+	if beforeSeq == nil {
+		f = tx.File(key).Latest()
+	} else {
+		f = tx.File(key).LastBefore(*beforeSeq)
+	}
+
+	return f
 }

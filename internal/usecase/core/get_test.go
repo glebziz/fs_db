@@ -615,7 +615,7 @@ func TestUseCase_Get(t *testing.T) {
 			file, err := u.Get(context.Background(), testTxId, testKey, filter)
 
 			require.ErrorIs(t, err, tc.err)
-			requireEqualFiles(t, tc.file, file)
+			requireEqualFile(t, tc.file, file)
 		})
 	}
 }

@@ -8,8 +8,10 @@ import (
 	"net"
 	"os"
 	"path"
+	"runtime"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
@@ -40,10 +42,17 @@ func newTestDb(t testing.TB) fs_db.DB {
 	err = os.Chmod(dir, 0750)
 	require.NoError(t, err)
 
-	cl, err := inlineDb.New(testCtx, &config.Storage{
-		MaxDirCount: 100,
-		DbPath:      path.Join(dir, "test_db"),
-		RootDirs:    []string{path.Join(dir, gofakeit.UUID()), path.Join(dir, gofakeit.UUID())},
+	cl, err := inlineDb.New(testCtx, config.Config{
+		Storage: config.Storage{
+			MaxDirCount: 100,
+			DbPath:      path.Join(dir, "test_db"),
+			RootDirs:    []string{path.Join(dir, gofakeit.UUID()), path.Join(dir, gofakeit.UUID())},
+			GCPeriod:    time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: time.Millisecond,
+		},
 	})
 	require.NoError(t, err)
 

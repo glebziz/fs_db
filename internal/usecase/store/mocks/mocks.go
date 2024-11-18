@@ -341,6 +341,45 @@ func (c *fileRepositoryGetCall) DoAndReturn(f func(context.Context, string, stri
 	return c
 }
 
+// GetFiles mocks base method.
+func (m *MockfileRepository) GetFiles(ctx context.Context, txId string, filter model.FileFilter) ([]model.File, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFiles", ctx, txId, filter)
+	ret0, _ := ret[0].([]model.File)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFiles indicates an expected call of GetFiles.
+func (mr *MockfileRepositoryMockRecorder) GetFiles(ctx, txId, filter any) *fileRepositoryGetFilesCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFiles", reflect.TypeOf((*MockfileRepository)(nil).GetFiles), ctx, txId, filter)
+	return &fileRepositoryGetFilesCall{Call: call}
+}
+
+// fileRepositoryGetFilesCall wrap *gomock.Call
+type fileRepositoryGetFilesCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *fileRepositoryGetFilesCall) Return(arg0 []model.File, arg1 error) *fileRepositoryGetFilesCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *fileRepositoryGetFilesCall) Do(f func(context.Context, string, model.FileFilter) ([]model.File, error)) *fileRepositoryGetFilesCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *fileRepositoryGetFilesCall) DoAndReturn(f func(context.Context, string, model.FileFilter) ([]model.File, error)) *fileRepositoryGetFilesCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Store mocks base method.
 func (m *MockfileRepository) Store(ctx context.Context, file model.File) error {
 	m.ctrl.T.Helper()

@@ -27,6 +27,7 @@ type contentFileRepository interface {
 type fileRepository interface {
 	Store(ctx context.Context, file model.File) error
 	Get(ctx context.Context, txId, key string, filter model.FileFilter) (model.File, error)
+	GetFiles(ctx context.Context, txId string, filter model.FileFilter) ([]model.File, error)
 }
 
 type txRepository interface {

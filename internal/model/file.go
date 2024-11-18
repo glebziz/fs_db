@@ -19,10 +19,6 @@ func (f File) Latest(o File) File {
 	return o
 }
 
-func (f File) Deleted() bool {
-	return f.ContentId == ""
-}
-
 type FileFilter struct {
 	TxId      *string
 	BeforeSeq *sequence.Seq

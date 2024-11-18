@@ -137,6 +137,40 @@ func ExampleStore_GetReader() {
 	// some content
 }
 
+func ExampleStore_GetKeys() {
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
+	})
+	if err != nil {
+		log.Fatalln("Open:", err)
+	}
+
+	key := "someKey"
+	err = db.Set(context.Background(), key, []byte("some content"))
+	if err != nil {
+		log.Fatalln("Set:", err)
+	}
+
+	keys, err := db.GetKeys(context.Background())
+	if err != nil {
+		log.Fatalln("Get keys:", err)
+	}
+
+	fmt.Println(keys)
+
+	// Output:
+	// [someKey]
+}
+
 func ExampleStore_Delete() {
 	db, err := inline.Open(context.Background(), config.Config{
 		Storage: config.Storage{

@@ -2,11 +2,7 @@ package core
 
 import (
 	"context"
-	"slices"
-	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/sequence"
@@ -66,7 +62,6 @@ func TestUseCase_DeleteOld(t *testing.T) {
 				Key:       testKey,
 				TxId:      testTxId,
 				ContentId: testContentId2,
-				Seq:       sequence.Next(),
 			}, {
 				Key:       testKey2,
 				TxId:      testTxId,
@@ -176,20 +171,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 			td := newTestDeps(t)
 			u, filter := tc.initUseCase(td)
 			deleteFiles := u.DeleteOld(context.Background(), testTxId, ptr.Val(filter.BeforeSeq))
-
-			require.Len(t, deleteFiles, len(tc.deleteFiles))
-
-			slices.SortFunc(deleteFiles, func(a, b model.File) int {
-				return strings.Compare(a.ContentId, b.ContentId)
-			})
-			slices.SortFunc(tc.deleteFiles, func(a, b model.File) int {
-				return strings.Compare(a.ContentId, b.ContentId)
-			})
-
-			for i := range deleteFiles {
-				requireEqualFiles(t, tc.deleteFiles[i], deleteFiles[i])
-			}
-
+			requireEqualFiles(t, tc.deleteFiles, deleteFiles)
 		})
 	}
 }

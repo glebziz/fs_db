@@ -74,6 +74,15 @@ func (t *tx) GetReader(ctx context.Context, key string) (io.ReadCloser, error) {
 	return r, nil
 }
 
+func (t *tx) GetKeys(ctx context.Context) ([]string, error) {
+	keys, err := t.store.GetKeys(t.ctxFn(ctx))
+	if err != nil {
+		return nil, fmt.Errorf("store get keys: %w", err)
+	}
+
+	return keys, nil
+}
+
 func (t *tx) Delete(ctx context.Context, key string) error {
 	err := t.store.Delete(t.ctxFn(ctx), key)
 	if err != nil {

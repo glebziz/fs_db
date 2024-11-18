@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -18,6 +19,7 @@ const (
 
 	testKey  = "testKey"
 	testKey2 = "testKey2"
+	testKey3 = "testKey3"
 
 	testContentId  = "testContentId"
 	testContentId2 = "testContentId2"
@@ -48,12 +50,22 @@ func (td *testDeps) newUseCase() *useCase {
 	return New(td.fileRepo)
 }
 
-func requireEqualFiles(t *testing.T, a, b model.File) {
+func requireEqualFiles(t *testing.T, a, b []model.File) {
 	t.Helper()
 
-	require.Equal(t, a.Key, b.Key)
-	require.Equal(t, a.ContentId, b.ContentId)
-	require.Equal(t, a.TxId, b.TxId)
+	require.Len(t, b, len(a), fmt.Sprintf("%v\n%v", a, b))
+	for i := range b {
+		b[i].Seq = 0
+	}
+
+	require.True(t, gomock.InAnyOrder(a).Matches(b), fmt.Sprintf("%v\n%v", a, b))
+}
+
+func requireEqualFile(t *testing.T, a, b model.File) {
+	t.Helper()
+
+	b.Seq = 0
+	require.Equal(t, a, b)
 }
 
 func (u *useCase) testStore(td *testDeps, f model.File) {

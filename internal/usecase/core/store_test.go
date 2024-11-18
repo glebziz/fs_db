@@ -26,7 +26,7 @@ func TestUseCase_Store(t *testing.T) {
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).
 					DoAndReturn(func(_ context.Context, file model.File) error {
-						requireEqualFiles(t, model.File{
+						requireEqualFile(t, model.File{
 							Key:       testKey,
 							TxId:      testTxId,
 							ContentId: testContentId,
@@ -41,12 +41,12 @@ func TestUseCase_Store(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId,
 					ContentId: testContentId,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId,
 					ContentId: testContentId,
@@ -60,7 +60,7 @@ func TestUseCase_Store(t *testing.T) {
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).
 					DoAndReturn(func(_ context.Context, file model.File) error {
-						requireEqualFiles(t, model.File{
+						requireEqualFile(t, model.File{
 							Key:       testKey,
 							TxId:      testTxId,
 							ContentId: testContentId,
@@ -88,12 +88,12 @@ func TestUseCase_Store(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId,
 					ContentId: testContentId,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId,
 					ContentId: testContentId,

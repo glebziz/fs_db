@@ -105,12 +105,12 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId2)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId2,
 					ContentId: testContentId5,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey2,
 					TxId:      testTxId2,
 					ContentId: testContentId3,
@@ -152,7 +152,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 					DoAndReturn(func(_ context.Context, file model.File) error {
 						f, ok := files[file.ContentId]
 						require.True(t, ok)
-						requireEqualFiles(t, f, file)
+						requireEqualFile(t, f, file)
 						delete(files, file.ContentId)
 						return nil
 					})
@@ -196,12 +196,12 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId2)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId2,
 					ContentId: testContentId3,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey2,
 					TxId:      testTxId2,
 					ContentId: testContentId4,
@@ -238,7 +238,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 					DoAndReturn(func(_ context.Context, file model.File) error {
 						f, ok := files[file.ContentId]
 						require.True(t, ok)
-						requireEqualFiles(t, f, file)
+						requireEqualFile(t, f, file)
 						delete(files, file.ContentId)
 						return nil
 					})
@@ -268,12 +268,12 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId2)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId2,
 					ContentId: testContentId,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey2,
 					TxId:      testTxId2,
 					ContentId: testContentId2,
@@ -310,12 +310,12 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId2)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId2,
 					ContentId: testContentId,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey2,
 					TxId:      testTxId2,
 					ContentId: testContentId2,
@@ -352,12 +352,12 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId2)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId2,
 					ContentId: testContentId,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey2,
 					TxId:      testTxId2,
 					ContentId: testContentId2,
@@ -406,12 +406,12 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId2)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId2,
 					ContentId: testContentId2,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey2,
 					TxId:      testTxId2,
 					ContentId: testContentId4,
@@ -485,12 +485,12 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				tx, ok := u.txStore.Get(testTxId2)
 				require.True(t, ok)
 
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey,
 					TxId:      testTxId2,
 					ContentId: testContentId4,
 				}, tx.File(testKey).Latest())
-				requireEqualFiles(t, model.File{
+				requireEqualFile(t, model.File{
 					Key:       testKey2,
 					TxId:      testTxId2,
 					ContentId: testContentId2,
@@ -516,10 +516,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 			deleteFiles, err := u.UpdateTx(context.Background(), testTxId, testTxId2, filter)
 
 			require.ErrorIs(t, err, tc.err)
-			for i := range deleteFiles {
-				deleteFiles[i].Seq = 0
-			}
-			require.True(t, gomock.InAnyOrder(tc.deleteFiles).Matches(deleteFiles))
+			requireEqualFiles(t, tc.deleteFiles, deleteFiles)
 			tc.requireU(t, u)
 		})
 	}

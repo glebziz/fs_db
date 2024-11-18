@@ -20,8 +20,10 @@ var (
 	testTxId  = gofakeit.UUID()
 	testTxSeq = sequence.Next()
 
-	testKey       = gofakeit.UUID()
-	testContentId = gofakeit.UUID()
+	testKey        = "testKey"
+	testKey2       = "testKey2"
+	testContentId  = gofakeit.UUID()
+	testContentId2 = gofakeit.UUID()
 
 	testContent = gofakeit.UUID()
 	testSize    = uint64(10)

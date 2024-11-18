@@ -12,6 +12,7 @@ enum ChunkSize {
 service StoreV1 {
   rpc SetFile(stream SetFileRequest) returns(SetFileResponse) {}
   rpc GetFile(GetFileRequest) returns(stream GetFileResponse) {}
+  rpc GetKeys(GetKeysRequest) returns(GetKeysResponse) {}
   rpc DeleteFile(DeleteFileRequest) returns(DeleteFileResponse) {}
 
   // Tx
@@ -50,6 +51,12 @@ message GetFileResponse {
     bytes chunk = 1;
     FileHeader header = 2;
   }
+}
+
+message GetKeysRequest {}
+
+message GetKeysResponse {
+  repeated string keys = 1;
 }
 
 message DeleteFileRequest {
