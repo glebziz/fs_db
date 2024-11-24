@@ -39,6 +39,9 @@ type Store interface {
 
 	// Delete delete content by key. 
 	Delete(ctx context.Context, key string) error
+	
+	// Create returns the File for to write to.
+	Create(ctx context.Context, key string) (File, error)
 }
 ```
 

@@ -63,6 +63,36 @@ func ExampleStore_SetReader() {
 	}
 }
 
+func ExampleStore_Create() {
+	db, err := inline.Open(context.Background(), config.Config{
+		Storage: config.Storage{
+			DbPath:      "test_db",
+			MaxDirCount: 1,
+			RootDirs:    []string{"./testStorage"},
+			GCPeriod:    1 * time.Minute,
+		},
+		WPool: config.WPool{
+			NumWorkers:   runtime.GOMAXPROCS(0),
+			SendDuration: 1 * time.Millisecond,
+		},
+	})
+	if err != nil {
+		log.Fatalln("Open:", err)
+	}
+
+	var f fs_db.File
+	f, err = db.Create(context.Background(), "someKey")
+	if err != nil {
+		log.Fatalln("Create:", err)
+	}
+	defer f.Close()
+
+	_, err = f.Write([]byte("some content"))
+	if err != nil {
+		log.Fatalln("Write:", err)
+	}
+}
+
 func ExampleStore_Get() {
 	db, err := inline.Open(context.Background(), config.Config{
 		Storage: config.Storage{

@@ -15,6 +15,8 @@ import (
 func TestReader_Read(t *testing.T) {
 	for bufLen := 1; bufLen < 50; bufLen += 5 {
 		t.Run(fmt.Sprintf("bufLen %d", bufLen), func(t *testing.T) {
+			t.Parallel()
+
 			var (
 				err error
 				n   int
@@ -33,7 +35,7 @@ func TestReader_Read(t *testing.T) {
 			)
 
 			ctrl := gomock.NewController(t)
-			stream := mock_streamreader.NewMockStream(ctrl)
+			stream := mock_streamreader.NewMockStream[*mock_streamreader.MockRequest](ctrl)
 			request := mock_streamreader.NewMockRequest(ctrl)
 
 			request.EXPECT().
@@ -51,7 +53,7 @@ func TestReader_Read(t *testing.T) {
 
 			stream.EXPECT().
 				Recv().
-				DoAndReturn(func() (streamreader.Request, error) {
+				DoAndReturn(func() (*mock_streamreader.MockRequest, error) {
 					numStreamCall++
 
 					if numStreamCall <= 5 {
@@ -62,7 +64,7 @@ func TestReader_Read(t *testing.T) {
 				}).
 				AnyTimes()
 
-			r := streamreader.New(stream)
+			r := streamreader.New[*mock_streamreader.MockRequest](stream)
 
 			for err == nil {
 				n, err = r.Read(buf)

@@ -24,9 +24,12 @@ func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
 		return nil, fmt.Errorf("recv header: %w", grpc.ClientError(err))
 	}
 
-	var buf bytes.Buffer
+	var (
+		buf  bytes.Buffer
+		resp *store.GetFileResponse
+	)
 	for {
-		req, err := stream.Recv()
+		resp, err = stream.Recv()
 		if errors.Is(err, io.EOF) {
 			break
 		}
@@ -34,7 +37,7 @@ func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
 			return nil, fmt.Errorf("recv: %w", grpc.ClientError(err))
 		}
 
-		buf.Write(req.GetChunk())
+		buf.Write(resp.GetChunk())
 	}
 
 	return buf.Bytes(), nil

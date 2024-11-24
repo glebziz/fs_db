@@ -9,20 +9,6 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/grpc/streamreader"
 )
 
-type wrapper struct {
-	s store.StoreV1_SetFileServer
-}
-
-func newWrapper(s store.StoreV1_SetFileServer) *wrapper {
-	return &wrapper{
-		s: s,
-	}
-}
-
-func (s *wrapper) Recv() (streamreader.Request, error) {
-	return s.s.Recv()
-}
-
 func (i *implementation) SetFile(stream store.StoreV1_SetFileServer) error {
 	req, err := stream.Recv()
 	if err != nil {
@@ -34,7 +20,7 @@ func (i *implementation) SetFile(stream store.StoreV1_SetFileServer) error {
 		return grpc.Error(fs_db.HeaderNotFoundErr)
 	}
 
-	err = i.sUsecase.Set(stream.Context(), header.GetKey(), streamreader.New(newWrapper(stream)))
+	err = i.sUsecase.Set(stream.Context(), header.GetKey(), streamreader.New(stream))
 	if err != nil {
 		return grpc.Error(fmt.Errorf("store usecase set: %w", err))
 	}

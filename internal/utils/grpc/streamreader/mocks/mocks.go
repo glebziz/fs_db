@@ -77,63 +77,63 @@ func (c *RequestGetChunkCall) DoAndReturn(f func() []byte) *RequestGetChunkCall 
 }
 
 // MockStream is a mock of Stream interface.
-type MockStream struct {
+type MockStream[T streamreader.Request] struct {
 	ctrl     *gomock.Controller
-	recorder *MockStreamMockRecorder
+	recorder *MockStreamMockRecorder[T]
 }
 
 // MockStreamMockRecorder is the mock recorder for MockStream.
-type MockStreamMockRecorder struct {
-	mock *MockStream
+type MockStreamMockRecorder[T streamreader.Request] struct {
+	mock *MockStream[T]
 }
 
 // NewMockStream creates a new mock instance.
-func NewMockStream(ctrl *gomock.Controller) *MockStream {
-	mock := &MockStream{ctrl: ctrl}
-	mock.recorder = &MockStreamMockRecorder{mock}
+func NewMockStream[T streamreader.Request](ctrl *gomock.Controller) *MockStream[T] {
+	mock := &MockStream[T]{ctrl: ctrl}
+	mock.recorder = &MockStreamMockRecorder[T]{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockStream) EXPECT() *MockStreamMockRecorder {
+func (m *MockStream[T]) EXPECT() *MockStreamMockRecorder[T] {
 	return m.recorder
 }
 
 // Recv mocks base method.
-func (m *MockStream) Recv() (streamreader.Request, error) {
+func (m *MockStream[T]) Recv() (T, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Recv")
-	ret0, _ := ret[0].(streamreader.Request)
+	ret0, _ := ret[0].(T)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Recv indicates an expected call of Recv.
-func (mr *MockStreamMockRecorder) Recv() *StreamRecvCall {
+func (mr *MockStreamMockRecorder[T]) Recv() *StreamRecvCall[T] {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Recv", reflect.TypeOf((*MockStream)(nil).Recv))
-	return &StreamRecvCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Recv", reflect.TypeOf((*MockStream[T])(nil).Recv))
+	return &StreamRecvCall[T]{Call: call}
 }
 
 // StreamRecvCall wrap *gomock.Call
-type StreamRecvCall struct {
+type StreamRecvCall[T streamreader.Request] struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *StreamRecvCall) Return(arg0 streamreader.Request, arg1 error) *StreamRecvCall {
+func (c *StreamRecvCall[T]) Return(arg0 T, arg1 error) *StreamRecvCall[T] {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *StreamRecvCall) Do(f func() (streamreader.Request, error)) *StreamRecvCall {
+func (c *StreamRecvCall[T]) Do(f func() (T, error)) *StreamRecvCall[T] {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *StreamRecvCall) DoAndReturn(f func() (streamreader.Request, error)) *StreamRecvCall {
+func (c *StreamRecvCall[T]) DoAndReturn(f func() (T, error)) *StreamRecvCall[T] {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

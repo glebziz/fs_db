@@ -91,3 +91,12 @@ func (t *tx) Delete(ctx context.Context, key string) error {
 
 	return nil
 }
+
+func (t *tx) Create(ctx context.Context, key string) (File, error) {
+	wc, err := t.store.Create(t.ctxFn(ctx), key)
+	if err != nil {
+		return nil, fmt.Errorf("store create: %w", err)
+	}
+
+	return wc, nil
+}
