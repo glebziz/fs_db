@@ -67,6 +67,9 @@ type DB interface {
 
 	// Begin starts a transaction with isoLevel. 
 	Begin(ctx context.Context, isoLevel ...model.TxIsoLevel) (Tx, error)
+	
+	// Close closed the connection to fs_db. 
+	Close() error
 }
 ```
 
@@ -129,15 +132,16 @@ func main() {
 	if err != nil {
 		log.Fatalln("Open db inline:", err)
 	}
+	defer db.Close()
 
 	err = db.Set(context.Background(), "someKey", []byte("some content"))
 	if err != nil {
-		log.Fatalln("Set:", err)
+		log.Panicln("Set:", err)
 	}
 
 	b, err := db.Get(context.Background(), "someKey")
 	if err != nil {
-		log.Fatalln("Get:", err)
+		log.Panicln("Get:", err)
 	}
 
 	fmt.Println(string(b))

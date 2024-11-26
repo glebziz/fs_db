@@ -59,4 +59,7 @@ type DB interface {
 
 	// Begin starts a transaction with isoLevel.
 	Begin(ctx context.Context, isoLevel ...model.TxIsoLevel) (Tx, error)
+
+	// Close closed the connection to fs_db.
+	Close() error
 }

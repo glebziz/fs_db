@@ -32,6 +32,7 @@ func ExampleStore_Set() {
 	if err != nil {
 		log.Fatalln("Open:", err)
 	}
+	defer db.Close()
 
 	err = db.Set(context.Background(), "someKey", []byte("some content"))
 	if err != nil {
@@ -55,6 +56,7 @@ func ExampleStore_SetReader() {
 	if err != nil {
 		log.Fatalln("Open:", err)
 	}
+	defer db.Close()
 
 	content := []byte("some content")
 	err = db.SetReader(context.Background(), "someKey", bytes.NewReader(content))
@@ -79,6 +81,7 @@ func ExampleStore_Create() {
 	if err != nil {
 		log.Fatalln("Open:", err)
 	}
+	defer db.Close()
 
 	var f fs_db.File
 	f, err = db.Create(context.Background(), "someKey")
@@ -109,6 +112,7 @@ func ExampleStore_Get() {
 	if err != nil {
 		log.Fatalln("Open:", err)
 	}
+	defer db.Close()
 
 	key := "someKey"
 	err = db.Set(context.Background(), key, []byte("some content"))
@@ -143,6 +147,7 @@ func ExampleStore_GetReader() {
 	if err != nil {
 		log.Fatalln("Open:", err)
 	}
+	defer db.Close()
 
 	key := "someKey"
 	err = db.Set(context.Background(), key, []byte("some content"))
@@ -183,6 +188,7 @@ func ExampleStore_GetKeys() {
 	if err != nil {
 		log.Fatalln("Open:", err)
 	}
+	defer db.Close()
 
 	key := "someKey"
 	err = db.Set(context.Background(), key, []byte("some content"))
@@ -215,25 +221,26 @@ func ExampleStore_Delete() {
 		},
 	})
 	if err != nil {
-		log.Fatalln("Open:", err)
+		log.Panicln("Open:", err)
 	}
+	defer db.Close()
 
 	key := "someKey"
 	err = db.Set(context.Background(), key, []byte("some content"))
 	if err != nil {
-		log.Fatalln("Set:", err)
+		log.Panicln("Set:", err)
 	}
 
 	err = db.Delete(context.Background(), key)
 	if err != nil {
-		log.Fatalln("Get:", err)
+		log.Panicln("Get:", err)
 	}
 
 	_, err = db.Get(context.Background(), key)
 	if errors.Is(err, fs_db.NotFoundErr) {
 		fmt.Println("key not found")
 	} else if err != nil {
-		log.Fatalln("Get:", err)
+		log.Panicln("Get:", err)
 	}
 
 	// Output:
@@ -254,12 +261,13 @@ func ExampleDB_Begin() {
 		},
 	})
 	if err != nil {
-		log.Fatalln("Open:", err)
+		log.Panicln("Open:", err)
 	}
+	defer db.Close()
 
 	tx, err := db.Begin(context.Background(), fs_db.IsoLevelReadCommitted)
 	if err != nil {
-		log.Fatalln("Begin:", err)
+		log.Panicln("Begin:", err)
 	}
 	defer tx.Rollback(context.Background())
 

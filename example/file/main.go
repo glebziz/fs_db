@@ -26,27 +26,28 @@ func main() {
 		},
 	})
 	if err != nil {
-		log.Fatalln("Open db inline:", err)
+		log.Panicln("Open db inline:", err)
 	}
+	defer db.Close()
 
 	f, err := db.Create(context.Background(), "someKey")
 	if err != nil {
-		log.Fatalln("Create:", err)
+		log.Panicln("Create:", err)
 	}
 
 	_, err = f.Write([]byte("some content"))
 	if err != nil {
-		log.Fatalln("Write:", err)
+		log.Panicln("Write:", err)
 	}
 
 	err = f.Close()
 	if err != nil {
-		log.Fatalln("Close:", err)
+		log.Panicln("Close:", err)
 	}
 
 	b, err := db.Get(context.Background(), "someKey")
 	if err != nil {
-		log.Fatalln("Get:", err)
+		log.Panicln("Get:", err)
 	}
 
 	fmt.Println(string(b))

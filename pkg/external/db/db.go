@@ -26,3 +26,7 @@ func New(_ context.Context, url string) (*db, error) {
 		client: store.NewStoreV1Client(conn),
 	}, nil
 }
+
+func (db *db) Close() error {
+	return nil
+}
