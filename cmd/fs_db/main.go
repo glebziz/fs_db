@@ -5,16 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net"
-
-	"google.golang.org/grpc"
+	"os"
+	"os/signal"
 
 	"github.com/glebziz/fs_db/config"
-	storeService "github.com/glebziz/fs_db/internal/delivery/grpc/store"
-	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/grpc/interceptors/server"
+	"github.com/glebziz/fs_db/internal/app"
 	_ "github.com/glebziz/fs_db/internal/utils/log"
-	"github.com/glebziz/fs_db/pkg/inline/db"
 )
 
 var (
@@ -27,32 +23,37 @@ func init() {
 }
 
 func main() {
+	log.Println("Start fs_db")
+
+	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
+	err := run(ctx)
+	if err != nil {
+		log.Fatalln("Run:", err)
+	}
+
+	log.Println("Stop fs_db")
+}
+
+func run(ctx context.Context) error {
 	conf, err := config.ParseConfig(confFile)
 	if err != nil {
-		log.Fatalln("Parse config:", err)
+		return fmt.Errorf("parse config: %w", err)
 	}
 
-	cl, err := db.New(context.Background(), conf)
+	a, err := app.New(ctx, conf)
 	if err != nil {
-		log.Fatalln("Inline client: ", err)
+		return fmt.Errorf("new app: %w", err)
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.Port))
+	err = a.Run(ctx)
 	if err != nil {
-		log.Fatalln("Listen:", err)
+		return fmt.Errorf("run app: %w", err)
 	}
 
-	s := grpc.NewServer(
-		grpc.ChainUnaryInterceptor(
-			server.LoggingInterceptor,
-			server.ContextInterceptor,
-		),
-		grpc.ChainStreamInterceptor(
-			server.StreamLoggingInterceptor,
-			server.ContextStreamInterceptor,
-		),
-	)
+	err = a.Stop()
+	if err != nil {
+		return fmt.Errorf("stop app: %w", err)
+	}
 
-	store.RegisterStoreV1Server(s, storeService.New(cl.GetStoreUseCase(), cl.GetTxUseCase()))
-	log.Fatalln(s.Serve(lis))
+	return nil
 }

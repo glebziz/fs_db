@@ -6,7 +6,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Remove(_ context.Context, dir model.Dir) error {
+func (r *Repo) Remove(_ context.Context, dir model.Dir) error {
 	r.m.Lock()
 	defer r.m.Unlock()
 

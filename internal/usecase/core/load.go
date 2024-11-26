@@ -8,7 +8,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) Load(ctx context.Context) ([]model.File, error) {
+func (u *UseCase) Load(ctx context.Context) ([]model.File, error) {
 	files, err := u.fileRepo.GetAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("db get all: %w", err)

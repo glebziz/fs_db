@@ -21,7 +21,7 @@ func TestUseCase_Store(t *testing.T) {
 	}{
 		{
 			name: "new tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				td.fileRepo.EXPECT().
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).
@@ -37,7 +37,7 @@ func TestUseCase_Store(t *testing.T) {
 
 				return td.newUseCase(), model.FileFilter{}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				tx, ok := u.txStore.Get(testTxId)
 				require.True(t, ok)
 
@@ -55,7 +55,7 @@ func TestUseCase_Store(t *testing.T) {
 		},
 		{
 			name: "tx already exists",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				td.fileRepo.EXPECT().
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).
@@ -84,7 +84,7 @@ func TestUseCase_Store(t *testing.T) {
 
 				return u, model.FileFilter{}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				tx, ok := u.txStore.Get(testTxId)
 				require.True(t, ok)
 
@@ -102,7 +102,7 @@ func TestUseCase_Store(t *testing.T) {
 		},
 		{
 			name: "file repo error",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				td.fileRepo.EXPECT().
 					Set(gomock.Any(), gomock.Any()).
 					Times(1).

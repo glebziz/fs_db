@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Get(_ context.Context, id string) (model.Transaction, error) {
+func (r *Repo) Get(_ context.Context, id string) (model.Transaction, error) {
 	if id == model.MainTxId {
 		return model.Transaction{
 			Id:       id,

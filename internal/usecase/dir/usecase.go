@@ -19,15 +19,15 @@ type generator interface {
 	Generate() string
 }
 
-type useCase struct {
+type UseCase struct {
 	maxCount uint64
 
 	dRepo   dirRepository
 	nameGen generator
 }
 
-func New(maxCount uint64, dRepo dirRepository, nameGen generator) *useCase {
-	return &useCase{
+func New(maxCount uint64, dRepo dirRepository, nameGen generator) *UseCase {
+	return &UseCase{
 		maxCount: maxCount,
 		dRepo:    dRepo,
 		nameGen:  nameGen,

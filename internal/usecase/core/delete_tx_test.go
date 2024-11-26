@@ -19,7 +19,7 @@ func TestUseCase_DeleteTx(t *testing.T) {
 	}{
 		{
 			name: "success",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				var (
 					files = []model.File{{
 						Key:       testKey,
@@ -64,7 +64,7 @@ func TestUseCase_DeleteTx(t *testing.T) {
 		},
 		{
 			name: "success with empty tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testAddEmptyTx(td, testTxId, testKey, testKey2)
@@ -87,7 +87,7 @@ func TestUseCase_DeleteTx(t *testing.T) {
 		},
 		{
 			name: "success without tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{

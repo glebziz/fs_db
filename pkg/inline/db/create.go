@@ -16,7 +16,7 @@ func (db *db) Create(ctx context.Context, key string) (fs_db.File, error) {
 	go func() {
 		defer rw.Done()
 
-		err := db.sUc.Set(ctx, key, rw)
+		err := db.container.Store().Set(ctx, key, rw)
 		if err != nil {
 			var errNotEnoughSpace model.NotEnoughSpaceError
 			if errors.As(err, &errNotEnoughSpace) {

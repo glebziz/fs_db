@@ -20,7 +20,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 	}{
 		{
 			name: "success without filter",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{
@@ -62,7 +62,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 		},
 		{
 			name: "success without filter and without tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{
@@ -92,14 +92,14 @@ func TestUseCase_GetFiles(t *testing.T) {
 		},
 		{
 			name: "empty without filter",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				return td.newUseCase(), model.FileFilter{}
 			},
 			files: nil,
 		},
 		{
 			name: "success with txId filter",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{
@@ -159,7 +159,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 		},
 		{
 			name: "success with txId filter and without tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{
@@ -203,7 +203,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 		},
 		{
 			name: "not found with txId filter and without txs",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{
@@ -226,7 +226,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 		},
 		{
 			name: "success with filter",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{
@@ -284,7 +284,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 		},
 		{
 			name: "success with filter and without tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{

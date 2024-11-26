@@ -4,7 +4,7 @@ import (
 	"log/slog"
 )
 
-func (p *pool) Stop() {
+func (p *Pool) Stop() {
 	defer p.runM.Unlock()
 	if p.runM.TryLock() {
 		slog.Warn("worker pool already stopped")

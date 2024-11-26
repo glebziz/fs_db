@@ -25,7 +25,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 	}{
 		{
 			name: "success without filter",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				td.fileRepo.EXPECT().
 					RunTransaction(gomock.Any(), gomock.Any()).
 					Times(1).
@@ -98,7 +98,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 
 				return u, model.FileFilter{}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				_, ok := u.txStore.Get(testTxId)
 				require.False(t, ok)
 
@@ -124,7 +124,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 		},
 		{
 			name: "success with filter",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				var (
 					files = map[string]model.File{
 						testContentId3: {
@@ -189,7 +189,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 					BeforeSeq: ptr.Ptr(beforeTs),
 				}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				_, ok := u.txStore.Get(testTxId)
 				require.False(t, ok)
 
@@ -210,7 +210,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 		},
 		{
 			name: "success without newTx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				var (
 					files = map[string]model.File{
 						testContentId: {
@@ -261,7 +261,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 					BeforeSeq: ptr.Ptr(beforeTs),
 				}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				_, ok := u.txStore.Get(testTxId)
 				require.False(t, ok)
 
@@ -282,7 +282,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 		},
 		{
 			name: "success without oldTx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				beforeTs := sequence.Next()
@@ -303,7 +303,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 					BeforeSeq: ptr.Ptr(beforeTs),
 				}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				_, ok := u.txStore.Get(testTxId)
 				require.False(t, ok)
 
@@ -324,7 +324,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 		},
 		{
 			name: "success with empty oldTx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testAddEmptyTx(td, testTxId, testKey, testKey2)
@@ -345,7 +345,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 					BeforeSeq: ptr.Ptr(sequence.Next()),
 				}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				_, ok := u.txStore.Get(testTxId)
 				require.False(t, ok)
 
@@ -366,7 +366,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 		},
 		{
 			name: "serialization error",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				beforeTs := sequence.Next()
@@ -399,7 +399,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 					BeforeSeq: ptr.Ptr(beforeTs),
 				}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				_, ok := u.txStore.Get(testTxId)
 				require.False(t, ok)
 
@@ -430,7 +430,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 		},
 		{
 			name: "file repo error",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				td.fileRepo.EXPECT().
 					RunTransaction(gomock.Any(), gomock.Any()).
 					Times(1).
@@ -478,7 +478,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 
 				return u, model.FileFilter{}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				_, ok := u.txStore.Get(testTxId)
 				require.False(t, ok)
 

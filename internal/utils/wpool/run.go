@@ -5,7 +5,7 @@ import (
 	"log/slog"
 )
 
-func (p *pool) Run(ctx context.Context) {
+func (p *Pool) Run(ctx context.Context) {
 	if !p.runM.TryLock() {
 		slog.Warn("worker pool already running")
 		return
@@ -19,7 +19,7 @@ func (p *pool) Run(ctx context.Context) {
 	}
 }
 
-func (p *pool) run() {
+func (p *Pool) run() {
 	defer p.runWg.Done()
 	for {
 		select {
@@ -31,7 +31,7 @@ func (p *pool) run() {
 	}
 }
 
-func (p *pool) exec(e Event) {
+func (p *Pool) exec(e Event) {
 	ctx, cancel := context.WithCancel(e.ctx)
 	stop := context.AfterFunc(p.ctx, func() {
 		cancel()

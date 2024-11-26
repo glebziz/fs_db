@@ -9,7 +9,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
-func (r *rep) Get(ctx context.Context) (model.Dirs, error) {
+func (r *Repo) Get(ctx context.Context) (model.Dirs, error) {
 	r.m.RLock()
 
 	dirs := make(model.Dirs, 0, len(r.dirs))

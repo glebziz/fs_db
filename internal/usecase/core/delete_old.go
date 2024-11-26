@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) DeleteOld(_ context.Context, txId string, beforeSeq sequence.Seq) []model.File {
+func (u *UseCase) DeleteOld(_ context.Context, txId string, beforeSeq sequence.Seq) []model.File {
 	tx, ok := u.txStore.Get(txId)
 	if !ok {
 		return nil

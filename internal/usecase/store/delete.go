@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (u *useCase) Delete(ctx context.Context, key string) error {
+func (u *UseCase) Delete(ctx context.Context, key string) error {
 	txId := model.GetTxId(ctx)
 
 	err := u.fRepo.Store(ctx, model.File{

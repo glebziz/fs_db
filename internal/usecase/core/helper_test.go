@@ -29,8 +29,8 @@ const (
 	testContentId6 = "testContentId6"
 )
 
-type initUseCaseFunc func(td *testDeps) (*useCase, model.FileFilter)
-type requireUseCaseFunc func(t *testing.T, u *useCase)
+type initUseCaseFunc func(td *testDeps) (*UseCase, model.FileFilter)
+type requireUseCaseFunc func(t *testing.T, u *UseCase)
 
 type testDeps struct {
 	t        *testing.T
@@ -46,7 +46,7 @@ func newTestDeps(t *testing.T) *testDeps {
 	}
 }
 
-func (td *testDeps) newUseCase() *useCase {
+func (td *testDeps) newUseCase() *UseCase {
 	return New(td.fileRepo)
 }
 
@@ -68,7 +68,7 @@ func requireEqualFile(t *testing.T, a, b model.File) {
 	require.Equal(t, a, b)
 }
 
-func (u *useCase) testStore(td *testDeps, f model.File) {
+func (u *UseCase) testStore(td *testDeps, f model.File) {
 	td.t.Helper()
 
 	tx, ok := u.txStore.Get(f.TxId)
@@ -80,7 +80,7 @@ func (u *useCase) testStore(td *testDeps, f model.File) {
 	u.storeToTx(tx, f)
 }
 
-func (u *useCase) testAddEmptyTx(td *testDeps, txId string, keys ...string) {
+func (u *UseCase) testAddEmptyTx(td *testDeps, txId string, keys ...string) {
 	td.t.Helper()
 
 	tx := &core.Transaction{}

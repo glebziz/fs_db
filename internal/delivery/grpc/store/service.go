@@ -23,14 +23,14 @@ type txUseCase interface {
 	Rollback(ctx context.Context) error
 }
 
-type implementation struct {
+type Service struct {
 	store.UnimplementedStoreV1Server
 	sUsecase  storeUseCase
 	txUsecase txUseCase
 }
 
-func New(su storeUseCase, txu txUseCase) *implementation {
-	return &implementation{
+func New(su storeUseCase, txu txUseCase) *Service {
+	return &Service{
 		UnimplementedStoreV1Server: store.UnimplementedStoreV1Server{},
 
 		sUsecase:  su,

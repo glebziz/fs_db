@@ -10,7 +10,7 @@ import (
 )
 
 func (db *db) SetReader(ctx context.Context, key string, reader io.Reader) error {
-	err := db.sUc.Set(ctx, key, reader)
+	err := db.container.Store().Set(ctx, key, reader)
 	if err != nil {
 		var errNotEnoughSpace model.NotEnoughSpaceError
 		if errors.As(err, &errNotEnoughSpace) {

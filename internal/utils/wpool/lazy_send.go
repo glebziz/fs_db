@@ -1,6 +1,6 @@
 package wpool
 
-func (p *pool) lazySend(e Event) {
+func (p *Pool) lazySend(e Event) {
 	p.listM.Lock()
 	defer p.listM.Unlock()
 
@@ -8,7 +8,7 @@ func (p *pool) lazySend(e Event) {
 	p.lazyResend()
 }
 
-func (p *pool) lazyResend() {
+func (p *Pool) lazyResend() {
 	if !p.lazySendM.TryLock() {
 		return
 	}

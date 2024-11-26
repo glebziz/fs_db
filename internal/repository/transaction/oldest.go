@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Oldest(_ context.Context) (model.Transaction, error) {
+func (r *Repo) Oldest(_ context.Context) (model.Transaction, error) {
 	it := r.storage.Iter()
 	if !it.Next() {
 		return model.Transaction{}, fs_db.TxNotFoundErr

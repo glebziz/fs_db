@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/core"
 )
 
-type pool struct {
+type Pool struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
@@ -25,8 +25,8 @@ type pool struct {
 	opts Options
 }
 
-func New(options Options) *pool {
-	return &pool{
+func New(options Options) *Pool {
+	return &Pool{
 		opts: Options{
 			NumWorkers:   max(options.NumWorkers, minNumWorkers),
 			SendDuration: max(options.SendDuration, minSendDuration),

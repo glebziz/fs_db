@@ -38,7 +38,7 @@ type generator interface {
 	Generate() string
 }
 
-type useCase struct {
+type UseCase struct {
 	dir dirUsecase
 
 	cRepo  contentRepository
@@ -55,8 +55,8 @@ func New(
 	cfRepo contentFileRepository, fRepo fileRepository,
 	txRepo txRepository, idGen generator,
 	randGen *rand.Rand,
-) *useCase {
-	return &useCase{
+) *UseCase {
+	return &UseCase{
 		dir: dir,
 
 		cRepo:  cRepo,

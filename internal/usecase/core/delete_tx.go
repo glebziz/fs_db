@@ -6,7 +6,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (u *useCase) DeleteTx(_ context.Context, txId string) []model.File {
+func (u *UseCase) DeleteTx(_ context.Context, txId string) []model.File {
 	tx := u.txStore.Delete(txId)
 	if tx == nil {
 		return nil

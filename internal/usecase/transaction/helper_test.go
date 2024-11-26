@@ -47,6 +47,6 @@ func newTestDeps(t *testing.T) *testDeps {
 	}
 }
 
-func (td *testDeps) newUseCase() *useCase {
+func (td *testDeps) newUseCase() *UseCase {
 	return New(td.cleaner, td.fRepo, td.txRepo, td.idGen)
 }

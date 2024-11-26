@@ -10,7 +10,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
-func (r *rep) Get(_ context.Context, path string) (io.ReadCloser, error) {
+func (r *Repo) Get(_ context.Context, path string) (io.ReadCloser, error) {
 	f, err := os.Open(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, fs_db.NotFoundErr

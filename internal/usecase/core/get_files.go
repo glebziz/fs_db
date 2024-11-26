@@ -8,7 +8,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) GetFiles(_ context.Context, txId string, filter model.FileFilter) ([]model.File, error) {
+func (u *UseCase) GetFiles(_ context.Context, txId string, filter model.FileFilter) ([]model.File, error) {
 	var (
 		files  []model.File
 		sFiles []model.File
@@ -30,7 +30,7 @@ func (u *useCase) GetFiles(_ context.Context, txId string, filter model.FileFilt
 	return u.mergeFiles(files, sFiles), nil
 }
 
-func (*useCase) getFilesFromTx(tx *core.Transaction, beforeSeq *sequence.Seq) []model.File {
+func (*UseCase) getFilesFromTx(tx *core.Transaction, beforeSeq *sequence.Seq) []model.File {
 	tx.RLock()
 	defer tx.RUnlock()
 
@@ -46,7 +46,7 @@ func (*useCase) getFilesFromTx(tx *core.Transaction, beforeSeq *sequence.Seq) []
 	return files
 }
 
-func (*useCase) mergeFiles(files, sFiles []model.File) []model.File {
+func (*UseCase) mergeFiles(files, sFiles []model.File) []model.File {
 	if len(sFiles) > len(files) {
 		sFiles, files = files, sFiles
 	}

@@ -16,7 +16,7 @@ type fileRepository interface {
 	GetAll(ctx context.Context) ([]model.File, error)
 }
 
-type useCase struct {
+type UseCase struct {
 	txStore  core.Transactions
 	allStore core.Transaction
 	txPool   *core.Pool[core.Transaction]
@@ -25,8 +25,8 @@ type useCase struct {
 	fileRepo fileRepository
 }
 
-func New(fileRepo fileRepository) *useCase {
-	return &useCase{
+func New(fileRepo fileRepository) *UseCase {
+	return &UseCase{
 		allStore: core.Transaction{
 			WithoutSearch: true,
 		},

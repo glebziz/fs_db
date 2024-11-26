@@ -103,7 +103,7 @@ func newTestDeps(t *testing.T) *testDeps {
 	}
 }
 
-func (d *testDeps) newUseCase() *useCase {
+func (d *testDeps) newUseCase() *UseCase {
 	return New(
 		d.dir, d.cRepo,
 		d.cfRepo, d.fRepo,

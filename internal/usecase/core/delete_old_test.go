@@ -17,7 +17,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 	}{
 		{
 			name: "success",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 				u.testStore(td, model.File{
 					Key:       testKey,
@@ -70,7 +70,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 		},
 		{
 			name: "success with only latest",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 				u.testStore(td, model.File{
 					Key:       testKey,
@@ -93,7 +93,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 		},
 		{
 			name: "success with all after seq",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				beforeSeq := sequence.Next()
@@ -130,7 +130,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 		},
 		{
 			name: "success with empty tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 				u.testAddEmptyTx(td, testTxId, testKey, testKey2)
 
@@ -142,7 +142,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 		},
 		{
 			name: "success with nil tx",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				u := td.newUseCase()
 
 				u.testStore(td, model.File{

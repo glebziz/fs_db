@@ -9,7 +9,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) Store(ctx context.Context, f model.File) error {
+func (u *UseCase) Store(ctx context.Context, f model.File) error {
 	tx, ok := u.txStore.Get(f.TxId)
 	if !ok {
 		tx = u.txPool.Acquire()
@@ -34,7 +34,7 @@ func (u *useCase) Store(ctx context.Context, f model.File) error {
 	return nil
 }
 
-func (u *useCase) storeToTx(tx *core.Transaction, f model.File) {
+func (u *UseCase) storeToTx(tx *core.Transaction, f model.File) {
 	var (
 		link = u.nodePool.Acquire().SetV(f)
 		n    = u.nodePool.Acquire().SetV(f).SetLink(link)

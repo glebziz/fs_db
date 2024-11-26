@@ -6,7 +6,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Add(_ context.Context, dir model.Dir) error {
+func (r *Repo) Add(_ context.Context, dir model.Dir) error {
 	r.m.Lock()
 	defer r.m.Unlock()
 

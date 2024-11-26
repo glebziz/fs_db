@@ -39,6 +39,6 @@ func newTestDeps(t *testing.T) *testDeps {
 	}
 }
 
-func (d *testDeps) newUseCase() *useCase {
+func (d *testDeps) newUseCase() *UseCase {
 	return New(testMaxCount, d.dRepo, d.nameGen)
 }

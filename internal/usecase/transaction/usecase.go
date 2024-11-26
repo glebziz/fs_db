@@ -26,7 +26,7 @@ type generator interface {
 	Generate() string
 }
 
-type useCase struct {
+type UseCase struct {
 	cleaner cleaner
 	fRepo   fileRepository
 	txRepo  txRepository
@@ -37,8 +37,8 @@ type useCase struct {
 func New(
 	cleaner cleaner, fRepo fileRepository,
 	txRepo txRepository, idGen generator,
-) *useCase {
-	return &useCase{
+) *UseCase {
+	return &UseCase{
 		cleaner: cleaner,
 		fRepo:   fRepo,
 		txRepo:  txRepo,

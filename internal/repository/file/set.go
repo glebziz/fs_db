@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Set(ctx context.Context, f model.File) error {
+func (r *Repo) Set(ctx context.Context, f model.File) error {
 	data := make([]byte, fileLen(f))
 	err := marshalFile(f, data)
 	if err != nil {

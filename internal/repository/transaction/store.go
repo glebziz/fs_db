@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Store(_ context.Context, tx model.Transaction) error {
+func (r *Repo) Store(_ context.Context, tx model.Transaction) error {
 	_, ok := r.storage.Load(tx.Id)
 	if ok {
 		return fs_db.TxAlreadyExistsErr

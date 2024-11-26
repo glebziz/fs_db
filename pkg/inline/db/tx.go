@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	"github.com/glebziz/fs_db/internal/model"
+	"github.com/glebziz/fs_db/internal/usecase/transaction"
 )
 
 type tx struct {
 	id string
 
-	txUc txUsecase
+	txUc *transaction.UseCase
 }
 
 func (t *tx) ctx(ctx context.Context) context.Context {

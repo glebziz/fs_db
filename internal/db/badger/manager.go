@@ -14,7 +14,7 @@ type Item struct {
 	Value []byte
 }
 
-type manager struct {
+type Manager struct {
 	db *badger.DB
 }
 
@@ -32,24 +32,24 @@ type Provider interface {
 
 type ctxTxn struct{}
 
-func New(dbPath string) (*manager, error) {
+func New(dbPath string) (*Manager, error) {
 	db, err := badger.Open(badger.DefaultOptions(dbPath).WithLogger(nil))
 	if err != nil {
 		return nil, fmt.Errorf("badger open: %w", err)
 	}
 
-	return &manager{
+	return &Manager{
 		db: db,
 	}, nil
 }
 
-func (m *manager) Set(key []byte, val []byte) error {
+func (m *Manager) Set(key []byte, val []byte) error {
 	return m.db.Update(func(txn *badger.Txn) error {
 		return txn.Set(key, val)
 	})
 }
 
-func (m *manager) GetAll(prefix []byte) (items []Item, err error) {
+func (m *Manager) GetAll(prefix []byte) (items []Item, err error) {
 	return items, m.db.View(func(txn *badger.Txn) error {
 		items, err = transaction{txn}.GetAll(prefix)
 		if err != nil {
@@ -60,7 +60,7 @@ func (m *manager) GetAll(prefix []byte) (items []Item, err error) {
 	})
 }
 
-func (m *manager) Get(key []byte) (data []byte, err error) {
+func (m *Manager) Get(key []byte) (data []byte, err error) {
 	return data, m.db.View(func(txn *badger.Txn) error {
 		data, err = transaction{txn}.Get(key)
 		if err != nil {
@@ -71,17 +71,17 @@ func (m *manager) Get(key []byte) (data []byte, err error) {
 	})
 }
 
-func (m *manager) Delete(key []byte) error {
+func (m *Manager) Delete(key []byte) error {
 	return m.db.Update(func(txn *badger.Txn) error {
 		return txn.Delete(key)
 	})
 }
 
-func (m *manager) GC() {
+func (m *Manager) GC() {
 	m.db.RunValueLogGC(0.5) //nolint:errcheck,mnd
 }
 
-func (m *manager) DB(ctx context.Context) QueryManager {
+func (m *Manager) DB(ctx context.Context) QueryManager {
 	txn, ok := ctx.Value(ctxTxn{}).(*badger.Txn)
 	if ok && txn != nil {
 		return transaction{txn}
@@ -90,7 +90,7 @@ func (m *manager) DB(ctx context.Context) QueryManager {
 	return m
 }
 
-func (m *manager) RunTransaction(ctx context.Context, fn transactor.TransactionFn) error {
+func (m *Manager) RunTransaction(ctx context.Context, fn transactor.TransactionFn) error {
 	querier, ok := ctx.Value(ctxTxn{}).(QueryManager)
 	if ok && querier != nil {
 		return fn(ctx)
@@ -101,6 +101,6 @@ func (m *manager) RunTransaction(ctx context.Context, fn transactor.TransactionF
 	})
 }
 
-func (m *manager) Close() error {
+func (m *Manager) Close() error {
 	return m.db.Close()
 }

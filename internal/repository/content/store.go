@@ -35,7 +35,7 @@ func (w *bufWriter) Write(p []byte) (n int, err error) {
 	return w.w.Write(w.buf)
 }
 
-func (r *rep) Store(_ context.Context, path string, content io.Reader) (err error) {
+func (r *Repo) Store(_ context.Context, path string, content io.Reader) (err error) {
 	f, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("create: %w", err)

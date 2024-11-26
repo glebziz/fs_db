@@ -16,7 +16,7 @@ const (
 	mkdirPerm = 0750
 )
 
-type rep struct {
+type Repo struct {
 	roots  []string
 	dirs   map[string]model.Dir
 	counts map[string]uint64
@@ -24,8 +24,8 @@ type rep struct {
 	m sync.RWMutex
 }
 
-func New(rootDirs []string) (*rep, error) {
-	r := rep{
+func New(rootDirs []string) (*Repo, error) {
+	r := Repo{
 		roots: rootDirs,
 
 		dirs:   make(map[string]model.Dir, len(rootDirs)),

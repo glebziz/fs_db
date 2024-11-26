@@ -2,12 +2,12 @@ package generator
 
 import "github.com/google/uuid"
 
-type gen struct{}
+type Gen struct{}
 
-func New() *gen {
-	return &gen{}
+func New() *Gen {
+	return &Gen{}
 }
 
-func (g *gen) Generate() string {
+func (g *Gen) Generate() string {
 	return uuid.NewString()
 }

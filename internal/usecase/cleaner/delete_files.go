@@ -17,7 +17,7 @@ const (
 	chunkSize = 1_000
 )
 
-func (u *useCase) DeleteFilesAsync(ctx context.Context, files []model.File) {
+func (u *UseCase) DeleteFilesAsync(ctx context.Context, files []model.File) {
 	for cFiles := range slices.Chunk(files, chunkSize) {
 		u.sender.Send(ctx, wpool.Event{
 			Caller: deleteFilesAsyncCaller,
@@ -33,7 +33,7 @@ func (u *useCase) DeleteFilesAsync(ctx context.Context, files []model.File) {
 	}
 }
 
-func (u *useCase) DeleteFiles(ctx context.Context, files []model.File) error {
+func (u *UseCase) DeleteFiles(ctx context.Context, files []model.File) error {
 	if len(files) == 0 {
 		return nil
 	}
@@ -54,7 +54,7 @@ func (u *useCase) DeleteFiles(ctx context.Context, files []model.File) error {
 	return nil
 }
 
-func (u *useCase) deleteFile(ctx context.Context, file model.File) error {
+func (u *UseCase) deleteFile(ctx context.Context, file model.File) error {
 	cf, err := u.cfRepo.Get(ctx, file.ContentId)
 	if errors.Is(err, fs_db.NotFoundErr) {
 		return nil

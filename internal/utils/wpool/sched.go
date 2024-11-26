@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (p *pool) Sched(ctx context.Context, e Event, period time.Duration) {
+func (p *Pool) Sched(ctx context.Context, e Event, period time.Duration) {
 	go func() {
 		for {
 			select {

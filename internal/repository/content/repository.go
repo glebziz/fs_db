@@ -1,7 +1,7 @@
 package content
 
-type rep struct{}
+type Repo struct{}
 
-func New() *rep {
-	return &rep{}
+func New() *Repo {
+	return &Repo{}
 }

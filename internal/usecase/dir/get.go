@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (u *useCase) Get(ctx context.Context) (model.Dirs, error) {
+func (u *UseCase) Get(ctx context.Context) (model.Dirs, error) {
 	roots, err := u.dRepo.GetRoots(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("get roots: %w", err)

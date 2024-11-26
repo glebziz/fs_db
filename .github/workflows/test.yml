@@ -24,7 +24,7 @@ jobs:
 
       - name: Filter coverage
         run: |
-          cat coverage.txt.tmp | grep -v -e "pb.go" -e "mocks.go" -e "manager.go" -e "db_pool" > coverage.txt && rm coverage.txt.tmp
+          cat coverage.txt.tmp | grep -v -e "pb.go" -e "mocks.go" -e "internal/app/" -e "internal/di/" -e "internal/db/" > coverage.txt && rm coverage.txt.tmp
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v3

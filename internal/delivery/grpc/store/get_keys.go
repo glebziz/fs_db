@@ -8,7 +8,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
-func (i *implementation) GetKeys(ctx context.Context, _ *store.GetKeysRequest) (*store.GetKeysResponse, error) {
+func (i *Service) GetKeys(ctx context.Context, _ *store.GetKeysRequest) (*store.GetKeysResponse, error) {
 	keys, err := i.sUsecase.GetKeys(ctx)
 	if err != nil {
 		return nil, grpc.Error(fmt.Errorf("store usecase get keys: %w", err))

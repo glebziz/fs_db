@@ -7,7 +7,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Get(ctx context.Context, id string) (model.ContentFile, error) {
+func (r *Repo) Get(ctx context.Context, id string) (model.ContentFile, error) {
 	parent, err := r.p.DB(ctx).Get(r.key(id))
 	if err != nil {
 		return model.ContentFile{}, fmt.Errorf("db get: %w", err)

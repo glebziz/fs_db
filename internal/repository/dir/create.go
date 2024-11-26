@@ -8,7 +8,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
-func (r *rep) Create(_ context.Context, dir model.Dir) error {
+func (r *Repo) Create(_ context.Context, dir model.Dir) error {
 	err := os.MkdirAll(dir.Path(), mkdirPerm)
 	if err != nil {
 		return fmt.Errorf("mkdir all: %w", err)

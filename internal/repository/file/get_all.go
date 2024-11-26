@@ -6,7 +6,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) GetAll(ctx context.Context) ([]model.File, error) {
+func (r *Repo) GetAll(ctx context.Context) ([]model.File, error) {
 	items, err := r.p.DB(ctx).GetAll(r.key(""))
 	if err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
-func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFileServer) error {
+func (i *Service) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFileServer) error {
 	content, err := i.sUsecase.Get(stream.Context(), req.GetKey())
 	if err != nil {
 		return grpc.Error(fmt.Errorf("store usecase get: %w", err))

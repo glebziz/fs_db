@@ -9,7 +9,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
-func (u *useCase) Commit(ctx context.Context) error {
+func (u *UseCase) Commit(ctx context.Context) error {
 	txId := model.GetTxId(ctx)
 	tx, err := u.txRepo.Delete(ctx, txId)
 	if err != nil {

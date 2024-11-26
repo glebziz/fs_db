@@ -43,7 +43,7 @@ type transactionRepository interface {
 	Oldest(ctx context.Context) (model.Transaction, error)
 }
 
-type useCase struct {
+type UseCase struct {
 	core   core
 	cRepo  contentRepository
 	cfRepo contentFileRepository
@@ -59,8 +59,8 @@ func New(
 	cfRepo contentFileRepository, db dbProvider,
 	dirRepo dirRepository, fRepo fileRepository,
 	sender sender, txRepo transactionRepository,
-) *useCase {
-	return &useCase{
+) *UseCase {
+	return &UseCase{
 		core: core, cRepo: cRepo,
 		cfRepo: cfRepo, db: db,
 		dRepo: dirRepo, fRepo: fRepo,

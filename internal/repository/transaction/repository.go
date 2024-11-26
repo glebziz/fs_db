@@ -6,12 +6,12 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-type rep struct {
+type Repo struct {
 	storage *omap.OMap[string, model.Transaction]
 }
 
-func New() *rep {
-	return &rep{
+func New() *Repo {
+	return &Repo{
 		storage: omap.New[string, model.Transaction](),
 	}
 }

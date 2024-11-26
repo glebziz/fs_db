@@ -9,20 +9,20 @@ import (
 
 //go:generate mockgen -source ../../db/badger/manager.go -destination mocks/manager_mocks.go -typed true
 
-type rep struct {
+type Repo struct {
 	p badger.Provider
 }
 
-func New(p badger.Provider) *rep {
-	return &rep{
+func New(p badger.Provider) *Repo {
+	return &Repo{
 		p: p,
 	}
 }
 
-func (r *rep) RunTransaction(ctx context.Context, fn transactor.TransactionFn) error {
+func (r *Repo) RunTransaction(ctx context.Context, fn transactor.TransactionFn) error {
 	return r.p.RunTransaction(ctx, fn)
 }
 
-func (r *rep) key(contentId string) []byte {
+func (r *Repo) key(contentId string) []byte {
 	return []byte("file/" + contentId)
 }

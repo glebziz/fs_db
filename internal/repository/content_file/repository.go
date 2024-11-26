@@ -6,14 +6,14 @@ import (
 
 //go:generate mockgen -source ../../db/badger/manager.go -destination mocks/manager_mocks.go -typed true
 
-type rep struct {
+type Repo struct {
 	p badger.Provider
 }
 
-func New(p badger.Provider) *rep {
-	return &rep{p}
+func New(p badger.Provider) *Repo {
+	return &Repo{p}
 }
 
-func (r *rep) key(id string) []byte {
+func (r *Repo) key(id string) []byte {
 	return []byte("fileContent/" + id)
 }

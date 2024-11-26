@@ -10,7 +10,7 @@ import (
 	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
-func (u *useCase) Get(ctx context.Context, key string) (io.ReadCloser, error) {
+func (u *UseCase) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	txId := model.GetTxId(ctx)
 	tx, err := u.txRepo.Get(ctx, txId)
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) Begin(ctx context.Context, isoLevel model.TxIsoLevel) (string, error) {
+func (u *UseCase) Begin(ctx context.Context, isoLevel model.TxIsoLevel) (string, error) {
 	id := u.idGen.Generate()
 
 	err := u.txRepo.Store(ctx, model.Transaction{

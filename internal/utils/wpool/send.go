@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (p *pool) Send(ctx context.Context, e Event) {
+func (p *Pool) Send(ctx context.Context, e Event) {
 	e.ctx = ctx
 
 	p.sendWg.Add(1)

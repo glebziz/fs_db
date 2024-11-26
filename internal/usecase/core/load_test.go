@@ -21,7 +21,7 @@ func TestUseCase_Load(t *testing.T) {
 	}{
 		{
 			name: "success",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				td.fileRepo.EXPECT().
 					GetAll(gomock.Any()).
 					Times(1).
@@ -59,7 +59,7 @@ func TestUseCase_Load(t *testing.T) {
 
 				return td.newUseCase(), model.FileFilter{}
 			},
-			requireU: func(t *testing.T, u *useCase) {
+			requireU: func(t *testing.T, u *UseCase) {
 				require.Equal(t, model.File{
 					Key:       testKey,
 					TxId:      model.MainTxId,
@@ -97,7 +97,7 @@ func TestUseCase_Load(t *testing.T) {
 		},
 		{
 			name: "db get all error",
-			initUseCase: func(td *testDeps) (*useCase, model.FileFilter) {
+			initUseCase: func(td *testDeps) (*UseCase, model.FileFilter) {
 				td.fileRepo.EXPECT().
 					GetAll(gomock.Any()).
 					Times(1).

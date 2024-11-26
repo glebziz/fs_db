@@ -57,11 +57,11 @@ func newTestDeps(t *testing.T) *testDeps {
 	}
 }
 
-func (td *testDeps) newRep() *rep {
+func (td *testDeps) newRep() *Repo {
 	return New(td.p)
 }
 
-func newTestRep(t *testing.T) *rep {
+func newTestRep(t *testing.T) *Repo {
 	t.Helper()
 
 	var (

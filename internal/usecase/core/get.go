@@ -9,7 +9,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) Get(_ context.Context, txId, key string, filter model.FileFilter) (model.File, error) {
+func (u *UseCase) Get(_ context.Context, txId, key string, filter model.FileFilter) (model.File, error) {
 	var f, s model.File
 	if filter.BeforeSeq == nil && filter.TxId == nil {
 		f = u.getFileFromTx(&u.allStore, key, nil)
@@ -33,7 +33,7 @@ func (u *useCase) Get(_ context.Context, txId, key string, filter model.FileFilt
 	return latest, nil
 }
 
-func (u *useCase) getFileFromTx(tx *core.Transaction, key string, beforeSeq *sequence.Seq) model.File {
+func (u *UseCase) getFileFromTx(tx *core.Transaction, key string, beforeSeq *sequence.Seq) model.File {
 	tx.RLock()
 	defer tx.RUnlock()
 

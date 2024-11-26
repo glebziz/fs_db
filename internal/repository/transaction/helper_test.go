@@ -8,13 +8,13 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func testCreateTransaction(t *testing.T, repo *rep, tx model.Transaction) {
+func testCreateTransaction(t *testing.T, repo *Repo, tx model.Transaction) {
 	t.Helper()
 
 	repo.storage.Store(tx.Id, tx)
 }
 
-func testGetTransaction(t *testing.T, repo *rep, id string) model.Transaction {
+func testGetTransaction(t *testing.T, repo *Repo, id string) model.Transaction {
 	t.Helper()
 
 	tx, ok := repo.storage.Load(id)

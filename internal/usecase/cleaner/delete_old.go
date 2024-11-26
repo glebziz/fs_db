@@ -10,7 +10,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model/sequence"
 )
 
-func (u *useCase) DeleteOld(ctx context.Context) error {
+func (u *UseCase) DeleteOld(ctx context.Context) error {
 	tx, err := u.txRepo.Oldest(ctx)
 	if errors.Is(err, fs_db.TxNotFoundErr) {
 		tx = model.Transaction{

@@ -6,7 +6,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) GetRoots(_ context.Context) ([]model.Root, error) {
+func (r *Repo) GetRoots(_ context.Context) ([]model.Root, error) {
 	r.m.RLock()
 	defer r.m.RUnlock()
 
