@@ -37,7 +37,7 @@ func (u *UseCase) GetKeys(ctx context.Context) ([]string, error) {
 	keys := make([]string, 0, len(files))
 	for _, file := range files {
 		_, err = u.cfRepo.Get(ctx, file.ContentId)
-		if errors.Is(err, fs_db.NotFoundErr) {
+		if errors.Is(err, fs_db.ErrNotFound) {
 			continue
 		} else if err != nil {
 			return nil, fmt.Errorf("content file repository get: %w", err)

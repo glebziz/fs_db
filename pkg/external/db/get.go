@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"io"
 
+	errorsAdapter "github.com/glebziz/fs_db/internal/adapter/errors"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
 func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
@@ -16,12 +16,12 @@ func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
 		Key: key,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("get file: %w", grpc.ClientError(err))
+		return nil, fmt.Errorf("get file: %w", errorsAdapter.ClientError(err))
 	}
 
 	_, err = stream.Recv()
 	if err != nil {
-		return nil, fmt.Errorf("recv header: %w", grpc.ClientError(err))
+		return nil, fmt.Errorf("recv header: %w", errorsAdapter.ClientError(err))
 	}
 
 	var (
@@ -34,7 +34,7 @@ func (db *db) Get(ctx context.Context, key string) ([]byte, error) {
 			break
 		}
 		if err != nil {
-			return nil, fmt.Errorf("recv: %w", grpc.ClientError(err))
+			return nil, fmt.Errorf("recv: %w", errorsAdapter.ClientError(err))
 		}
 
 		buf.Write(resp.GetChunk())

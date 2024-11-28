@@ -38,7 +38,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 			prepare: func(td *testDeps) {
 				td.txRepo.EXPECT().
 					Oldest(gomock.Any()).
-					Return(model.Transaction{}, fs_db.TxNotFoundErr)
+					Return(model.Transaction{}, fs_db.ErrTxNotFound)
 
 				td.core.EXPECT().
 					DeleteOld(gomock.Any(), model.MainTxId, gomock.Any()).
@@ -92,67 +92,3 @@ func TestUseCase_DeleteOld(t *testing.T) {
 		})
 	}
 }
-
-//func TestCleaner_deleteLines_Error(t *testing.T) {
-//	for _, tc := range []struct {
-//		name    string
-//		prepare prepareFunc
-//	}{
-//		{
-//			name: "tx repo oldest",
-//			prepare: func(td *testDeps) error {
-//				td.txRepo.EXPECT().
-//					Oldest(gomock.Any()).
-//					Return(nil, assert.AnError)
-//
-//				return assert.AnError
-//			},
-//		},
-//		{
-//			name: "file repo hard delete",
-//			prepare: func(td *testDeps) error {
-//				td.txRepo.EXPECT().
-//					Oldest(gomock.Any()).
-//					Return(nil, fs_db.TxNotFoundErr)
-//
-//				td.fRepo.EXPECT().
-//					DeleteOld(gomock.Any(), gomock.Any(), gomock.Any()).
-//					Return(nil, assert.AnError)
-//
-//				return assert.AnError
-//			},
-//		},
-//		{
-//			name: "delete content",
-//			prepare: func(td *testDeps) error {
-//				td.txRepo.EXPECT().
-//					Oldest(gomock.Any()).
-//					Return(nil, fs_db.TxNotFoundErr)
-//
-//				td.fRepo.EXPECT().
-//					DeleteOld(gomock.Any(), gomock.Any(), gomock.Any()).
-//					Return([]string{testContentId}, nil)
-//
-//				td.cfRepo.EXPECT().
-//					GetIn(gomock.Any(), gomock.Any()).
-//					Return(nil, assert.AnError)
-//
-//				return assert.AnError
-//			},
-//		},
-//	} {
-//		tc := tc
-//		t.Run(tc.name, func(t *testing.T) {
-//			t.Parallel()
-//
-//			td := newTestDeps(t)
-//
-//			wantErr := tc.prepare(td)
-//
-//			cl := td.newUseCase()
-//
-//			err := cl.deleteLines(testCtx)
-//			require.ErrorIs(t, err, wantErr)
-//		})
-//	}
-//}

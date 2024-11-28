@@ -59,5 +59,5 @@ func TestRep_Create_Error(t *testing.T) {
 		Id:  tx.Id,
 		Seq: 1,
 	})
-	require.ErrorIs(t, err, fs_db.TxAlreadyExistsErr)
+	require.ErrorIs(t, err, fs_db.ErrTxAlreadyExists)
 }

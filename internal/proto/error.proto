@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package store;
+
+option go_package = "fs_fb/proto/store";
+
+enum ErrorCode {
+  ErrUnknown = 0;
+
+  // Main errors
+  ErrNoFreeSpace = 1;
+  ErrNotFound = 2;
+  ErrEmptyKey = 3;
+  ErrHeaderNotFound = 4;
+
+  // Tx errors
+  ErrTxNotFound = 100;
+  ErrTxAlreadyExists = 101;
+  ErrTxSerialization = 102;
+}
+
+message Error {
+  ErrorCode code = 1;
+  optional string message = 2;
+}

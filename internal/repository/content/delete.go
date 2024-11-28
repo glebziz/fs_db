@@ -12,7 +12,7 @@ import (
 func (r *Repo) Delete(_ context.Context, path string) error {
 	err := os.Remove(path)
 	if errors.Is(err, os.ErrNotExist) {
-		return fs_db.NotFoundErr
+		return fs_db.ErrNotFound
 	} else if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}

@@ -56,14 +56,14 @@ func (u *UseCase) DeleteFiles(ctx context.Context, files []model.File) error {
 
 func (u *UseCase) deleteFile(ctx context.Context, file model.File) error {
 	cf, err := u.cfRepo.Get(ctx, file.ContentId)
-	if errors.Is(err, fs_db.NotFoundErr) {
+	if errors.Is(err, fs_db.ErrNotFound) {
 		return nil
 	} else if err != nil {
 		return fmt.Errorf("content file repo get: %w", err)
 	}
 
 	err = u.cRepo.Delete(ctx, cf.Path())
-	if err != nil && !errors.Is(err, fs_db.NotFoundErr) {
+	if err != nil && !errors.Is(err, fs_db.ErrNotFound) {
 		return fmt.Errorf("content repo delete: %w", err)
 	}
 

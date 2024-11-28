@@ -4,19 +4,19 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"log"
 	"net"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/glebziz/fs_db"
-	"github.com/glebziz/fs_db/internal/delivery/grpc/store/mocks"
+	mock_store "github.com/glebziz/fs_db/internal/delivery/grpc/store/mocks"
 	store "github.com/glebziz/fs_db/internal/proto"
 	_ "github.com/glebziz/fs_db/internal/utils/log"
 )
@@ -57,29 +57,24 @@ func newTestDeps(t *testing.T) *testDeps {
 	server := grpc.NewServer(grpc.MaxSendMsgSize(500))
 	store.RegisterStoreV1Server(server, New(suc, txuc))
 	go func() {
-		if err := server.Serve(lis); err != nil {
-			log.Fatalln("error serving server", err)
-		}
+		err := server.Serve(lis)
+		require.NoError(t, err)
 	}()
 
 	t.Cleanup(func() {
 		err := lis.Close()
-		if err != nil {
-			log.Fatalln("error closing listener", err)
-		}
+		require.NoError(t, err)
 		server.Stop()
 	})
 
-	conn, err := grpc.Dial(
-		"buf dial",
+	conn, err := grpc.NewClient(
+		"passthrough:buf_dial",
 		grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) {
 			return lis.Dial()
 		}),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
-	if err != nil {
-		log.Fatalln("error connecting to server", err)
-	}
+	require.NoError(t, err)
 
 	return &testDeps{
 		suc:    suc,

@@ -50,7 +50,7 @@ func TestUseCase_Get(t *testing.T) {
 
 				td.cfRepo.EXPECT().
 					Get(gomock.Any(), testContentId2).
-					Return(model.ContentFile{}, fs_db.NotFoundErr)
+					Return(model.ContentFile{}, fs_db.ErrNotFound)
 
 				return nil
 			},

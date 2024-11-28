@@ -426,7 +426,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				TxId:      testTxId2,
 				ContentId: testContentId3,
 			}},
-			err: fs_db.TxSerializationErr,
+			err: fs_db.ErrTxSerialization,
 		},
 		{
 			name: "file repo error",

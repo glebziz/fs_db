@@ -44,7 +44,7 @@ func (u *UseCase) UpdateTx(ctx context.Context, oldTxId, newTxId string, filter 
 	deleteFiles = make([]model.File, 0, tx.Len())
 	for key, f := range tx.Files() {
 		if filter.BeforeSeq != nil && newTx.File(key).Latest().Seq.After(*filter.BeforeSeq) {
-			err = fs_db.TxSerializationErr
+			err = fs_db.ErrTxSerialization
 		}
 
 		n := f.PopBack()

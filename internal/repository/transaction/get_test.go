@@ -50,6 +50,6 @@ func TestRep_Get_Error(t *testing.T) {
 	r := New()
 
 	actual, err := r.Get(context.Background(), gofakeit.UUID())
-	require.ErrorIs(t, err, fs_db.TxNotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrTxNotFound)
 	require.Equal(t, model.Transaction{}, actual)
 }

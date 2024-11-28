@@ -85,7 +85,7 @@ type Storage struct {
 // Valid validates the storage options.
 func (s *Storage) Valid() error {
 	if s.DbPath == "" {
-		return fs_db.EmptyDbPathErr
+		return fs_db.ErrEmptyDbPath
 	}
 
 	if s.MaxDirCount < minDirCount {
@@ -93,7 +93,7 @@ func (s *Storage) Valid() error {
 	}
 
 	if len(s.RootDirs) == 0 {
-		return fs_db.EmptyRootDirs
+		return fs_db.ErrEmptyRootDirs
 	}
 
 	return nil

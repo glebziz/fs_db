@@ -64,7 +64,7 @@ func TestUseCase_Rollback(t *testing.T) {
 				td.txRepo.EXPECT().
 					Delete(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(model.Transaction{}, fs_db.TxNotFoundErr)
+					Return(model.Transaction{}, fs_db.ErrTxNotFound)
 			},
 		},
 		{

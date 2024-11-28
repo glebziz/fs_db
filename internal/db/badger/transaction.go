@@ -39,7 +39,7 @@ func (t transaction) GetAll(prefix []byte) ([]Item, error) {
 func (t transaction) Get(key []byte) ([]byte, error) {
 	item, err := t.Txn.Get(key)
 	if errors.Is(err, badger.ErrKeyNotFound) {
-		return nil, fs_db.NotFoundErr
+		return nil, fs_db.ErrNotFound
 	} else if err != nil {
 		return nil, err
 	}

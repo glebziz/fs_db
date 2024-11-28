@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/glebziz/fs_db/internal/adapter/errors"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
 func (db *db) Delete(ctx context.Context, key string) error {
@@ -13,7 +13,7 @@ func (db *db) Delete(ctx context.Context, key string) error {
 		Key: key,
 	})
 	if err != nil {
-		return fmt.Errorf("delete file: %w", grpc.ClientError(err))
+		return fmt.Errorf("delete file: %w", errors.ClientError(err))
 	}
 
 	return nil

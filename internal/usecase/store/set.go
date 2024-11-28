@@ -12,7 +12,7 @@ import (
 
 func (u *UseCase) Set(ctx context.Context, key string, content io.Reader) error { //nolint:funlen,cyclop // TODO fix
 	if key == "" {
-		return fs_db.EmptyKeyErr
+		return fs_db.ErrEmptyKey
 	}
 
 	dirs, err := u.dir.Get(ctx)
@@ -37,7 +37,7 @@ func (u *UseCase) Set(ctx context.Context, key string, content io.Reader) error 
 	)
 	for dir, ok := range dirs.Iterate(u.randGen) {
 		if !ok {
-			return fs_db.SizeErr
+			return fs_db.ErrNoFreeSpace
 		}
 
 		if dir.Free <= minSize {

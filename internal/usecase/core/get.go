@@ -27,7 +27,7 @@ func (u *UseCase) Get(_ context.Context, txId, key string, filter model.FileFilt
 
 	latest := f.Latest(s)
 	if latest.Seq.Zero() {
-		return model.File{}, fs_db.NotFoundErr
+		return model.File{}, fs_db.ErrNotFound
 	}
 
 	return latest, nil

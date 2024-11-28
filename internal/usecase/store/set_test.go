@@ -94,7 +94,7 @@ func TestUseCase_Set_Error(t *testing.T) {
 		{
 			name: "empty key",
 			prepare: func(td *testDeps) error {
-				return fs_db.EmptyKeyErr
+				return fs_db.ErrEmptyKey
 			},
 		},
 		{
@@ -105,7 +105,7 @@ func TestUseCase_Set_Error(t *testing.T) {
 					Get(gomock.Any()).
 					Return(nil, nil)
 
-				return fs_db.SizeErr
+				return fs_db.ErrNoFreeSpace
 			},
 		},
 		{

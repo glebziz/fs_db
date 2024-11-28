@@ -10,7 +10,7 @@ import (
 func (r *Repo) Delete(_ context.Context, id string) (model.Transaction, error) {
 	tx, ok := r.storage.Load(id)
 	if !ok {
-		return model.Transaction{}, fs_db.TxNotFoundErr
+		return model.Transaction{}, fs_db.ErrTxNotFound
 	}
 
 	r.storage.Delete(id)

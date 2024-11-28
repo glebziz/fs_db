@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"io"
 
+	errorsAdapter "github.com/glebziz/fs_db/internal/adapter/errors"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
 func (i *Service) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFileServer) error {
 	content, err := i.sUsecase.Get(stream.Context(), req.GetKey())
 	if err != nil {
-		return grpc.Error(fmt.Errorf("store usecase get: %w", err))
+		return errorsAdapter.Error(fmt.Errorf("store usecase get: %w", err))
 	}
 	defer content.Close()
 
@@ -24,7 +24,7 @@ func (i *Service) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFil
 		},
 	})
 	if err != nil {
-		return grpc.Error(fmt.Errorf("stream file header send: %w", err))
+		return errorsAdapter.Error(fmt.Errorf("stream file header send: %w", err))
 	}
 
 	chunk := make([]byte, store.ChunkSize_MAX)
@@ -35,7 +35,7 @@ func (i *Service) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFil
 			break
 		}
 		if err != nil {
-			return grpc.Error(fmt.Errorf("read: %w", err))
+			return errorsAdapter.Error(fmt.Errorf("read: %w", err))
 		}
 
 		err = stream.Send(&store.GetFileResponse{
@@ -44,7 +44,7 @@ func (i *Service) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFil
 			},
 		})
 		if err != nil {
-			return grpc.Error(fmt.Errorf("stream chunk send: %w", err))
+			return errorsAdapter.Error(fmt.Errorf("stream chunk send: %w", err))
 		}
 	}
 

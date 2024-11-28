@@ -12,7 +12,7 @@ import (
 
 func (u *UseCase) DeleteOld(ctx context.Context) error {
 	tx, err := u.txRepo.Oldest(ctx)
-	if errors.Is(err, fs_db.TxNotFoundErr) {
+	if errors.Is(err, fs_db.ErrTxNotFound) {
 		tx = model.Transaction{
 			Seq: sequence.Next(),
 		}

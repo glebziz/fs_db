@@ -80,7 +80,7 @@ func TestRep_Get_Int(t *testing.T) {
 		{
 			name:    "content not found",
 			prepare: func(t *testing.T, p badger.Provider) {},
-			err:     fs_db.NotFoundErr,
+			err:     fs_db.ErrNotFound,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

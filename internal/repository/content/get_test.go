@@ -41,6 +41,6 @@ func TestRep_Get_Error(t *testing.T) {
 
 	c, err := r.Get(context.Background(), path.Join(rootPath, gofakeit.UUID()))
 
-	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrNotFound)
 	require.Nil(t, c)
 }

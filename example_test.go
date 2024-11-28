@@ -237,7 +237,7 @@ func ExampleStore_Delete() {
 	}
 
 	_, err = db.Get(context.Background(), key)
-	if errors.Is(err, fs_db.NotFoundErr) {
+	if errors.Is(err, fs_db.ErrNotFound) {
 		fmt.Println("key not found")
 	} else if err != nil {
 		log.Panicln("Get:", err)

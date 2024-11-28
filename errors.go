@@ -3,17 +3,38 @@ package fs_db
 import "errors"
 
 var (
-	SizeErr           = errors.New("no free space")
-	NotFoundErr       = errors.New("not found")
-	EmptyKeyErr       = errors.New("empty name")
-	HeaderNotFoundErr = errors.New("header not found")
+	ErrUnknown = errors.New("unknown error")
+
+	ErrNoFreeSpace    = errors.New("no free space")
+	ErrNotFound       = errors.New("not found")
+	ErrEmptyKey       = errors.New("empty key")
+	ErrHeaderNotFound = errors.New("header not found")
 
 	// Tx errors.
-	TxNotFoundErr      = errors.New("transaction not found")
-	TxAlreadyExistsErr = errors.New("transaction already exists")
-	TxSerializationErr = errors.New("serialization error")
+	ErrTxNotFound      = errors.New("transaction not found")
+	ErrTxAlreadyExists = errors.New("transaction already exists")
+	ErrTxSerialization = errors.New("serialization error")
 
 	// Config errors.
-	EmptyDbPathErr = errors.New("empty db path")
-	EmptyRootDirs  = errors.New("empty root dirs")
+	ErrEmptyDbPath   = errors.New("empty db path")
+	ErrEmptyRootDirs = errors.New("empty root dirs")
+)
+
+// Old errors to maintain backward compatibility.
+//
+//nolint:errname
+var (
+	SizeErr           = ErrNoFreeSpace
+	NotFoundErr       = ErrNotFound
+	EmptyKeyErr       = ErrEmptyKey
+	HeaderNotFoundErr = ErrHeaderNotFound
+
+	// Tx errors.
+	TxNotFoundErr      = ErrTxNotFound
+	TxAlreadyExistsErr = ErrTxAlreadyExists
+	TxSerializationErr = ErrTxSerialization
+
+	// Config errors.
+	EmptyDbPathErr = ErrEmptyDbPath
+	EmptyRootDirs  = ErrEmptyRootDirs
 )

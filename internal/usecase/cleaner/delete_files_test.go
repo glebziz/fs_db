@@ -42,7 +42,7 @@ func TestUseCase_DeleteFilesAsync(t *testing.T) {
 				td.cfRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(model.ContentFile{}, fs_db.NotFoundErr)
+					Return(model.ContentFile{}, fs_db.ErrNotFound)
 
 				td.db.EXPECT().
 					GC().
@@ -148,7 +148,7 @@ func TestUseCase_DeleteFiles(t *testing.T) {
 				td.cRepo.EXPECT().
 					Delete(gomock.Any(), path.Join(testParent2, testContentId2)).
 					Times(1).
-					Return(fs_db.NotFoundErr)
+					Return(fs_db.ErrNotFound)
 
 				td.cfRepo.EXPECT().
 					Delete(gomock.Any(), testContentId2).
@@ -165,7 +165,7 @@ func TestUseCase_DeleteFiles(t *testing.T) {
 				td.cfRepo.EXPECT().
 					Get(gomock.Any(), testContentId3).
 					Times(1).
-					Return(model.ContentFile{}, fs_db.NotFoundErr)
+					Return(model.ContentFile{}, fs_db.ErrNotFound)
 
 				td.db.EXPECT().
 					GC().

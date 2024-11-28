@@ -36,6 +36,6 @@ func TestRep_Delete(t *testing.T) {
 		fPath := path.Join(dir, gofakeit.UUID())
 
 		err := r.Delete(context.Background(), fPath)
-		require.ErrorIs(t, err, fs_db.NotFoundErr)
+		require.ErrorIs(t, err, fs_db.ErrNotFound)
 	})
 }

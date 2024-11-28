@@ -173,7 +173,7 @@ func TestUseCase_Get(t *testing.T) {
 
 				return u, model.FileFilter{}
 			},
-			err: fs_db.NotFoundErr,
+			err: fs_db.ErrNotFound,
 		},
 		{
 			name: "success with txId filter",
@@ -379,7 +379,7 @@ func TestUseCase_Get(t *testing.T) {
 					TxId: ptr.Ptr(testTxId2),
 				}
 			},
-			err: fs_db.NotFoundErr,
+			err: fs_db.ErrNotFound,
 		},
 		{
 			name: "not found with txId filter",
@@ -409,7 +409,7 @@ func TestUseCase_Get(t *testing.T) {
 					TxId: ptr.Ptr(testTxId2),
 				}
 			},
-			err: fs_db.NotFoundErr,
+			err: fs_db.ErrNotFound,
 		},
 		{
 			name: "success with filter",
@@ -603,7 +603,7 @@ func TestUseCase_Get(t *testing.T) {
 					BeforeSeq: ptr.Ptr(beforeTs),
 				}
 			},
-			err: fs_db.NotFoundErr,
+			err: fs_db.ErrNotFound,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
