@@ -4,10 +4,6 @@ on:
   pull_request:
   push:
 
-env:
-  GO_VERSION: stable
-  GOLANGCI_LINT_VERSION: v1.62
-
 jobs:
   golangci-lint:
     runs-on: ubuntu-latest

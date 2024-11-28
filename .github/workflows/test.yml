@@ -13,7 +13,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.23
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Verify dependencies
         run: go mod verify
@@ -39,7 +39,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.23
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Verify dependencies
         run: go mod verify
