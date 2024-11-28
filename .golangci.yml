@@ -16,6 +16,7 @@ linters-settings:
   mnd:
     ignored-files:
       - cmd/migrate/main.go
+      - cmd\\migrate\\main.go
 
   lll:
     line-length: 140

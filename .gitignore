@@ -1,4 +1,5 @@
 .idea
+bin
 testStorage
 test.db
 test_db
