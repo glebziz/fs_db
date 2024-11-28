@@ -47,8 +47,8 @@ func (t *tx) Set(ctx context.Context, key string, b []byte) error {
 	return nil
 }
 
-func (t *tx) SetReader(ctx context.Context, key string, reader io.Reader, size uint64) error {
-	err := t.store.SetReader(t.ctxFn(ctx), key, reader, size)
+func (t *tx) SetReader(ctx context.Context, key string, reader io.Reader) error {
+	err := t.store.SetReader(t.ctxFn(ctx), key, reader)
 	if err != nil {
 		return fmt.Errorf("store set reader: %w", err)
 	}
@@ -74,6 +74,15 @@ func (t *tx) GetReader(ctx context.Context, key string) (io.ReadCloser, error) {
 	return r, nil
 }
 
+func (t *tx) GetKeys(ctx context.Context) ([]string, error) {
+	keys, err := t.store.GetKeys(t.ctxFn(ctx))
+	if err != nil {
+		return nil, fmt.Errorf("store get keys: %w", err)
+	}
+
+	return keys, nil
+}
+
 func (t *tx) Delete(ctx context.Context, key string) error {
 	err := t.store.Delete(t.ctxFn(ctx), key)
 	if err != nil {
@@ -81,4 +90,13 @@ func (t *tx) Delete(ctx context.Context, key string) error {
 	}
 
 	return nil
+}
+
+func (t *tx) Create(ctx context.Context, key string) (File, error) {
+	wc, err := t.store.Create(t.ctxFn(ctx), key)
+	if err != nil {
+		return nil, fmt.Errorf("store create: %w", err)
+	}
+
+	return wc, nil
 }

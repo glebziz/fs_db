@@ -21,7 +21,7 @@ func TestDisk_Usage(t *testing.T) {
 			require.NoError(t, err)
 		})
 
-		st, err := GetDisk().Usage(context.Background(), dir)
+		st, err := Usage(context.Background(), dir)
 
 		require.NoError(t, err)
 		require.NotZero(t, st.Total)
@@ -37,7 +37,7 @@ func TestDisk_Usage(t *testing.T) {
 			require.NoError(t, err)
 		})
 
-		st, err := GetDisk().Usage(context.Background(), dir)
+		st, err := Usage(context.Background(), dir)
 
 		require.NoError(t, err)
 		require.NotZero(t, st.Total)

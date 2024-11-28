@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"context"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -17,11 +18,11 @@ func TestRep_Oldest_Success(t *testing.T) {
 
 	var (
 		txs = []model.Transaction{{
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 1,
 		}, {
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 2,
 		}}
 	)
 
@@ -29,9 +30,9 @@ func TestRep_Oldest_Success(t *testing.T) {
 		testCreateTransaction(t, r, tx)
 	}
 
-	actual, err := r.Oldest(testCtx)
+	actual, err := r.Oldest(context.Background())
 	require.NoError(t, err)
-	require.Equal(t, &txs[0], actual)
+	require.Equal(t, txs[0], actual)
 }
 
 func TestRep_Oldest_Error(t *testing.T) {
@@ -39,7 +40,7 @@ func TestRep_Oldest_Error(t *testing.T) {
 
 	r := New()
 
-	actual, err := r.Oldest(testCtx)
-	require.ErrorIs(t, err, fs_db.TxNotFoundErr)
-	require.Nil(t, actual)
+	actual, err := r.Oldest(context.Background())
+	require.ErrorIs(t, err, fs_db.ErrTxNotFound)
+	require.Equal(t, model.Transaction{}, actual)
 }

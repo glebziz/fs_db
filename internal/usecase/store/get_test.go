@@ -16,7 +16,7 @@ func TestUseCase_Get_Success(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
 		lvl    model.TxIsoLevel
-		filter *model.FileFilter
+		filter model.FileFilter
 	}{
 		{
 			name: "read uncommitted",
@@ -25,24 +25,24 @@ func TestUseCase_Get_Success(t *testing.T) {
 		{
 			name: "read committed",
 			lvl:  fs_db.IsoLevelReadCommitted,
-			filter: &model.FileFilter{
+			filter: model.FileFilter{
 				TxId: ptr.Ptr(model.MainTxId),
 			},
 		},
 		{
 			name: "repeatable read",
 			lvl:  fs_db.IsoLevelRepeatableRead,
-			filter: &model.FileFilter{
-				TxId:     ptr.Ptr(model.MainTxId),
-				BeforeTs: ptr.Ptr(testTxTs),
+			filter: model.FileFilter{
+				TxId:      ptr.Ptr(model.MainTxId),
+				BeforeSeq: ptr.Ptr(testTxSeq),
 			},
 		},
 		{
 			name: "serializable",
 			lvl:  fs_db.IsoLevelSerializable,
-			filter: &model.FileFilter{
-				TxId:     ptr.Ptr(model.MainTxId),
-				BeforeTs: ptr.Ptr(testTxTs),
+			filter: model.FileFilter{
+				TxId:      ptr.Ptr(model.MainTxId),
+				BeforeSeq: ptr.Ptr(testTxSeq),
 			},
 		},
 	} {
@@ -54,49 +54,46 @@ func TestUseCase_Get_Success(t *testing.T) {
 				tx = model.Transaction{
 					Id:       testTxId,
 					IsoLevel: tc.lvl,
-					CreateTs: testTxTs,
+					Seq:      testTxSeq,
 				}
 				dir = model.Dir{
-					Id:         testDirId,
-					ParentPath: testRootPath,
+					Name: testDirName,
+					Root: testRootPath,
 				}
 				cFile = model.ContentFile{
-					Id:         testContentId,
-					ParentPath: dir.GetPath(),
+					Id:     testContentId,
+					Parent: dir.Path(),
 				}
 				file = model.File{
 					Key:       testKey,
 					ContentId: testContentId,
 				}
-				content = model.Content{
-					Size:   testSize,
-					Reader: testReader,
-				}
+				content = testReader
 			)
 			td := newTestDeps(t)
 
 			td.txRepo.EXPECT().
 				Get(gomock.Any(), testTxId).
-				Return(&tx, nil)
+				Return(tx, nil)
 
 			td.fRepo.EXPECT().
 				Get(gomock.Any(), testTxId, testKey, tc.filter).
-				Return(&file, nil)
+				Return(file, nil)
 
 			td.cfRepo.EXPECT().
 				Get(gomock.Any(), testContentId).
-				Return(&cFile, nil)
+				Return(cFile, nil)
 
 			td.cRepo.EXPECT().
-				Get(gomock.Any(), cFile.GetPath()).
-				Return(&content, nil)
+				Get(gomock.Any(), cFile.Path()).
+				Return(content, nil)
 
 			uc := td.newUseCase()
 
 			actContent, err := uc.Get(testCtx, testKey)
 
 			require.NoError(t, err)
-			require.Equal(t, &content, actContent)
+			require.Equal(t, content, actContent)
 		})
 	}
 }
@@ -111,7 +108,7 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(nil, assert.AnError)
+					Return(model.Transaction{}, assert.AnError)
 
 				return assert.AnError
 			},
@@ -121,11 +118,11 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(&model.Transaction{}, nil)
+					Return(model.Transaction{}, nil)
 
 				td.fRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(nil, assert.AnError)
+					Return(model.File{}, assert.AnError)
 
 				return assert.AnError
 			},
@@ -135,18 +132,19 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(&model.Transaction{}, nil)
+					Return(model.Transaction{}, nil)
 
 				td.fRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(&model.File{
+					Return(model.File{
 						Key:       testKey,
+						TxId:      testTxId,
 						ContentId: testContentId,
 					}, nil)
 
 				td.cfRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(nil, assert.AnError)
+					Return(model.ContentFile{}, assert.AnError)
 
 				return assert.AnError
 			},
@@ -156,20 +154,21 @@ func TestUseCase_Get_Error(t *testing.T) {
 			prepare: func(td *testDeps) error {
 				td.txRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(&model.Transaction{}, nil)
+					Return(model.Transaction{}, nil)
 
 				td.fRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(&model.File{
+					Return(model.File{
 						Key:       testKey,
+						TxId:      testTxId,
 						ContentId: testContentId,
 					}, nil)
 
 				td.cfRepo.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
-					Return(&model.ContentFile{
-						Id:         testContentId,
-						ParentPath: testRootPath,
+					Return(model.ContentFile{
+						Id:     testContentId,
+						Parent: testRootPath,
 					}, nil)
 
 				td.cRepo.EXPECT().

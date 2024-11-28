@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+
+	"github.com/glebziz/fs_db/internal/model"
 )
 
 func TestUseCase_Delete_Success(t *testing.T) {
@@ -14,7 +16,11 @@ func TestUseCase_Delete_Success(t *testing.T) {
 	td := newTestDeps(t)
 
 	td.fRepo.EXPECT().
-		Delete(gomock.Any(), testTxId, testKey).
+		Store(gomock.Any(), model.File{
+			Key:       testKey,
+			TxId:      testTxId,
+			ContentId: testContentId,
+		}).
 		Return(nil)
 
 	uc := td.newUseCase()
@@ -31,7 +37,7 @@ func TestUseCase_Delete_Error(t *testing.T) {
 	td := newTestDeps(t)
 
 	td.fRepo.EXPECT().
-		Delete(gomock.Any(), gomock.Any(), gomock.Any()).
+		Store(gomock.Any(), gomock.Any()).
 		Return(assert.AnError)
 
 	uc := td.newUseCase()

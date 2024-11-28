@@ -1,40 +1,41 @@
 package store
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
+	errorsAdapter "github.com/glebziz/fs_db/internal/adapter/errors"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
-func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFileServer) error {
-	content, err := i.sUsecase.Get(stream.Context(), req.Key)
+func (i *Service) GetFile(req *store.GetFileRequest, stream store.StoreV1_GetFileServer) error {
+	content, err := i.sUsecase.Get(stream.Context(), req.GetKey())
 	if err != nil {
-		return grpc.Error(fmt.Errorf("store usecase get: %w", err))
+		return errorsAdapter.Error(fmt.Errorf("store usecase get: %w", err))
 	}
-	defer content.Reader.Close()
+	defer content.Close()
 
-	stream.Send(&store.GetFileResponse{
+	err = stream.Send(&store.GetFileResponse{
 		Data: &store.GetFileResponse_Header{
 			Header: &store.FileHeader{
-				Key:  req.Key,
-				Size: content.Size,
+				Key: req.GetKey(),
 			},
 		},
 	})
 	if err != nil {
-		return grpc.Error(fmt.Errorf("stream file header send: %w", err))
+		return errorsAdapter.Error(fmt.Errorf("stream file header send: %w", err))
 	}
 
 	chunk := make([]byte, store.ChunkSize_MAX)
 	for {
-		n, err := content.Reader.Read(chunk)
-		if err == io.EOF {
+		var n int
+		n, err = content.Read(chunk)
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
-			return grpc.Error(fmt.Errorf("read: %w", err))
+			return errorsAdapter.Error(fmt.Errorf("read: %w", err))
 		}
 
 		err = stream.Send(&store.GetFileResponse{
@@ -43,7 +44,7 @@ func (i *implementation) GetFile(req *store.GetFileRequest, stream store.StoreV1
 			},
 		})
 		if err != nil {
-			return grpc.Error(fmt.Errorf("stream chunk send: %w", err))
+			return errorsAdapter.Error(fmt.Errorf("stream chunk send: %w", err))
 		}
 	}
 

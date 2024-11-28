@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
@@ -23,10 +22,7 @@ func TestImplementation_GetFile_Success(t *testing.T) {
 
 	td.suc.EXPECT().
 		Get(gomock.Any(), testKey).
-		Return(&model.Content{
-			Size:   testContentLen,
-			Reader: testReader,
-		}, nil)
+		Return(testReader, nil)
 
 	resp, err := td.client.GetFile(context.Background(), &store.GetFileRequest{
 		Key: testKey,
@@ -38,7 +34,6 @@ func TestImplementation_GetFile_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, testKey, data.GetHeader().Key)
-	require.Equal(t, testContentLen, data.GetHeader().Size)
 
 	data, err = resp.Recv()
 
@@ -77,10 +72,7 @@ func TestImplementation_GetFile_Error(t *testing.T) {
 
 			td.suc.EXPECT().
 				Get(gomock.Any(), gomock.Any()).
-				Return(&model.Content{
-					Size:   testContentLen,
-					Reader: tc.reader,
-				}, tc.err)
+				Return(tc.reader, tc.err)
 
 			resp, err := td.client.GetFile(context.Background(), &store.GetFileRequest{
 				Key: testKey,
@@ -92,7 +84,6 @@ func TestImplementation_GetFile_Error(t *testing.T) {
 			if tc.err == nil {
 				require.NoError(t, err)
 				require.Equal(t, testKey, data.GetHeader().Key)
-				require.Equal(t, testContentLen, data.GetHeader().Size)
 
 				data, err = resp.Recv()
 			}

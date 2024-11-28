@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/glebziz/fs_db"
+	"github.com/glebziz/fs_db/internal/adapter/errors"
 	isoLevel "github.com/glebziz/fs_db/internal/adapter/iso_level"
 	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/grpc"
 )
 
 func (db *db) Begin(ctx context.Context, level ...model.TxIsoLevel) (fs_db.Tx, error) {
@@ -23,11 +23,11 @@ func (db *db) Begin(ctx context.Context, level ...model.TxIsoLevel) (fs_db.Tx, e
 		IsoLevel: isoLevel.ConvertToGrpc(l),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("begin: %w", grpc.ClientError(err))
+		return nil, fmt.Errorf("begin: %w", errors.ClientError(err))
 	}
 
 	t := tx{
-		id:     resp.Id,
+		id:     resp.GetId(),
 		client: db.client,
 	}
 

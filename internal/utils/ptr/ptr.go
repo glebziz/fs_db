@@ -6,8 +6,7 @@ func Ptr[T any](v T) *T {
 
 func Val[T any](p *T) T {
 	if p == nil {
-		var zero T
-		return zero
+		return *new(T)
 	}
 
 	return *p

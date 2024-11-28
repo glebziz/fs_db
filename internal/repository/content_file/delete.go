@@ -5,13 +5,10 @@ import (
 	"fmt"
 )
 
-func (r *rep) Delete(ctx context.Context, ids []string) error {
-	in, args := arrayArg(ids)
-	_, err := r.p.DB(ctx).Exec(ctx, fmt.Sprintf(`
-		delete from content_file
-		where id in (%s)`, in), args...)
+func (r *Repo) Delete(ctx context.Context, id string) error {
+	err := r.p.DB(ctx).Delete(r.key(id))
 	if err != nil {
-		return fmt.Errorf("query: %w", err)
+		return fmt.Errorf("db delete: %w", err)
 	}
 
 	return nil

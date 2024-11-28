@@ -2,106 +2,79 @@ package file
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"os"
 	"path"
 	"testing"
-	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
-	"github.com/glebziz/fs_db/internal/db"
-	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
+	"github.com/glebziz/fs_db/internal/db/badger"
+	"github.com/glebziz/fs_db/internal/model/transactor"
+	file_mock "github.com/glebziz/fs_db/internal/repository/file/mocks"
 )
 
-func newTestRep(t *testing.T) (*rep, context.Context) {
+const (
+	testKey        = "testKey"
+	testKey2       = "testKey2"
+	testTxId       = "00010203-0405-0607-0809-0a0b0c0d0e0f"
+	testTxId2      = "0f0e0d0c-0c0a-0908-0706-050403020100"
+	testContentId  = "00000101-0202-0303-0404-050506060707"
+	testContentId2 = "08080909-0a0a-0b0b-0c0c-0d0d0e0e0f0f"
+	testSeq        = 1
+	testSeq2       = 2
+)
+
+type testDeps struct {
+	p  badger.Provider
+	qm *file_mock.MockQueryManager
+}
+
+type prepareFunc func(td *testDeps)
+type prepareIntFunc func(t *testing.T, p badger.Provider)
+
+func newTestDeps(t *testing.T) *testDeps {
+	ctrl := gomock.NewController(t)
+	p := file_mock.NewMockProvider(ctrl)
+	qm := file_mock.NewMockQueryManager(ctrl)
+
+	p.EXPECT().
+		DB(gomock.Any()).
+		MaxTimes(1).
+		Return(qm)
+
+	p.EXPECT().
+		RunTransaction(gomock.Any(), gomock.Any()).
+		MaxTimes(1).
+		DoAndReturn(func(ctx context.Context, fn transactor.TransactionFn) error {
+			return fn(ctx)
+		})
+
+	return &testDeps{
+		p:  p,
+		qm: qm,
+	}
+}
+
+func (td *testDeps) newRep() *Repo {
+	return New(td.p)
+}
+
+func newTestRep(t *testing.T) *Repo {
 	t.Helper()
 
 	var (
-		dbPath = path.Join(os.TempDir(), fmt.Sprintf("test_file_%s.db", gofakeit.UUID()))
+		dbPath = path.Join(t.TempDir(), fmt.Sprintf("test_file_%s", gofakeit.UUID()))
 	)
 
-	manager, err := db.New(context.Background(), dbPath)
+	manager, err := badger.New(dbPath)
 	require.NoError(t, err)
+
 	t.Cleanup(func() {
-		manager.Close()
-		err = os.Remove(dbPath)
+		err = manager.Close()
 		require.NoError(t, err)
 	})
 
-	return New(manager), context.Background()
-}
-
-func testCreateFile(ctx context.Context, t *testing.T, p db.Provider, txId string, file *model.File) {
-	t.Helper()
-
-	var contentId *string
-	if file.ContentId != "" {
-		contentId = ptr.Ptr(file.ContentId)
-	}
-
-	_, err := p.DB(ctx).Exec(ctx, `
-		insert into file(key, content_id, tx_id, ts) VALUES ($1, $2, $3, $4)`,
-		file.Key, contentId, txId, time.Now().UTC())
-	require.NoError(t, err)
-}
-
-func testGetFile(ctx context.Context, t *testing.T, p db.Provider, key string) *model.File {
-	t.Helper()
-
-	rows, err := p.DB(ctx).Query(ctx, `
-		select key, content_id
-		from file where key = $1`, key)
-	require.NoError(t, err)
-	defer rows.Close()
-	require.True(t, rows.Next())
-
-	var (
-		file      model.File
-		contentId sql.NullString
-	)
-
-	err = rows.Scan(&file.Key, &contentId)
-	require.NoError(t, err)
-	require.NoError(t, rows.Err())
-
-	if contentId.Valid {
-		file.ContentId = contentId.String
-	}
-
-	return &file
-}
-
-func testGetFilesByTx(ctx context.Context, t *testing.T, p db.Provider, txId string) []model.File {
-	t.Helper()
-
-	rows, err := p.DB(ctx).Query(ctx, `
-		select key, content_id
-		from file where tx_id = $1`, txId)
-	require.NoError(t, err)
-	defer rows.Close()
-
-	var files []model.File
-	for rows.Next() {
-		var (
-			key       string
-			contentId sql.NullString
-		)
-
-		err = rows.Scan(&key, &contentId)
-		require.NoError(t, err)
-		require.NoError(t, rows.Err())
-
-		if contentId.Valid {
-			files = append(files, model.File{
-				Key:       key,
-				ContentId: contentId.String,
-			})
-		}
-	}
-
-	return files
+	return New(manager)
 }

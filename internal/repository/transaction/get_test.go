@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"context"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -17,11 +18,11 @@ func TestRep_Get_Success(t *testing.T) {
 
 	var (
 		txs = []model.Transaction{{
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 1,
 		}, {
-			Id:       gofakeit.UUID(),
-			CreateTs: gofakeit.Date(),
+			Id:  gofakeit.UUID(),
+			Seq: 2,
 		}}
 	)
 
@@ -29,17 +30,17 @@ func TestRep_Get_Success(t *testing.T) {
 		testCreateTransaction(t, r, tx)
 	}
 
-	actual, err := r.Get(testCtx, model.MainTxId)
+	actual, err := r.Get(context.Background(), model.MainTxId)
 	require.NoError(t, err)
-	require.Equal(t, &model.Transaction{
+	require.Equal(t, model.Transaction{
 		Id:       model.MainTxId,
 		IsoLevel: fs_db.IsoLevelDefault,
 	}, actual)
 
 	for _, tx := range txs {
-		actual, err = r.Get(testCtx, tx.Id)
+		actual, err = r.Get(context.Background(), tx.Id)
 		require.NoError(t, err)
-		require.Equal(t, &tx, actual)
+		require.Equal(t, tx, actual)
 	}
 }
 
@@ -48,7 +49,7 @@ func TestRep_Get_Error(t *testing.T) {
 
 	r := New()
 
-	actual, err := r.Get(testCtx, gofakeit.UUID())
-	require.ErrorIs(t, err, fs_db.TxNotFoundErr)
-	require.Nil(t, actual)
+	actual, err := r.Get(context.Background(), gofakeit.UUID())
+	require.ErrorIs(t, err, fs_db.ErrTxNotFound)
+	require.Equal(t, model.Transaction{}, actual)
 }

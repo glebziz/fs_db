@@ -1,8 +1,11 @@
-FROM golang:latest AS build
+FROM golang:1.23 AS build
 
 WORKDIR /build
+COPY go.* .
+RUN go mod download
+
 COPY . .
-RUN go build -o /bin/fs_db -ldflags='-s -w -extldflags "-static"' ./cmd/fs_db/main.go
+RUN CGO_ENABLED=0 go build -o /bin/fs_db ./cmd/fs_db/.
 RUN mkdir -p /var/lib/fs_db
 
 FROM scratch

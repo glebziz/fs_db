@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFile_GetPath(t *testing.T) {
+func TestFile_Path(t *testing.T) {
 	var (
 		testId     = gofakeit.UUID()
 		testParent = gofakeit.UUID()
@@ -40,14 +40,13 @@ func TestFile_GetPath(t *testing.T) {
 			name: "empty id and empty parent",
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			file := ContentFile{
-				Id:         tc.id,
-				ParentPath: tc.parent,
+				Id:     tc.id,
+				Parent: tc.parent,
 			}
 
-			path := file.GetPath()
+			path := file.Path()
 
 			require.Equal(t, tc.path, path)
 		})

@@ -1,67 +1,97 @@
 package file
 
 import (
+	"context"
 	"testing"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
+	"github.com/glebziz/fs_db/internal/db/badger"
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func TestRep_Store_Success(t *testing.T) {
-	t.Parallel()
+func TestRep_Store(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		prepare prepareFunc
+		err     error
+	}{
+		{
+			name: "success",
+			prepare: func(td *testDeps) {
+				td.qm.EXPECT().
+					Set(append([]byte("fileContent/"), testId...), []byte(testParent)).
+					Times(1).
+					Return(nil)
+			},
+		},
+		{
+			name: "db set error",
+			prepare: func(td *testDeps) {
+				td.qm.EXPECT().
+					Set(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(assert.AnError)
+			},
+			err: assert.AnError,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	r, ctx := newTestRep(t)
+			td := newTestDeps(t)
+			tc.prepare(td)
 
-	var (
-		file1 = model.ContentFile{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
-		}
+			r := td.newRep()
+			err := r.Store(context.Background(), model.ContentFile{
+				Id:     testId,
+				Parent: testParent,
+			})
 
-		file2 = model.ContentFile{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
-		}
-	)
-
-	err := r.Store(ctx, file1)
-	require.NoError(t, err)
-
-	err = r.Store(ctx, file2)
-	require.NoError(t, err)
-
-	actual := testGetContentFile(ctx, t, r.p, file1.Id)
-	require.Equal(t, &file1, actual)
-
-	actual = testGetContentFile(ctx, t, r.p, file2.Id)
-	require.Equal(t, &file2, actual)
+			require.ErrorIs(t, err, tc.err)
+		})
+	}
 }
 
-func TestRep_Create_Error(t *testing.T) {
-	t.Parallel()
+func TestRep_Store_Int(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		prepare prepareIntFunc
+		require prepareIntFunc
+	}{
+		{
+			name:    "success",
+			prepare: func(t *testing.T, p badger.Provider) {},
+			require: func(t *testing.T, p badger.Provider) {
+				parent, err := p.DB(context.Background()).Get(append([]byte("fileContent/"), testId...))
+				require.NoError(t, err)
+				require.Equal(t, testParent, string(parent))
+			},
+		},
+		{
+			name:    "success",
+			prepare: func(t *testing.T, p badger.Provider) {},
+			require: func(t *testing.T, p badger.Provider) {
+				parent, err := p.DB(context.Background()).Get(append([]byte("fileContent/"), testId...))
+				require.NoError(t, err)
+				require.Equal(t, testParent, string(parent))
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	r, ctx := newTestRep(t)
+			r := newTestRep(t)
+			tc.prepare(t, r.p)
 
-	var (
-		file = model.ContentFile{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
-		}
-	)
-
-	err := r.Store(ctx, model.ContentFile{
-		Id: gofakeit.UUID(),
-	})
-	require.Error(t, err)
-
-	err = r.Store(ctx, file)
-	require.NoError(t, err)
-
-	err = r.Store(ctx, model.ContentFile{
-		Id:         file.Id,
-		ParentPath: gofakeit.UUID(),
-	})
-	require.Error(t, err)
+			err := r.Store(context.Background(), model.ContentFile{
+				Id:     testId,
+				Parent: testParent,
+			})
+			require.NoError(t, err)
+			tc.require(t, r.p)
+		})
+	}
 }

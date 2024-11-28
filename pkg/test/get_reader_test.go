@@ -18,7 +18,7 @@ func TestDb_GetReader(t *testing.T) {
 	key := gofakeit.UUID()
 
 	r, err := _db.GetReader(testCtx, key)
-	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrNotFound)
 	require.Nil(t, r)
 
 	err = _db.Set(testCtx, key, testContent)

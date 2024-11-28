@@ -2,7 +2,6 @@ package content
 
 import (
 	"context"
-	"os"
 	"path"
 	"testing"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/glebziz/fs_db"
+	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
 func TestRep_Delete(t *testing.T) {
@@ -36,6 +36,6 @@ func TestRep_Delete(t *testing.T) {
 		fPath := path.Join(dir, gofakeit.UUID())
 
 		err := r.Delete(context.Background(), fPath)
-		require.ErrorIs(t, err, fs_db.NotFoundErr)
+		require.ErrorIs(t, err, fs_db.ErrNotFound)
 	})
 }

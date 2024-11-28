@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/glebziz/fs_db/internal/utils/grpc"
-
+	"github.com/glebziz/fs_db/internal/adapter/errors"
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
-func (i *implementation) DeleteFile(ctx context.Context, req *store.DeleteFileRequest) (*store.DeleteFileResponse, error) {
-	err := i.sUsecase.Delete(ctx, req.Key)
+func (i *Service) DeleteFile(ctx context.Context, req *store.DeleteFileRequest) (*store.DeleteFileResponse, error) {
+	err := i.sUsecase.Delete(ctx, req.GetKey())
 	if err != nil {
-		return nil, grpc.Error(fmt.Errorf("store usecase delete: %w", err))
+		return nil, errors.Error(fmt.Errorf("store usecase delete: %w", err))
 	}
 
 	return &store.DeleteFileResponse{}, nil

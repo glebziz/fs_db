@@ -8,27 +8,29 @@ type Request interface {
 	GetChunk() []byte
 }
 
-type Stream interface {
-	Recv() (Request, error)
+type Stream[T Request] interface {
+	Recv() (T, error)
 }
 
-type reader struct {
-	stream Stream
+type reader[T Request] struct {
+	stream Stream[T]
 	buf    bytes.Buffer
 }
 
-func New(stream Stream) *reader {
-	return &reader{stream: stream}
+func New[T Request](stream Stream[T]) *reader[T] {
+	return &reader[T]{
+		stream: stream,
+	}
 }
 
-func (r *reader) Read(p []byte) (int, error) {
+func (r *reader[T]) Read(p []byte) (int, error) {
 	for len(p) > r.buf.Len() {
-		req, err := r.stream.Recv()
+		resp, err := r.stream.Recv()
 		if err != nil {
 			break
 		}
 
-		r.buf.Write(req.GetChunk())
+		r.buf.Write(resp.GetChunk())
 	}
 
 	return r.buf.Read(p)

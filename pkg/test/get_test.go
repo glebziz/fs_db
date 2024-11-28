@@ -17,7 +17,7 @@ func TestDb_Get(t *testing.T) {
 	key := gofakeit.UUID()
 
 	c, err := _db.Get(testCtx, key)
-	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrNotFound)
 	require.Nil(t, c)
 
 	err = _db.Set(testCtx, key, testContent)

@@ -3,7 +3,6 @@ package content
 import (
 	"context"
 	"io"
-	"os"
 	"path"
 	"testing"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/glebziz/fs_db"
+	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
 func TestRep_Get_Success(t *testing.T) {
@@ -27,13 +27,12 @@ func TestRep_Get_Success(t *testing.T) {
 	c, err := r.Get(context.Background(), fPath)
 
 	require.NoError(t, err)
-	require.Equal(t, uint64(len(content)), c.Size)
 
-	actContent, err := io.ReadAll(c.Reader)
+	actContent, err := io.ReadAll(c)
 	require.NoError(t, err)
 	require.Equal(t, content, actContent)
 
-	err = c.Reader.Close()
+	err = c.Close()
 	require.NoError(t, err)
 }
 
@@ -42,6 +41,6 @@ func TestRep_Get_Error(t *testing.T) {
 
 	c, err := r.Get(context.Background(), path.Join(rootPath, gofakeit.UUID()))
 
-	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrNotFound)
 	require.Nil(t, c)
 }

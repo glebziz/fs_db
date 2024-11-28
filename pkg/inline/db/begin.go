@@ -16,14 +16,14 @@ func (db *db) Begin(ctx context.Context, level ...model.TxIsoLevel) (fs_db.Tx, e
 		l = fs_db.IsoLevelDefault
 	}
 
-	txId, err := db.txUc.Begin(ctx, l)
+	txId, err := db.container.Transaction().Begin(ctx, l)
 	if err != nil {
 		return nil, fmt.Errorf("tx usecase begin: %w", err)
 	}
 
 	t := tx{
 		id:   txId,
-		txUc: db.txUc,
+		txUc: db.container.Transaction(),
 	}
 
 	return fs_db.CreateTx(db, &t, t.ctx), nil

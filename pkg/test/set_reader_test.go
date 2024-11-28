@@ -15,7 +15,7 @@ func TestDb_SetReader(t *testing.T) {
 
 	testGoN(t, testNumThread, func(t testing.TB) {
 		for i := 0; i < testN; i++ {
-			err := _db.SetReader(testCtx, gofakeit.UUID(), bytes.NewReader(testContent), testSize)
+			err := _db.SetReader(testCtx, gofakeit.UUID(), bytes.NewReader(testContent))
 			require.NoError(t, err)
 		}
 	})

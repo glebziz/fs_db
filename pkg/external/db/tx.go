@@ -6,8 +6,8 @@ import (
 
 	"google.golang.org/grpc/metadata"
 
+	"github.com/glebziz/fs_db/internal/adapter/errors"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/grpc"
 	"github.com/glebziz/fs_db/internal/utils/grpc/interceptors/server"
 )
 
@@ -24,7 +24,7 @@ func (t *tx) ctx(ctx context.Context) context.Context {
 func (t *tx) Commit(ctx context.Context) error {
 	_, err := t.client.CommitTx(t.ctx(ctx), &store.CommitTxRequest{})
 	if err != nil {
-		return fmt.Errorf("commit tx: %w", grpc.ClientError(err))
+		return fmt.Errorf("commit tx: %w", errors.ClientError(err))
 	}
 
 	return nil
@@ -33,7 +33,7 @@ func (t *tx) Commit(ctx context.Context) error {
 func (t *tx) Rollback(ctx context.Context) error {
 	_, err := t.client.RollbackTx(t.ctx(ctx), &store.RollbackTxRequest{})
 	if err != nil {
-		return fmt.Errorf("rollback tx: %w", grpc.ClientError(err))
+		return fmt.Errorf("rollback tx: %w", errors.ClientError(err))
 	}
 
 	return nil

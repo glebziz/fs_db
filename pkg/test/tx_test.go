@@ -91,16 +91,16 @@ func TestDb_Tx(t *testing.T) {
 	require.Equal(t, content[2], c)
 
 	c, err = txs[2].Get(testCtx, gofakeit.UUID())
-	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrNotFound)
 	require.Nil(t, c)
 
 	err = txs[2].Commit(testCtx)
-	require.ErrorIs(t, err, fs_db.TxSerializationErr)
+	require.ErrorIs(t, err, fs_db.ErrTxSerialization)
 
 	err = _db.Delete(testCtx, key)
 	require.NoError(t, err)
 
 	c, err = _db.Get(testCtx, key)
-	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrNotFound)
 	require.Nil(t, c)
 }

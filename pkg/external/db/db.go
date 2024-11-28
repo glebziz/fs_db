@@ -14,9 +14,8 @@ type db struct {
 	client store.StoreV1Client
 }
 
-func New(ctx context.Context, url string) (*db, error) {
-	conn, err := grpc.DialContext(
-		ctx, fmt.Sprintf(url),
+func New(_ context.Context, url string) (*db, error) {
+	conn, err := grpc.NewClient(url,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -26,4 +25,8 @@ func New(ctx context.Context, url string) (*db, error) {
 	return &db{
 		client: store.NewStoreV1Client(conn),
 	}, nil
+}
+
+func (db *db) Close() error {
+	return nil
 }

@@ -4,30 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *rep) Get(ctx context.Context, id string) (*model.ContentFile, error) {
-	rows, err := r.p.DB(ctx).Query(ctx, `
-		select id, parent_path
-		from content_file
-		where id = $1`, id)
+func (r *Repo) Get(ctx context.Context, id string) (model.ContentFile, error) {
+	parent, err := r.p.DB(ctx).Get(r.key(id))
 	if err != nil {
-		return nil, fmt.Errorf("query: %w", err)
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		var file model.ContentFile
-
-		err = rows.Scan(&file.Id, &file.ParentPath)
-		if err != nil {
-			return nil, fmt.Errorf("scan: %w", err)
-		}
-
-		return &file, err
+		return model.ContentFile{}, fmt.Errorf("db get: %w", err)
 	}
 
-	return nil, fs_db.NotFoundErr
+	return model.ContentFile{
+		Id:     id,
+		Parent: string(parent),
+	}, nil
 }

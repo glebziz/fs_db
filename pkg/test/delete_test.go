@@ -31,5 +31,5 @@ func TestDb_Delete(t *testing.T) {
 	})
 
 	_, err = _db.Get(testCtx, key)
-	require.ErrorIs(t, err, fs_db.NotFoundErr)
+	require.ErrorIs(t, err, fs_db.ErrNotFound)
 }

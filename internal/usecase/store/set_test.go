@@ -1,8 +1,7 @@
 package store
 
 import (
-	"context"
-	"io"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,50 +16,71 @@ func TestUseCase_Set_Success(t *testing.T) {
 	t.Parallel()
 
 	var (
-		dir = model.Dir{
-			Id:         testDirId,
-			ParentPath: testRootPath,
-		}
+		dirs = model.Dirs{{
+			Name: testDirName,
+			Root: testRootPath,
+			Free: testSize,
+		}, {
+			Name: testDirName2,
+			Root: testRootPath,
+			Free: testSize2,
+		}, {
+			Name: testDirName3,
+			Root: testRootPath,
+			Free: testSize3,
+		}, {
+			Name: testDirName4,
+			Root: testRootPath,
+			Free: testSize4,
+		}}
 		cFile = model.ContentFile{
-			Id:         testContentId,
-			ParentPath: dir.GetPath(),
+			Id:     testContentId,
+			Parent: path.Join(testRootPath, testDirName),
 		}
 		file = model.File{
 			Key:       testKey,
+			TxId:      testTxId,
 			ContentId: testContentId,
 		}
-		content = model.Content{
-			Size:   testSize,
-			Reader: testReader,
-		}
+		content = testReader
+		c       = testNewCloser(t, content, 2)
 	)
 	td := newTestDeps(t)
 
 	td.dir.EXPECT().
-		Select(gomock.Any(), testSize).
-		Return(&dir, nil)
+		Get(gomock.Any()).
+		Return(dirs, nil)
 
 	td.cRepo.EXPECT().
-		Store(gomock.Any(), cFile.GetPath(), &content).
-		DoAndReturn(func(_ context.Context, _ string, content *model.Content) error {
-			data, err := io.ReadAll(content.Reader)
-			require.NoError(t, err)
-			require.Equal(t, testContent, string(data))
-
-			return nil
+		Store(gomock.Any(), path.Join(testRootPath, testDirName2, testContentId), gomock.Any()).
+		Times(1).
+		Return(model.NotEnoughSpaceError{
+			Start: c,
 		})
+
+	td.cRepo.EXPECT().
+		Store(gomock.Any(), path.Join(testRootPath, testDirName4, testContentId), gomock.Any()).
+		Times(1).
+		Return(model.NotEnoughSpaceError{
+			Start: c,
+		})
+
+	td.cRepo.EXPECT().
+		Store(gomock.Any(), path.Join(testRootPath, testDirName, testContentId), gomock.Any()).
+		Times(1).
+		Return(nil)
 
 	td.cfRepo.EXPECT().
 		Store(gomock.Any(), cFile).
 		Return(nil)
 
 	td.fRepo.EXPECT().
-		Store(gomock.Any(), testTxId, file).
+		Store(gomock.Any(), file).
 		Return(nil)
 
 	uc := td.newUseCase()
 
-	err := uc.Set(testCtx, testKey, &content)
+	err := uc.Set(testCtx, testKey, content)
 
 	require.NoError(t, err)
 }
@@ -74,15 +94,26 @@ func TestUseCase_Set_Error(t *testing.T) {
 		{
 			name: "empty key",
 			prepare: func(td *testDeps) error {
-				return fs_db.EmptyKeyErr
+				return fs_db.ErrEmptyKey
 			},
 		},
 		{
-			name: "select dir",
+			name: "size",
 			key:  testKey,
 			prepare: func(td *testDeps) error {
 				td.dir.EXPECT().
-					Select(gomock.Any(), gomock.Any()).
+					Get(gomock.Any()).
+					Return(nil, nil)
+
+				return fs_db.ErrNoFreeSpace
+			},
+		},
+		{
+			name: "get dir",
+			key:  testKey,
+			prepare: func(td *testDeps) error {
+				td.dir.EXPECT().
+					Get(gomock.Any()).
 					Return(nil, assert.AnError)
 
 				return assert.AnError
@@ -93,11 +124,12 @@ func TestUseCase_Set_Error(t *testing.T) {
 			key:  testKey,
 			prepare: func(td *testDeps) error {
 				td.dir.EXPECT().
-					Select(gomock.Any(), gomock.Any()).
-					Return(&model.Dir{
-						Id:         testDirId,
-						ParentPath: testRootPath,
-					}, nil)
+					Get(gomock.Any()).
+					Return(model.Dirs{{
+						Name: testDirName,
+						Root: testRootPath,
+						Free: testSize,
+					}}, nil)
 
 				td.cRepo.EXPECT().
 					Store(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -111,11 +143,12 @@ func TestUseCase_Set_Error(t *testing.T) {
 			key:  testKey,
 			prepare: func(td *testDeps) error {
 				td.dir.EXPECT().
-					Select(gomock.Any(), gomock.Any()).
-					Return(&model.Dir{
-						Id:         testDirId,
-						ParentPath: testRootPath,
-					}, nil)
+					Get(gomock.Any()).
+					Return(model.Dirs{{
+						Name: testDirName,
+						Root: testRootPath,
+						Free: testSize,
+					}}, nil)
 
 				td.cRepo.EXPECT().
 					Store(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -133,11 +166,12 @@ func TestUseCase_Set_Error(t *testing.T) {
 			key:  testKey,
 			prepare: func(td *testDeps) error {
 				td.dir.EXPECT().
-					Select(gomock.Any(), gomock.Any()).
-					Return(&model.Dir{
-						Id:         testDirId,
-						ParentPath: testRootPath,
-					}, nil)
+					Get(gomock.Any()).
+					Return(model.Dirs{{
+						Name: testDirName,
+						Root: testRootPath,
+						Free: testSize,
+					}}, nil)
 
 				td.cRepo.EXPECT().
 					Store(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -148,7 +182,7 @@ func TestUseCase_Set_Error(t *testing.T) {
 					Return(nil)
 
 				td.fRepo.EXPECT().
-					Store(gomock.Any(), gomock.Any(), gomock.Any()).
+					Store(gomock.Any(), gomock.Any()).
 					Return(assert.AnError)
 
 				return assert.AnError
@@ -160,10 +194,7 @@ func TestUseCase_Set_Error(t *testing.T) {
 			t.Parallel()
 
 			var (
-				content = model.Content{
-					Size:   testSize,
-					Reader: testReader,
-				}
+				content = testReader
 			)
 			td := newTestDeps(t)
 
@@ -171,7 +202,7 @@ func TestUseCase_Set_Error(t *testing.T) {
 
 			uc := td.newUseCase()
 
-			err := uc.Set(testCtx, tc.key, &content)
+			err := uc.Set(testCtx, tc.key, content)
 
 			require.ErrorIs(t, err, wantErr)
 		})

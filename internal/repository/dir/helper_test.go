@@ -1,69 +1,38 @@
 package dir
 
 import (
-	"context"
-	"fmt"
 	"os"
-	"path"
 	"testing"
 
-	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
-
-	"github.com/glebziz/fs_db/internal/db"
-	"github.com/glebziz/fs_db/internal/model"
 )
 
-func newTestRep(t *testing.T) (*rep, context.Context) {
+func testNewRootPath(t *testing.T) string {
 	t.Helper()
 
-	var (
-		dbPath = path.Join(os.TempDir(), fmt.Sprintf("test_dir_%s.db", gofakeit.UUID()))
-	)
-
-	manager, err := db.New(context.Background(), dbPath)
+	rootPath, err := os.MkdirTemp("", "dir_rep")
 	require.NoError(t, err)
 	t.Cleanup(func() {
-		manager.Close()
-		err = os.Remove(dbPath)
+		err = os.RemoveAll(rootPath)
 		require.NoError(t, err)
 	})
 
-	return New(manager), context.Background()
+	return rootPath
 }
 
-func testCreateDir(ctx context.Context, t *testing.T, p db.Provider, dir *model.Dir) {
+func testCreateDir(t *testing.T, path string) {
 	t.Helper()
 
-	_, err := p.DB(ctx).Exec(ctx, `
-		insert into dir(id, parent_path) VALUES ($1, $2)`,
-		dir.Id, dir.ParentPath)
-	require.NoError(t, err)
-}
-
-func testCreateContentFile(ctx context.Context, t *testing.T, p db.Provider, file *model.ContentFile) {
-	t.Helper()
-
-	_, err := p.DB(ctx).Exec(ctx, `
-		insert into content_file(id, parent_path) VALUES ($1, $2)`,
-		file.Id, file.ParentPath)
+	err := os.Mkdir(path, mkdirPerm)
 	require.NoError(t, err)
 }
 
-func testGetDir(ctx context.Context, t *testing.T, p db.Provider, id string) *model.Dir {
+func testCreateFile(t *testing.T, path string) {
 	t.Helper()
 
-	var d model.Dir
-	rows, err := p.DB(ctx).Query(ctx, `
-		select id, parent_path 
-		from dir where id = $1`, id)
+	f, err := os.Create(path)
 	require.NoError(t, err)
-	defer rows.Close()
-	require.True(t, rows.Next())
 
-	err = rows.Scan(&d.Id, &d.ParentPath)
+	err = f.Close()
 	require.NoError(t, err)
-	require.NoError(t, rows.Err())
-
-	return &d
 }

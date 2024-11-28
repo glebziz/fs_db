@@ -1,6 +1,9 @@
 package dir
 
 import (
+	"context"
+	"os"
+	"path"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -9,43 +12,30 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func TestRep_Create_Success(t *testing.T) {
-	t.Parallel()
-
-	r, ctx := newTestRep(t)
-
+func TestRep_Create(t *testing.T) {
 	var (
-		dir1 = model.Dir{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
-		}
+		rootPath = testNewRootPath(t)
 
-		dir2 = model.Dir{
-			Id:         gofakeit.UUID(),
-			ParentPath: gofakeit.UUID(),
-		}
+		dir     = gofakeit.UUID()
+		dirPath = path.Join(rootPath, dir)
 	)
 
-	err := r.Create(ctx, dir1)
+	r, err := New([]string{rootPath})
 	require.NoError(t, err)
+	require.NotNil(t, r)
 
-	err = r.Create(ctx, dir2)
-	require.NoError(t, err)
-
-	actual := testGetDir(ctx, t, r.p, dir1.Id)
-	require.Equal(t, &dir1, actual)
-
-	actual = testGetDir(ctx, t, r.p, dir2.Id)
-	require.Equal(t, &dir2, actual)
-}
-
-func TestRep_Create_Error(t *testing.T) {
-	t.Parallel()
-
-	r, ctx := newTestRep(t)
-
-	err := r.Create(ctx, model.Dir{
-		Id: gofakeit.UUID(),
+	err = r.Create(context.Background(), model.Dir{
+		Name: dir,
+		Root: rootPath,
 	})
-	require.Error(t, err)
+	require.NoError(t, err)
+	require.EqualValues(t, 1, r.counts[rootPath])
+	require.Equal(t, model.Dir{
+		Name: dir,
+		Root: rootPath,
+	}, r.dirs[dirPath])
+
+	st, err := os.Stat(dirPath)
+	require.NoError(t, err)
+	require.Equal(t, true, st.IsDir())
 }

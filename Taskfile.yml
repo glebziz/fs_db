@@ -1,0 +1,41 @@
+version: '3'
+
+tasks:
+  clean:
+    cmd: rm -r ./bin
+
+  build:
+    cmds:
+      - mkdir -p bin
+      - go build -o ./bin/fs-db ./cmd/fs_db/main.go
+      - go build -o ./bin/migrator ./cmd/migrate
+
+  lint:
+    cmds:
+      - gofmt -s -w .
+      - golangci-lint run -v
+
+  test:
+    cmd: go test --tags=test ./internal/...
+
+  test:inline:
+    cmd: go test -count=1 --tags=inline ./pkg/test/...
+
+  test:external:
+    cmd: go test -count=1 --tags=external ./pkg/test/...
+
+  generate:
+    deps:
+      - generate:proto
+      - generate:mocks
+
+  generate:proto:
+    sources:
+      - internal/proto/store_service.proto
+      - internal/proto/error.proto
+    cmds:
+      - for: sources
+        cmd: protoc -I ./internal/proto --go_out=./internal/proto --go_opt=paths=source_relative --go-grpc_out=./internal/proto --go-grpc_opt=paths=source_relative {{ .ITEM }}
+
+  generate:mocks:
+    cmd: go generate ./...

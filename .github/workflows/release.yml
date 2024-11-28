@@ -7,9 +7,11 @@ on:
 
 env:
   APP_NAME: 'fs-db'
+  MIGRATOR_NAME: 'fs-db-migrator'
   MAINTAINER: 'Zhizhchenko Gleb <zhizhchienko0162@gmail.com>'
   DESC: 'FS DB server'
   BIN_PATH: 'usr/local/bin/${APP_NAME}'
+  MIGRATOR_PATH: 'usr/local/bin/${MIGRATOR_NAME}'
   SERVICE_PATH: 'lib/systemd/system/${APP_NAME}.service'
   CONF_PATH: 'etc/${APP_NAME}/${APP_NAME}.conf'
 
@@ -22,17 +24,23 @@ jobs:
         uses: actions/setup-go@v4
         with:
           cache: false
-          go-version: 1.21
+          go-version: ${{ env.GO_VERSION }}
       - name: Verify dependencies
         run: go mod verify
       - name: Build
         run: |
           mkdir -p bin
           go build -o ./bin/${{ env.APP_NAME }} ./cmd/fs_db/main.go
+          go build -o ./bin/${{ env.MIGRATOR_NAME }} ./cmd/fs_db/
       - uses: actions/upload-artifact@v3
         with:
           name: artifact
           path: ./bin/${{ env.APP_NAME }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: migrator-artifact
+          path: ./bin/${{ env.MIGRATOR_NAME }}
+
 
   build-package:
     runs-on: ubuntu-latest
@@ -43,6 +51,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: artifact
+      - uses: actions/download-artifact@v3
+        with:
+          name: migrator-artifact
       - name: Create dirs
         run: |
           mkdir -p .debian/usr/local/bin/
@@ -50,9 +61,11 @@ jobs:
           mkdir -p .debian/etc/${{ env.APP_NAME }}/
           mkdir -p .debian/var/lib/fs_db/
           mkdir -p .debian/DEBIAN
-          cp ${{ env.APP_NAME }} .debian/usr/local/bin/
+          cp ${{ env.APP_NAME }} .debian/${{ env.BIN_PATH }}
+          cp ${{ env.MIGRATOR_NAME }} .debian/${{ env.MIGRATOR_PATH }}
           cp ./config/docker_config.yaml .debian/${{ env.CONF_PATH }}
           chmod +x .debian/${{ env.BIN_PATH }}
+          chmod +x .debian/${{ env.MIGRATOR_PATH }}
       - name: Create service
         run: |
           echo [Unit]                                                           >  .debian/${{env.SERVICE_PATH}}
