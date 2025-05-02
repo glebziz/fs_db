@@ -9,7 +9,7 @@ import (
 func TestSet(t *testing.T) {
 	Set(1)
 
-	require.GreaterOrEqual(t, seq, int64(1))
+	require.GreaterOrEqual(t, seq, uint64(1))
 }
 
 func TestSeq_After(t *testing.T) {
