@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	diskUtil "github.com/shirou/gopsutil/disk"
 
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 
 func Usage(ctx context.Context, path string) (*model.Stat, error) {
 	st, err := diskUtil.UsageWithContext(ctx, path)
-	if errors.Is(err, os.ErrPathNotFound) {
+	if errors.Is(err, model.ErrPathNotFound) {
 		err = os.MkdirAll(path, dirPerm)
 		if err != nil {
 			return nil, fmt.Errorf("mkdir all: %w", err)

@@ -2,13 +2,10 @@ package store
 
 import (
 	"context"
-	"io"
 	"math/rand/v2"
-	"strings"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
 	"github.com/glebziz/fs_db/internal/model"
@@ -30,7 +27,6 @@ var (
 	testSize2   = uint64(8)
 	testSize3   = uint64(1)
 	testSize4   = uint64(9)
-	testReader  = io.NopCloser(strings.NewReader(testContent))
 
 	testDirName  = gofakeit.UUID()
 	testDirName2 = gofakeit.UUID()
@@ -49,39 +45,17 @@ func (randSource) Uint64() uint64 {
 	return 4
 }
 
-type closer struct {
-	io.Reader
-	count int
-}
-
-func (c *closer) Close() error {
-	c.count++
-	return nil
-}
-
-func testNewCloser(t *testing.T, r io.Reader, times int) io.ReadCloser {
-	t.Helper()
-
-	c := closer{
-		Reader: r,
-	}
-
-	t.Cleanup(func() {
-		require.Equal(t, times, c.count)
-	})
-
-	return &c
-}
-
 type testDeps struct {
 	dir *mock_store.MockdirUsecase
 
-	cRepo  *mock_store.MockcontentRepository
-	cfRepo *mock_store.MockcontentFileRepository
-	fRepo  *mock_store.MockfileRepository
-	txRepo *mock_store.MocktxRepository
+	cRepo   *mock_store.MockcontentRepository
+	cfRepo  *mock_store.MockcontentFileRepository
+	fRepo   *mock_store.MockfileRepository
+	txRepo  *mock_store.MocktxRepository
+	cWriter *mock_store.MockcontentWriter
 
-	idGen *mock_store.Mockgenerator
+	idGen  *mock_store.Mockgenerator
+	reader *mock_store.MockReadSeekCloser
 }
 
 func newTestDeps(t *testing.T) *testDeps {
@@ -94,12 +68,14 @@ func newTestDeps(t *testing.T) *testDeps {
 		Return(testContentId)
 
 	return &testDeps{
-		dir:    mock_store.NewMockdirUsecase(ctrl),
-		cRepo:  mock_store.NewMockcontentRepository(ctrl),
-		cfRepo: mock_store.NewMockcontentFileRepository(ctrl),
-		fRepo:  mock_store.NewMockfileRepository(ctrl),
-		txRepo: mock_store.NewMocktxRepository(ctrl),
-		idGen:  idGen,
+		dir:     mock_store.NewMockdirUsecase(ctrl),
+		cRepo:   mock_store.NewMockcontentRepository(ctrl),
+		cfRepo:  mock_store.NewMockcontentFileRepository(ctrl),
+		fRepo:   mock_store.NewMockfileRepository(ctrl),
+		txRepo:  mock_store.NewMocktxRepository(ctrl),
+		cWriter: mock_store.NewMockcontentWriter(ctrl),
+		idGen:   idGen,
+		reader:  mock_store.NewMockReadSeekCloser(ctrl),
 	}
 }
 
@@ -107,7 +83,7 @@ func (d *testDeps) newUseCase() *UseCase {
 	return New(
 		d.dir, d.cRepo,
 		d.cfRepo, d.fRepo,
-		d.txRepo, d.idGen,
-		rand.New(randSource{}),
+		d.txRepo, d.cWriter,
+		d.idGen, rand.New(randSource{}),
 	)
 }

@@ -2,17 +2,17 @@ package store
 
 import (
 	"context"
-	"io"
 
 	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
 //go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
+//go:generate mockgen -source ../../../model/io.go -package mock_store -destination mocks/mocks_io.go -typed true
 
 type storeUseCase interface {
-	Set(ctx context.Context, key string, content io.Reader) error
-	Get(ctx context.Context, key string) (io.ReadCloser, error)
+	Set(ctx context.Context, key string, content model.Contents) error
+	Get(ctx context.Context, key string) (model.ReadSeekCloser, error)
 	GetKeys(ctx context.Context) ([]string, error)
 	Delete(ctx context.Context, key string) error
 }
@@ -31,8 +31,6 @@ type Service struct {
 
 func New(su storeUseCase, txu txUseCase) *Service {
 	return &Service{
-		UnimplementedStoreV1Server: store.UnimplementedStoreV1Server{},
-
 		sUsecase:  su,
 		txUsecase: txu,
 	}

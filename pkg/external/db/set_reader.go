@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/glebziz/fs_db/internal/adapter/errors"
+	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
 	"github.com/glebziz/fs_db/internal/utils/grpc/streamwriter"
 )
@@ -27,7 +28,7 @@ func (db *db) SetReader(ctx context.Context, key string, reader io.Reader) error
 		return fmt.Errorf("stream header send: %w", errors.ClientError(err))
 	}
 
-	sw := streamwriter.New(store.ChunkSize_MAX, stream, func(p []byte) *store.SetFileRequest {
+	sw := streamwriter.New(store.ChunkSize_MAX, stream, func(p []byte, _ model.Seek) *store.SetFileRequest {
 		return &store.SetFileRequest{
 			Data: &store.SetFileRequest_Chunk{
 				Chunk: p,

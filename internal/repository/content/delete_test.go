@@ -2,6 +2,7 @@ package content
 
 import (
 	"context"
+	"os"
 	"path"
 	"testing"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/glebziz/fs_db"
-	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
 func TestRep_Delete(t *testing.T) {

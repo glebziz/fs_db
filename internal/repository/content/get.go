@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
+	"os"
 
 	"github.com/glebziz/fs_db"
-	"github.com/glebziz/fs_db/internal/utils/os"
+	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (r *Repo) Get(_ context.Context, path string) (io.ReadCloser, error) {
+func (r *Repo) Get(_ context.Context, path string) (model.ReadSeekCloser, error) {
 	f, err := os.Open(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, fs_db.ErrNotFound

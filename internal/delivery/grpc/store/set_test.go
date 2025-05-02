@@ -1,6 +1,7 @@
 package store
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
@@ -21,11 +23,14 @@ func TestImplementation_SetFile_Success(t *testing.T) {
 
 	td.suc.EXPECT().
 		Set(gomock.Any(), testKey, gomock.Any()).
-		Do(func(ctx context.Context, s string, content io.Reader) error {
-			data, err := io.ReadAll(content)
+		Do(func(ctx context.Context, s string, contents model.Contents) error {
+			var data bytes.Buffer
+			for c := range contents {
+				_, err := io.Copy(&data, c.Reader)
+				require.NoError(t, err)
+			}
 
-			require.NoError(t, err)
-			require.Equal(t, testContent, data)
+			require.Equal(t, testContent, data.Bytes())
 
 			return nil
 		}).

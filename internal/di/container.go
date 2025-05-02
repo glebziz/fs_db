@@ -16,6 +16,7 @@ import (
 	"github.com/glebziz/fs_db/internal/usecase/dir"
 	"github.com/glebziz/fs_db/internal/usecase/store"
 	"github.com/glebziz/fs_db/internal/usecase/transaction"
+	"github.com/glebziz/fs_db/internal/usecase/writer"
 	"github.com/glebziz/fs_db/internal/utils/generator"
 	"github.com/glebziz/fs_db/internal/utils/wpool"
 )
@@ -35,6 +36,7 @@ type Container struct {
 	dirUseCase         *dir.UseCase
 	storeUseCase       *store.UseCase
 	transactionUseCase *transaction.UseCase
+	contentWriter      *writer.UseCase
 
 	contentRepo     *contentRepo.Repo
 	contentFileRepo *contentFileRepo.Repo

@@ -12,7 +12,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+      - name: linter version
+        run: |
+          echo "$GOLANGCI_LINT_VERSION"
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: ${{ env.GOLANGCI_LINT_VERSION }}
+          version: v1.62

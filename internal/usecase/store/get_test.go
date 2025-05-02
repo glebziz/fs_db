@@ -46,7 +46,6 @@ func TestUseCase_Get_Success(t *testing.T) {
 			},
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -68,7 +67,6 @@ func TestUseCase_Get_Success(t *testing.T) {
 					Key:       testKey,
 					ContentId: testContentId,
 				}
-				content = testReader
 			)
 			td := newTestDeps(t)
 
@@ -86,14 +84,14 @@ func TestUseCase_Get_Success(t *testing.T) {
 
 			td.cRepo.EXPECT().
 				Get(gomock.Any(), cFile.Path()).
-				Return(content, nil)
+				Return(td.reader, nil)
 
 			uc := td.newUseCase()
 
 			actContent, err := uc.Get(testCtx, testKey)
 
 			require.NoError(t, err)
-			require.Equal(t, content, actContent)
+			require.Equal(t, td.reader, actContent)
 		})
 	}
 }

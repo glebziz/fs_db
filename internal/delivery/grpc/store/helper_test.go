@@ -1,14 +1,11 @@
 package store
 
 import (
-	"bytes"
 	"context"
-	"io"
 	"net"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
@@ -21,26 +18,22 @@ import (
 	_ "github.com/glebziz/fs_db/internal/utils/log"
 )
 
-type errReader struct{}
-
-func (r errReader) Read([]byte) (int, error) {
-	return 0, assert.AnError
-}
-
 var (
-	testKey       = gofakeit.UUID()
-	testContent   = []byte("some content")
-	testReader    = io.NopCloser(bytes.NewReader(testContent))
-	testErrReader = io.NopCloser(errReader{})
+	testKey     = gofakeit.UUID()
+	testContent = []byte("some content")
 
 	testTxId            = gofakeit.UUID()
 	testTxIsoLevel      = store.TxIsoLevel_ISO_LEVEL_READ_COMMITTED
 	testLocalTxIsoLevel = fs_db.IsoLevelDefault
 )
 
+type prepareFunc func(td *testDeps)
+
 type testDeps struct {
+	t    *testing.T
 	suc  *mock_store.MockstoreUseCase
 	txuc *mock_store.MocktxUseCase
+	r    *mock_store.MockReadSeekCloser
 
 	client store.StoreV1Client
 }
@@ -77,8 +70,10 @@ func newTestDeps(t *testing.T) *testDeps {
 	require.NoError(t, err)
 
 	return &testDeps{
+		t:      t,
 		suc:    suc,
 		txuc:   txuc,
+		r:      mock_store.NewMockReadSeekCloser(ctrl),
 		client: store.NewStoreV1Client(conn),
 	}
 }

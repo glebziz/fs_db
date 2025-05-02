@@ -3,14 +3,13 @@ package store
 import (
 	"context"
 	"fmt"
-	"io"
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
-func (u *UseCase) Get(ctx context.Context, key string) (io.ReadCloser, error) {
+func (u *UseCase) Get(ctx context.Context, key string) (model.ReadSeekCloser, error) {
 	txId := model.GetTxId(ctx)
 	tx, err := u.txRepo.Get(ctx, txId)
 	if err != nil {

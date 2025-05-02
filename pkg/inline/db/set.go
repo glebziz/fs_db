@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+
+	"github.com/glebziz/fs_db/internal/model"
 )
 
 func (db *db) Set(ctx context.Context, key string, b []byte) error {
-	err := db.container.Store().Set(ctx, key, bytes.NewReader(b))
+	err := db.container.Store().Set(ctx, key, model.SingleContent(bytes.NewReader(b)))
 	if err != nil {
 		return fmt.Errorf("store usecase set: %w", err)
 	}

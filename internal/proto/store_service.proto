@@ -12,6 +12,10 @@ enum ChunkSize {
 service StoreV1 {
   rpc SetFile(stream SetFileRequest) returns(SetFileResponse) {}
   rpc GetFile(GetFileRequest) returns(stream GetFileResponse) {}
+
+  rpc SetFileV2(stream SetFileV2Request) returns(SetFileV2Response) {}
+  rpc GetFileV2(stream GetFileV2Request) returns(stream GetFileV2Response) {}
+
   rpc GetKeys(GetKeysRequest) returns(GetKeysResponse) {}
   rpc DeleteFile(DeleteFileRequest) returns(DeleteFileResponse) {}
 
@@ -33,6 +37,22 @@ message FileHeader {
   uint64 size = 2 [deprecated = true];
 }
 
+message Seek {
+  int64 offset = 1;
+  Direction dir = 2;
+
+  enum Direction {
+    SeekStart   = 0;
+    SeekCurrent = 1;
+    SeekEnd     = 2;
+  }
+}
+
+message DataChunk {
+  bytes chunk = 1;
+  Seek pos = 2;
+}
+
 message SetFileRequest {
   oneof data {
     FileHeader header = 1;
@@ -50,6 +70,29 @@ message GetFileResponse {
   oneof data {
     bytes chunk = 1;
     FileHeader header = 2;
+  }
+}
+
+message SetFileV2Request {
+  oneof data {
+    FileHeader header = 1;
+    DataChunk chunk = 2;
+  }
+}
+
+message SetFileV2Response {}
+
+message GetFileV2Request {
+  oneof data {
+    FileHeader header = 1;
+    Seek pos = 2;
+  }
+}
+
+message GetFileV2Response {
+  oneof data {
+    int64 size = 1;
+    bytes chunk = 2;
   }
 }
 

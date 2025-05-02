@@ -100,3 +100,12 @@ func (t *tx) Create(ctx context.Context, key string) (File, error) {
 
 	return wc, nil
 }
+
+func (t *tx) Open(ctx context.Context, key string) (ReadFile, error) {
+	wc, err := t.store.Open(t.ctxFn(ctx), key)
+	if err != nil {
+		return nil, fmt.Errorf("store open: %w", err)
+	}
+
+	return wc, nil
+}

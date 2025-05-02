@@ -3,13 +3,13 @@ package dir
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path"
 	"sync"
 
 	"github.com/google/uuid"
 
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
 const (

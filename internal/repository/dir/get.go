@@ -3,10 +3,10 @@ package dir
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/utils/disk"
-	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
 func (r *Repo) Get(ctx context.Context) (model.Dirs, error) {
