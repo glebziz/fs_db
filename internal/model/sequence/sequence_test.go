@@ -6,6 +6,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSet(t *testing.T) {
+	Set(1)
+
+	require.GreaterOrEqual(t, seq, int64(1))
+}
+
 func TestSeq_After(t *testing.T) {
 	for _, tc := range []struct {
 		name  string
