@@ -8,7 +8,7 @@ import (
 
 func (c *Container) DirRepo() *dirRepo.Repo {
 	if c.dirRepo == nil {
-		c.dirRepo = lo.Must(dirRepo.New(c.cfg.Storage.RootDirs))
+		c.dirRepo = lo.Must(dirRepo.New(c.ctx, c.cfg.Storage.RootDirs, c.osAdapter))
 	}
 
 	return c.dirRepo

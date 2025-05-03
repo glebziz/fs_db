@@ -6,7 +6,7 @@ import (
 
 func (c *Container) ContentRepo() *contentRepo.Repo {
 	if c.contentRepo == nil {
-		c.contentRepo = contentRepo.New()
+		c.contentRepo = contentRepo.New(c.osAdapter)
 	}
 
 	return c.contentRepo

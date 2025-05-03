@@ -20,7 +20,7 @@ type app struct {
 }
 
 func New(ctx context.Context, cfg config.Config) (*app, error) {
-	container := di.New(cfg)
+	container := di.New(ctx, cfg)
 
 	container.Pool().Run(ctx)
 	deleteFiles, err := container.Core().Load(ctx)

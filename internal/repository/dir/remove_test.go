@@ -8,10 +8,11 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
 
+	osa "github.com/glebziz/fs_db/internal/adapter/os"
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func TestRep_Remove(t *testing.T) {
+func TestRepo_Remove(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		var (
 			rootPath = testNewRootPath(t)
@@ -20,7 +21,7 @@ func TestRep_Remove(t *testing.T) {
 
 		testCreateDir(t, path.Join(rootPath, dir))
 
-		r, err := New([]string{rootPath})
+		r, err := New(context.Background(), []string{rootPath}, osa.Adapter{})
 		require.NoError(t, err)
 		require.NotNil(t, r)
 		require.EqualValues(t, 1, r.counts[rootPath])
@@ -41,7 +42,7 @@ func TestRep_Remove(t *testing.T) {
 
 		testCreateDir(t, path.Join(rootPath, dir))
 
-		r, err := New([]string{rootPath})
+		r, err := New(context.Background(), []string{rootPath}, osa.Adapter{})
 		require.NoError(t, err)
 		require.NotNil(t, r)
 		require.EqualValues(t, 1, r.counts[rootPath])
