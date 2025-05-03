@@ -25,9 +25,11 @@ func (i *Service) SetFileV2(stream store.StoreV1_SetFileV2Server) error {
 
 	rw, contents := content.New()
 	rw.Add(1)
+	defer rw.Wait()
 	go func() {
 		defer rw.Done()
 
+		fmt.Println("Hello World")
 		err = i.sUsecase.Set(stream.Context(), header.GetKey(), contents)
 		if err != nil {
 			rw.SetError(fmt.Errorf("store usecase set: %w", err))
@@ -57,8 +59,7 @@ func getChunk(stream store.StoreV1_SetFileV2Server, w io.WriteSeeker) error {
 		req, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
 			break
-		}
-		if err != nil {
+		} else if err != nil {
 			return fmt.Errorf("stream recv: %w", err)
 		}
 

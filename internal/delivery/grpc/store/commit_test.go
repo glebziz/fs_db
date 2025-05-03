@@ -13,33 +13,72 @@ import (
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
-func TestImplementation_CommitTx_Success(t *testing.T) {
+func TestService_CommitTx(t *testing.T) {
 	t.Parallel()
 
-	td := newTestDeps(t)
+	for _, tc := range []struct {
+		name    string
+		prepare prepareFunc
+		errCode codes.Code
+	}{
+		{
+			name: "success",
+			prepare: func(td *testDeps) {
+				td.txuc.EXPECT().
+					Commit(gomock.Any()).
+					Return(nil)
+			},
+		},
+		{
+			name: "Commit error",
+			prepare: func(td *testDeps) {
+				td.txuc.EXPECT().
+					Commit(gomock.Any()).
+					Return(assert.AnError)
+			},
+			errCode: codes.Internal,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	td.txuc.EXPECT().
-		Commit(gomock.Any()).
-		Return(nil)
+			td := newTestDeps(t)
+			tc.prepare(td)
 
-	_, err := td.client.CommitTx(context.Background(), &store.CommitTxRequest{})
-
-	require.NoError(t, err)
+			s := td.newService()
+			_, err := s.CommitTx(context.Background(), &store.CommitTxRequest{})
+			require.Equal(t, tc.errCode, status.Code(err))
+		})
+	}
 }
 
-func TestImplementation_CommitTx_Error(t *testing.T) {
-	t.Parallel()
-
-	td := newTestDeps(t)
-
-	td.txuc.EXPECT().
-		Commit(gomock.Any()).
-		Return(assert.AnError)
-
-	_, err := td.client.CommitTx(context.Background(), &store.CommitTxRequest{})
-
-	st := status.Convert(err)
-
-	require.Error(t, err)
-	require.Equal(t, codes.Internal, st.Code())
-}
+// func TestImplementation_CommitTx_Success(t *testing.T) {
+// 	t.Parallel()
+//
+// 	td := newTestDeps(t)
+//
+// 	td.txuc.EXPECT().
+// 		Commit(gomock.Any()).
+// 		Return(nil)
+//
+// 	_, err := td.client.CommitTx(context.Background(), &store.CommitTxRequest{})
+//
+// 	require.NoError(t, err)
+// }
+//
+// func TestImplementation_CommitTx_Error(t *testing.T) {
+// 	t.Parallel()
+//
+// 	td := newTestDeps(t)
+//
+// 	td.txuc.EXPECT().
+// 		Commit(gomock.Any()).
+// 		Return(assert.AnError)
+//
+// 	_, err := td.client.CommitTx(context.Background(), &store.CommitTxRequest{})
+//
+// 	st := status.Convert(err)
+//
+// 	require.Error(t, err)
+// 	require.Equal(t, codes.Internal, st.Code())
+// }

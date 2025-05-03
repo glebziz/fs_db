@@ -1,11 +1,8 @@
 package store
 
 import (
-	"bytes"
 	"context"
-	"errors"
 	"io"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +14,7 @@ import (
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
-func TestImplementation_GetFile(t *testing.T) {
+func TestService_GetFile(t *testing.T) {
 	t.Parallel()
 
 	const (
@@ -26,87 +23,97 @@ func TestImplementation_GetFile(t *testing.T) {
 	)
 
 	for _, tc := range []struct {
-		name      string
-		key       string
-		prepare   prepareFunc
-		checkResp func(t *testing.T, stream store.StoreV1_GetFileClient)
+		name    string
+		prepare prepareFunc
+		errCode codes.Code
 	}{
 		{
 			name: "success",
-			key:  key,
 			prepare: func(td *testDeps) {
-				r := strings.NewReader(content)
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.suc.EXPECT().
+					Get(gomock.Any(), key).
+					Return(td.r, nil)
+
+				td.r.EXPECT().
+					Close().
+					Return(nil)
+
+				td.gStream.EXPECT().
+					Send(&store.GetFileResponse{
+						Data: &store.GetFileResponse_Header{
+							Header: &store.FileHeader{
+								Key: key,
+							},
+						},
+					}).
+					Return(nil)
+
 				td.r.EXPECT().
 					Read(gomock.Any()).
 					DoAndReturn(func(p []byte) (int, error) {
-						return r.Read(p)
+						copy(p, content)
+
+						return len(content), nil
+					})
+
+				td.gStream.EXPECT().
+					Send(&store.GetFileResponse{
+						Data: &store.GetFileResponse_Chunk{
+							Chunk: []byte(content),
+						},
 					}).
-					AnyTimes()
+					Return(nil)
+
+				td.r.EXPECT().
+					Read(gomock.Any()).
+					Return(0, io.EOF)
+			},
+		},
+		{
+			name: "Get error",
+			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.suc.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(nil, assert.AnError)
+			},
+			errCode: codes.Internal,
+		},
+		{
+			name: "Send header error",
+			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
 
 				td.r.EXPECT().
 					Close().
 					Return(nil)
 
 				td.suc.EXPECT().
-					Get(gomock.Any(), key).
-					Return(td.r, nil)
-			},
-			checkResp: func(t *testing.T, stream store.StoreV1_GetFileClient) {
-				resp, err := stream.Recv()
-				require.NoError(t, err)
-				require.Equal(t, key, resp.GetHeader().GetKey())
-
-				var buf bytes.Buffer
-				for {
-					resp, err = stream.Recv()
-					if errors.Is(err, io.EOF) {
-						break
-					}
-					require.NoError(t, err)
-
-					buf.Write(resp.GetChunk())
-				}
-
-				require.Equal(t, content, buf.String())
-			},
-		},
-		{
-			name: "Get error",
-			key:  key,
-			prepare: func(td *testDeps) {
-				td.suc.EXPECT().
-					Get(gomock.Any(), gomock.Any()).
-					Return(nil, assert.AnError)
-			},
-			checkResp: func(t *testing.T, stream store.StoreV1_GetFileClient) {
-				resp, err := stream.Recv()
-				require.Equal(t, codes.Internal, status.Code(err))
-				require.Nil(t, resp)
-			},
-		},
-		{
-			name: "Send header error",
-			key:  strings.Repeat("A", 501),
-			prepare: func(td *testDeps) {
-				td.r.EXPECT().
-					Close().
-					Return(nil).
-					AnyTimes()
-
-				td.suc.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
 					Return(td.r, nil)
+
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(assert.AnError)
 			},
-			checkResp: func(t *testing.T, stream store.StoreV1_GetFileClient) {
-				resp, err := stream.Recv()
-				require.Equal(t, codes.ResourceExhausted, status.Code(err))
-				require.Nil(t, resp)
-			},
+			errCode: codes.Internal,
 		},
 		{
 			name: "Read error",
-			key:  key,
 			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
 				td.r.EXPECT().
 					Read(gomock.Any()).
 					Return(0, assert.AnError)
@@ -118,47 +125,41 @@ func TestImplementation_GetFile(t *testing.T) {
 				td.suc.EXPECT().
 					Get(gomock.Any(), gomock.Any()).
 					Return(td.r, nil)
-			},
-			checkResp: func(t *testing.T, stream store.StoreV1_GetFileClient) {
-				resp, err := stream.Recv()
-				require.NoError(t, err)
-				require.Equal(t, key, resp.GetHeader().GetKey())
 
-				resp, err = stream.Recv()
-				require.Equal(t, codes.Internal, status.Code(err))
-				require.Nil(t, resp)
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(nil)
 			},
+			errCode: codes.Internal,
 		},
 		{
 			name: "Send chunk error",
-			key:  key,
 			prepare: func(td *testDeps) {
-				r := strings.NewReader(strings.Repeat("A", 501))
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
 				td.r.EXPECT().
 					Read(gomock.Any()).
-					DoAndReturn(func(p []byte) (int, error) {
-						return r.Read(p)
-					}).
-					AnyTimes()
+					Return(1, nil)
 
 				td.r.EXPECT().
 					Close().
-					Return(nil).
-					AnyTimes()
+					Return(nil)
 
 				td.suc.EXPECT().
-					Get(gomock.Any(), key).
+					Get(gomock.Any(), gomock.Any()).
 					Return(td.r, nil)
-			},
-			checkResp: func(t *testing.T, stream store.StoreV1_GetFileClient) {
-				resp, err := stream.Recv()
-				require.NoError(t, err)
-				require.Equal(t, key, resp.GetHeader().GetKey())
 
-				resp, err = stream.Recv()
-				require.Equal(t, codes.ResourceExhausted, status.Code(err))
-				require.Nil(t, resp)
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(nil)
+
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(assert.AnError)
 			},
+			errCode: codes.Internal,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -167,12 +168,12 @@ func TestImplementation_GetFile(t *testing.T) {
 			td := newTestDeps(t)
 			tc.prepare(td)
 
-			stream, err := td.client.GetFile(context.Background(), &store.GetFileRequest{
-				Key: tc.key,
-			})
+			s := td.newService()
+			err := s.GetFile(&store.GetFileRequest{
+				Key: key,
+			}, td.gStream)
 
-			require.NoError(t, err)
-			tc.checkResp(t, stream)
+			require.Equal(t, tc.errCode, status.Code(err))
 		})
 	}
 }

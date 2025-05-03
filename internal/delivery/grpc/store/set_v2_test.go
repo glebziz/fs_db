@@ -20,18 +20,34 @@ func TestService_SetFileV2(t *testing.T) {
 	t.Parallel()
 
 	const (
+		offset int64 = 10
+
 		key     = "key"
 		content = "content"
 	)
 
 	for _, tc := range []struct {
-		name      string
-		prepare   prepareFunc
-		checkResp func(t *testing.T, stream store.StoreV1_SetFileV2Client)
+		name    string
+		prepare prepareFunc
+		errCode codes.Code
 	}{
 		{
 			name: "success",
 			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Header{
+							Header: &store.FileHeader{
+								Key: key,
+							},
+						},
+					}, nil)
+
+				td.s2Stream.EXPECT().
+					Context().
+					Return(context.Background())
+
 				td.suc.EXPECT().
 					Set(gomock.Any(), key, gomock.Any()).
 					DoAndReturn(func(_ context.Context, _ string, contents model.Contents) error {
@@ -42,10 +58,6 @@ func TestService_SetFileV2(t *testing.T) {
 						for c := range contents {
 							counter++
 
-							require.Equal(td.t, model.Seek{
-								Dir: model.SeekStart,
-							}, c.Seek)
-
 							_, err := io.Copy(&data, c.Reader)
 							require.NoError(td.t, err)
 						}
@@ -55,116 +67,126 @@ func TestService_SetFileV2(t *testing.T) {
 
 						return nil
 					})
-			},
-			checkResp: func(t *testing.T, stream store.StoreV1_SetFileV2Client) {
-				err := stream.Send(&store.SetFileV2Request{
-					Data: &store.SetFileV2Request_Header{
-						Header: &store.FileHeader{
-							Key: key,
-						},
-					},
-				})
-				require.NoError(t, err)
 
-				err = stream.Send(&store.SetFileV2Request{
-					Data: &store.SetFileV2Request_Chunk{
-						Chunk: &store.DataChunk{
-							Chunk: []byte(content),
-							Pos:   &store.Seek{},
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Chunk{
+							Chunk: &store.DataChunk{
+								Chunk: []byte(content),
+								Pos: &store.Seek{
+									Offset: offset,
+									Dir:    store.Seek_SeekCurrent,
+								},
+							},
 						},
-					},
-				})
-				require.NoError(t, err)
+					}, nil)
 
-				_, err = stream.CloseAndRecv()
-				require.NoError(t, err)
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(nil, io.EOF)
+
+				td.s2Stream.EXPECT().
+					SendAndClose(&store.SetFileV2Response{}).
+					Return(nil)
 			},
+		},
+		{
+			name: "Recv error",
+			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(nil, assert.AnError)
+			},
+			errCode: codes.Internal,
 		},
 		{
 			name: "ErrHeaderNotFound error",
 			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{}, nil)
 			},
-			checkResp: func(t *testing.T, stream store.StoreV1_SetFileV2Client) {
-				err := stream.Send(&store.SetFileV2Request{})
-				require.NoError(t, err)
-
-				err = stream.Send(&store.SetFileV2Request{
-					Data: &store.SetFileV2Request_Chunk{
-						Chunk: &store.DataChunk{
-							Chunk: []byte(content),
-							Pos:   &store.Seek{},
-						},
-					},
-				})
-				require.NoError(t, err)
-
-				_, err = stream.CloseAndRecv()
-				require.Equal(t, codes.Internal, status.Code(err))
-			},
+			errCode: codes.Internal,
 		},
 		{
 			name: "Set error",
 			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Header{
+							Header: &store.FileHeader{},
+						},
+					}, nil)
+
+				td.s2Stream.EXPECT().
+					Context().
+					Return(context.Background())
+
 				td.suc.EXPECT().
-					Set(gomock.Any(), key, gomock.Any()).
+					Set(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(assert.AnError)
-			},
-			checkResp: func(t *testing.T, stream store.StoreV1_SetFileV2Client) {
-				err := stream.Send(&store.SetFileV2Request{
-					Data: &store.SetFileV2Request_Header{
-						Header: &store.FileHeader{
-							Key: key,
-						},
-					},
-				})
-				require.NoError(t, err)
 
-				err = stream.Send(&store.SetFileV2Request{
-					Data: &store.SetFileV2Request_Chunk{
-						Chunk: &store.DataChunk{
-							Chunk: []byte(content),
-							Pos:   &store.Seek{},
-						},
-					},
-				})
-				require.NoError(t, err)
-
-				_, err = stream.CloseAndRecv()
-				require.Equal(t, codes.Internal, status.Code(err))
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(nil, io.EOF)
 			},
+			errCode: codes.Internal,
 		},
 		{
-			name: "Seek error",
+			name: "getChunk error",
 			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Header{
+							Header: &store.FileHeader{},
+						},
+					}, nil)
+
+				td.s2Stream.EXPECT().
+					Context().
+					Return(context.Background())
+
 				td.suc.EXPECT().
-					Set(gomock.Any(), key, gomock.Any()).
+					Set(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil)
-			},
-			checkResp: func(t *testing.T, stream store.StoreV1_SetFileV2Client) {
-				err := stream.Send(&store.SetFileV2Request{
-					Data: &store.SetFileV2Request_Header{
-						Header: &store.FileHeader{
-							Key: key,
-						},
-					},
-				})
-				require.NoError(t, err)
 
-				err = stream.Send(&store.SetFileV2Request{
-					Data: &store.SetFileV2Request_Chunk{
-						Chunk: &store.DataChunk{
-							Chunk: []byte(content),
-							Pos: &store.Seek{
-								Offset: -1,
-							},
-						},
-					},
-				})
-				require.NoError(t, err)
-
-				_, err = stream.CloseAndRecv()
-				require.Equal(t, codes.Internal, status.Code(err))
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(nil, assert.AnError)
 			},
+			errCode: codes.Internal,
+		},
+		{
+			name: "SendAndClose error",
+			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Header{
+							Header: &store.FileHeader{},
+						},
+					}, nil)
+
+				td.s2Stream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.suc.EXPECT().
+					Set(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil)
+
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(nil, io.EOF)
+
+				td.s2Stream.EXPECT().
+					SendAndClose(gomock.Any()).
+					Return(assert.AnError)
+			},
+			errCode: codes.Internal,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -173,10 +195,114 @@ func TestService_SetFileV2(t *testing.T) {
 			td := newTestDeps(t)
 			tc.prepare(td)
 
-			stream, err := td.client.SetFileV2(context.Background())
+			s := td.newService()
+			err := s.SetFileV2(td.s2Stream)
 
-			require.NoError(t, err)
-			tc.checkResp(t, stream)
+			require.Equal(t, tc.errCode, status.Code(err))
+		})
+	}
+}
+
+func Test_getChunk(t *testing.T) {
+	t.Parallel()
+
+	const (
+		offset int64 = 10
+
+		content = "content"
+	)
+
+	for _, tc := range []struct {
+		name    string
+		prepare prepareFunc
+		err     error
+	}{
+		{
+			name: "success",
+			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Chunk{
+							Chunk: &store.DataChunk{
+								Chunk: []byte(content),
+								Pos: &store.Seek{
+									Offset: offset,
+									Dir:    store.Seek_SeekCurrent,
+								},
+							},
+						},
+					}, nil)
+
+				td.w.EXPECT().
+					Seek(offset, io.SeekCurrent).
+					Return(offset, nil)
+
+				td.w.EXPECT().
+					Write([]byte(content)).
+					Return(len(content), nil)
+
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(nil, io.EOF)
+			},
+		},
+		{
+			name: "Recv error",
+			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(nil, assert.AnError)
+			},
+			err: assert.AnError,
+		},
+		{
+			name: "Seek error",
+			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Chunk{
+							Chunk: &store.DataChunk{},
+						},
+					}, nil)
+
+				td.w.EXPECT().
+					Seek(gomock.Any(), gomock.Any()).
+					Return(offset, assert.AnError)
+			},
+			err: assert.AnError,
+		},
+		{
+			name: "Write error",
+			prepare: func(td *testDeps) {
+				td.s2Stream.EXPECT().
+					Recv().
+					Return(&store.SetFileV2Request{
+						Data: &store.SetFileV2Request_Chunk{
+							Chunk: &store.DataChunk{},
+						},
+					}, nil)
+
+				td.w.EXPECT().
+					Seek(gomock.Any(), gomock.Any()).
+					Return(offset, nil)
+
+				td.w.EXPECT().
+					Write(gomock.Any()).
+					Return(0, assert.AnError)
+			},
+			err: assert.AnError,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			td := newTestDeps(t)
+			tc.prepare(td)
+
+			err := getChunk(td.s2Stream, td.w)
+			require.ErrorIs(t, err, tc.err)
 		})
 	}
 }

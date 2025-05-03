@@ -9,6 +9,7 @@ import (
 
 //go:generate mockgen -source service.go -destination mocks/mocks.go -typed true
 //go:generate mockgen -source ../../../model/io.go -package mock_store -destination mocks/mocks_io.go -typed true
+//go:generate mockgen -source ../../../proto/store_service_grpc.pb.go -package mock_store -destination mocks/mocks_grpc.go -typed true
 
 type storeUseCase interface {
 	Set(ctx context.Context, key string, content model.Contents) error
