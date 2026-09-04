@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"runtime"
 	"time"
@@ -40,17 +41,22 @@ func main() {
 		log.Panicln("Write:", err)
 	}
 
-	_, err = f.WriteAt([]byte("another content"), 0)
-	if err != nil {
-		log.Panicln("WriteAt:", err)
-	}
-
 	err = f.Close()
 	if err != nil {
 		log.Panicln("Close:", err)
 	}
 
-	b, err := db.Get(context.Background(), "someKey")
+	rf, err := db.Open(context.Background(), "someKey")
+	if err != nil {
+		log.Panicln("Open:", err)
+	}
+
+	_, err = rf.Seek(int64(len("some ")), io.SeekStart)
+	if err != nil {
+		log.Panicln("Seek:", err)
+	}
+
+	b, err := io.ReadAll(rf)
 	if err != nil {
 		log.Panicln("Get:", err)
 	}
