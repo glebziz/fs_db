@@ -307,12 +307,10 @@ func TestContent_Write(t *testing.T) {
 
 			w, contents := New()
 
-			w.Add(1)
-			go func() {
-				defer w.Done()
+			w.Go(func() {
 
 				tc.checkContents(t, contents)
-			}()
+			})
 
 			tc.prepare(t, w)
 
@@ -389,12 +387,10 @@ func TestContent_WriteAt(t *testing.T) {
 
 			w, contents := New()
 
-			w.Add(1)
-			go func() {
-				defer w.Done()
+			w.Go(func() {
 
 				tc.checkContents(t, contents)
-			}()
+			})
 
 			tc.prepare(w)
 

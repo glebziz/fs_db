@@ -8,7 +8,6 @@ import (
 
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/sequence"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func TestUseCase_GetFiles(t *testing.T) {
@@ -140,7 +139,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			files: []model.File{{
@@ -188,7 +187,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			files: []model.File{{
@@ -220,7 +219,7 @@ func TestUseCase_GetFiles(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 		},
@@ -268,8 +267,8 @@ func TestUseCase_GetFiles(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId:      ptr.Ptr(testTxId2),
-					BeforeSeq: ptr.Ptr(beforeTs),
+					TxId:      new(testTxId2),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			files: []model.File{{
@@ -314,8 +313,8 @@ func TestUseCase_GetFiles(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId:      ptr.Ptr(testTxId2),
-					BeforeSeq: ptr.Ptr(beforeTs),
+					TxId:      new(testTxId2),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			files: []model.File{{

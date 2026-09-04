@@ -18,7 +18,7 @@ func TestDb_Create(t *testing.T) {
 	)
 
 	testGoN(t, testNumThread, func(t testing.TB) {
-		for i := 0; i < testN; i++ {
+		for range testN {
 			key := gofakeit.UUID()
 
 			f, err := _db.Create(testCtx, key)

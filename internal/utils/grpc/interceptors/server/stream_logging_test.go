@@ -32,7 +32,6 @@ func TestStreamLoggingInterceptor(t *testing.T) {
 			wantErr: assert.AnError,
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -22,12 +22,12 @@ func TestTransaction(t *testing.T) {
 	}{
 		{
 			name: "tx id not empty",
-			in:   ptr.Ptr(testTxId),
+			in:   new(testTxId),
 			exp:  testTxId,
 		},
 		{
 			name: "empty tx id",
-			in:   ptr.Ptr(""),
+			in:   new(""),
 			exp:  MainTxId,
 		},
 		{
@@ -35,7 +35,6 @@ func TestTransaction(t *testing.T) {
 			exp:  MainTxId,
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -14,7 +14,7 @@ type transaction struct {
 }
 
 func (t transaction) GetAll(prefix []byte) ([]Item, error) {
-	it := t.Txn.NewIterator(badger.DefaultIteratorOptions)
+	it := t.NewIterator(badger.DefaultIteratorOptions)
 	defer it.Close()
 
 	var items []Item

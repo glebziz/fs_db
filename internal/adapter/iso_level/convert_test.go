@@ -42,7 +42,6 @@ func TestConvert(t *testing.T) {
 			localLvl: fs_db.IsoLevelDefault,
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			lvl := Convert(tc.lvl)
 
@@ -83,7 +82,6 @@ func TestConvertToGrpc(t *testing.T) {
 			localLvl: 100,
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			lvl := ConvertToGrpc(tc.localLvl)
 

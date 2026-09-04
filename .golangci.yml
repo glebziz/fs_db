@@ -1,28 +1,12 @@
-linters-settings:
-  revive:
-    rules:
-      - name: var-naming
-        disabled: true
-      - name: unexported-return
-        disabled: true
-
-  gosec:
-    excludes:
-      - G404
-
-  gofmt:
-    simplify: true
-
-  mnd:
-    ignored-files:
-      - cmd/migrate/main.go
-      - cmd\\migrate\\main.go
-
-  lll:
-    line-length: 140
-
+version: "2"
+run:
+  build-tags:
+    - test
+    - inline
+  issues-exit-code: 1
+  tests: false
 linters:
-  disable-all: true
+  default: none
   enable:
     - asasalint
     - asciicheck
@@ -55,14 +39,10 @@ linters:
     - gocyclo
     - godot
     - godox
-    - gofmt
     - goheader
-    - goimports
     - gomoddirectives
-    - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
     - gosmopolitan
     - govet
     - grouper
@@ -84,7 +64,6 @@ linters:
     - nilerr
     - nilnil
     - noctx
-    - nolintlint
     - nosprintfhostport
     - paralleltest
     - perfsprint
@@ -102,7 +81,6 @@ linters:
     - staticcheck
     - tagalign
     - tagliatelle
-    - tenv
     - testableexamples
     - testifylint
     - thelper
@@ -114,10 +92,44 @@ linters:
     - wastedassign
     - whitespace
     - zerologlint
-
-run:
-  tests: false # TODO refactor tests
-  build-tags:
-    - test
-    - inline
-  issues-exit-code: 1
+    - gomodguard_v2
+  settings:
+    gosec:
+      excludes:
+        - G404
+    lll:
+      line-length: 140
+    mnd:
+      ignored-files:
+        - cmd/migrate/main.go
+        - cmd\\migrate\\main.go
+    revive:
+      rules:
+        - name: var-naming
+          disabled: true
+        - name: unexported-return
+          disabled: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

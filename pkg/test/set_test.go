@@ -11,7 +11,7 @@ func TestDb_Set(t *testing.T) {
 	_db := newTestDb(t)
 
 	testGoN(t, testNumThread, func(t testing.TB) {
-		for i := 0; i < testN; i++ {
+		for range testN {
 			err := _db.Set(testCtx, gofakeit.UUID(), testContent)
 			require.NoError(t, err)
 		}

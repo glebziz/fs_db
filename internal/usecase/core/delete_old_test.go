@@ -51,7 +51,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(sequence.Next()),
+					BeforeSeq: new(sequence.Next()),
 				}
 			},
 			deleteFiles: []model.File{{
@@ -86,7 +86,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(sequence.Next()),
+					BeforeSeq: new(sequence.Next()),
 				}
 			},
 			deleteFiles: []model.File{},
@@ -123,7 +123,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(beforeSeq),
+					BeforeSeq: new(beforeSeq),
 				}
 			},
 			deleteFiles: []model.File{},
@@ -135,7 +135,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 				u.testAddEmptyTx(td, testTxId, testKey, testKey2)
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(sequence.Next()),
+					BeforeSeq: new(sequence.Next()),
 				}
 			},
 			deleteFiles: []model.File{},
@@ -159,7 +159,7 @@ func TestUseCase_DeleteOld(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(sequence.Next()),
+					BeforeSeq: new(sequence.Next()),
 				}
 			},
 			deleteFiles: []model.File{},

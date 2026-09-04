@@ -10,15 +10,12 @@ import (
 
 func (db *db) Create(ctx context.Context, key string) (fs_db.File, error) {
 	rw, contents := content.New()
-	rw.Add(1)
-	go func() {
-		defer rw.Done()
-
+	rw.Go(func() {
 		err := db.container.Store().Set(ctx, key, contents)
 		if err != nil {
 			rw.SetError(fmt.Errorf("store usecase set: %w", err))
 		}
-	}()
+	})
 
 	return rw, nil
 }

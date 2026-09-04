@@ -21,13 +21,11 @@ func testGoN(t testing.TB, n int, fn func(t testing.TB)) {
 	t.Helper()
 
 	wg := sync.WaitGroup{}
-	for i := 0; i < n; i++ {
-		wg.Add(1)
+	for range n {
 
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			fn(t)
-		}()
+		})
 	}
 
 	wg.Wait()

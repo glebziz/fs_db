@@ -69,12 +69,10 @@ func TestPool(t *testing.T) {
 		})
 
 		wg := sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			time.Sleep(250 * time.Millisecond)
 			p.Stop()
-		}()
+		})
 		for range 3 {
 			p.Send(context.Background(), Event{
 				Caller: "Caller",

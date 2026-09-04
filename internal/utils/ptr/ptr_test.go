@@ -10,13 +10,13 @@ func TestPtr(t *testing.T) {
 	t.Run("int ptr", func(t *testing.T) {
 		var i = 10
 
-		p := Ptr(i)
+		p := new(i)
 		require.Equal(t, &i, p)
 	})
 	t.Run("float ptr", func(t *testing.T) {
 		var f = 10.
 
-		p := Ptr(f)
+		p := new(f)
 		require.Equal(t, &f, p)
 	})
 	t.Run("struct ptr", func(t *testing.T) {
@@ -28,7 +28,7 @@ func TestPtr(t *testing.T) {
 			f: 2,
 		}
 
-		p := Ptr(s)
+		p := new(s)
 		require.Equal(t, &s, p)
 	})
 }

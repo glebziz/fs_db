@@ -4,8 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func TestPool_Acquire(t *testing.T) {
@@ -17,16 +15,16 @@ func TestPool_Acquire(t *testing.T) {
 		{
 			name: "success",
 			p: &Pool[int]{
-				free: []*int{ptr.Ptr(1)},
+				free: []*int{new(1)},
 			},
-			e: ptr.Ptr(1),
+			e: new(1),
 		},
 		{
 			name: "success with empty pool",
 			p: &Pool[int]{
 				free: nil,
 			},
-			e: ptr.Ptr(0),
+			e: new(0),
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -47,29 +45,29 @@ func TestPool_Release(t *testing.T) {
 		{
 			name: "success",
 			p: &Pool[int]{
-				free: []*int{ptr.Ptr(3)},
+				free: []*int{new(3)},
 			},
-			freeElems: []*int{ptr.Ptr(3), ptr.Ptr(0), ptr.Ptr(0)},
+			freeElems: []*int{new(3), new(0), new(0)},
 		},
 		{
 			name: "success with empty pool",
 			p: &Pool[int]{
 				free: nil,
 			},
-			freeElems: []*int{ptr.Ptr(0), ptr.Ptr(0)},
+			freeElems: []*int{new(0), new(0)},
 		},
 		{
 			name: "success with clearFunc",
 			p: NewPool(func(e *int) {
 				*e = 10
 			}),
-			freeElems: []*int{ptr.Ptr(10), ptr.Ptr(10)},
+			freeElems: []*int{new(10), new(10)},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			tc.p.Release(ptr.Ptr(1), ptr.Ptr(2))
+			tc.p.Release(new(1), new(2))
 			require.Equal(t, tc.freeElems, tc.p.free)
 		})
 	}

@@ -9,7 +9,6 @@ import (
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/sequence"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func TestUseCase_Get(t *testing.T) {
@@ -212,7 +211,7 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			file: model.File{
@@ -258,7 +257,7 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			file: model.File{
@@ -298,7 +297,7 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			file: model.File{
@@ -326,7 +325,7 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			file: model.File{
@@ -354,7 +353,7 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			file: model.File{
@@ -376,7 +375,7 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			err: fs_db.ErrNotFound,
@@ -406,7 +405,7 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId: ptr.Ptr(testTxId2),
+					TxId: new(testTxId2),
 				}
 			},
 			err: fs_db.ErrNotFound,
@@ -455,8 +454,8 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId:      ptr.Ptr(testTxId2),
-					BeforeSeq: ptr.Ptr(beforeTs),
+					TxId:      new(testTxId2),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			file: model.File{
@@ -509,8 +508,8 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId:      ptr.Ptr(testTxId2),
-					BeforeSeq: ptr.Ptr(beforeTs),
+					TxId:      new(testTxId2),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			file: model.File{
@@ -557,8 +556,8 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId:      ptr.Ptr(testTxId2),
-					BeforeSeq: ptr.Ptr(beforeTs),
+					TxId:      new(testTxId2),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			file: model.File{
@@ -599,8 +598,8 @@ func TestUseCase_Get(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					TxId:      ptr.Ptr(testTxId2),
-					BeforeSeq: ptr.Ptr(beforeTs),
+					TxId:      new(testTxId2),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			err: fs_db.ErrNotFound,

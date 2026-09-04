@@ -12,7 +12,6 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/sequence"
 	"github.com/glebziz/fs_db/internal/model/transactor"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func TestUseCase_UpdateTx(t *testing.T) {
@@ -186,7 +185,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(beforeTs),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			requireU: func(t *testing.T, u *UseCase) {
@@ -258,7 +257,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(beforeTs),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			requireU: func(t *testing.T, u *UseCase) {
@@ -300,7 +299,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(beforeTs),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			requireU: func(t *testing.T, u *UseCase) {
@@ -342,7 +341,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(sequence.Next()),
+					BeforeSeq: new(sequence.Next()),
 				}
 			},
 			requireU: func(t *testing.T, u *UseCase) {
@@ -396,7 +395,7 @@ func TestUseCase_UpdateTx(t *testing.T) {
 				})
 
 				return u, model.FileFilter{
-					BeforeSeq: ptr.Ptr(beforeTs),
+					BeforeSeq: new(beforeTs),
 				}
 			},
 			requireU: func(t *testing.T, u *UseCase) {
