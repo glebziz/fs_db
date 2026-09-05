@@ -6,10 +6,10 @@ import (
 
 func (c *Container) Pool() *wpool.Pool {
 	if c.pool == nil {
-		c.pool = wpool.New(wpool.Options{
-			NumWorkers:   c.cfg.WPool.NumWorkers,
-			SendDuration: c.cfg.WPool.SendDuration,
-		})
+		c.pool = wpool.New(
+			wpool.WithNumWorkers(c.cfg.WPool.NumWorkers),
+			wpool.WithSendDuration(c.cfg.WPool.SendDuration),
+		)
 	}
 
 	return c.pool

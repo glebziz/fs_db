@@ -3,24 +3,24 @@ package wpool
 import (
 	"context"
 	"log/slog"
+	"sync"
 )
 
 func (p *Pool) Run(ctx context.Context) {
-	if !p.runM.TryLock() {
+	if !p.runA.CompareAndSwap(false, true) {
 		slog.Warn("worker pool already running")
 		return
 	}
 
+	p.listCv = sync.NewCond(new(sync.Mutex))
 	p.ctx, p.cancel = context.WithCancel(ctx)
-	p.ch = make(chan Event, p.opts.NumWorkers*2) //nolint:mnd
-	for range p.opts.NumWorkers {
-		p.runWg.Add(1)
-		go p.run() //nolint:contextcheck
+	p.ch = make(chan Event, p.opts.numWorkers*2) //nolint:mnd
+	for range p.opts.numWorkers {
+		p.runWg.Go(p.run)
 	}
 }
 
 func (p *Pool) run() {
-	defer p.runWg.Done()
 	for {
 		select {
 		case <-p.ctx.Done():

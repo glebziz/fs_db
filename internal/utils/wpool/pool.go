@@ -3,6 +3,7 @@ package wpool
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 
 	"github.com/glebziz/fs_db/internal/model/core"
 )
@@ -11,9 +12,9 @@ type Pool struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	runM      sync.Mutex
-	lazySendM sync.Mutex
-	listM     sync.Mutex
+	runA      atomic.Bool
+	lazySendA atomic.Bool
+	listCv    *sync.Cond
 
 	el   core.List[Event]
 	pool core.Pool[core.Node[Event]]
@@ -22,14 +23,20 @@ type Pool struct {
 	sendWg sync.WaitGroup
 	runWg  sync.WaitGroup
 
-	opts Options
+	opts options
 }
 
-func New(options Options) *Pool {
-	return &Pool{
-		opts: Options{
-			NumWorkers:   max(options.NumWorkers, minNumWorkers),
-			SendDuration: max(options.SendDuration, minSendDuration),
+func New(opts ...OptionFunc) *Pool {
+	p := Pool{
+		opts: options{
+			numWorkers:   minNumWorkers,
+			sendDuration: minSendDuration,
 		},
 	}
+
+	for _, f := range opts {
+		f(&p.opts)
+	}
+
+	return &p
 }
