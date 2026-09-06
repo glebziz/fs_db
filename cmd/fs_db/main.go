@@ -5,8 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/glebziz/fs_db/config"
 	"github.com/glebziz/fs_db/internal/app"
@@ -25,7 +25,7 @@ func init() {
 func main() {
 	log.Println("Start fs_db")
 
-	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, _ := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	err := run(ctx)
 	if err != nil {
 		log.Fatalln("Run:", err)
