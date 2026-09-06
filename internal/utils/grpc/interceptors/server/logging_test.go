@@ -36,7 +36,6 @@ func TestLoggingInterceptor(t *testing.T) {
 			expErr: assert.AnError,
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -82,7 +81,6 @@ func TestSplitFullMethodName(t *testing.T) {
 			method:     unknownValue,
 		},
 	} {
-		tc := tc
 		t.Run(fmt.Sprintf("fullMethod: %s", tc.fullMethod), func(t *testing.T) {
 			t.Parallel()
 

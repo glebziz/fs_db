@@ -111,7 +111,7 @@ func (f *file) IterateBeforeSeq(seq sequence.Seq) iter.Seq[model.File] {
 	return func(yield func(model.File) bool) {
 		n := f.l.Front()
 
-		for !(n.next.v.Seq.Zero() || n.next.v.Seq.After(seq)) {
+		for !n.next.v.Seq.Zero() && !n.next.v.Seq.After(seq) {
 			next := n.next
 			if !yield(n.v) {
 				return

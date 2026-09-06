@@ -18,7 +18,7 @@ func New(ctx context.Context, cfg config.Config) (*db, error) {
 		return nil, fmt.Errorf("invalid config: %w", err)
 	}
 
-	container := di.New(cfg)
+	container := di.New(ctx, cfg)
 
 	container.Pool().Run(ctx)
 	deleteFiles, err := container.Core().Load(ctx)

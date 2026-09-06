@@ -8,7 +8,8 @@ import (
 )
 
 func (a *app) Run(ctx context.Context) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.Port))
+	var lc net.ListenConfig
+	lis, err := lc.Listen(ctx, "tcp", fmt.Sprintf(":%d", a.cfg.Port))
 	if err != nil {
 		return fmt.Errorf("listen: %w", err)
 	}
@@ -18,13 +19,10 @@ func (a *app) Run(ctx context.Context) error {
 		wg.Wait()
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		<-ctx.Done()
 		a.server.GracefulStop()
-	}()
+	})
 
 	err = a.server.Serve(lis)
 	if err != nil {

@@ -1,4 +1,3 @@
-version: "3.9"
 volumes:
   db:
   data1:
@@ -12,7 +11,11 @@ services:
       - db:/var/lib/fs_db
       - data1:/var/lib/fs_db/storage1
       - data2:/var/lib/fs_db/storage2
+      - ./example.pem:/etc/cert/example.pem
+      - ./example.key:/etc/cert/example.key
     environment:
       - ROOT_DIRS=/var/lib/fs_db/storage1;/var/lib/fs_db/storage2
+      - TLS_CERT=/etc/cert/example.pem
+      - TLS_KEY=/etc/cert/example.key
     ports:
       - "8888:8888"

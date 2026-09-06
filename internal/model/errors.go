@@ -8,6 +8,7 @@ import (
 
 var (
 	ErrInvalidFileFormat = errors.New("invalid file format")
+	ErrInvalidPosition   = errors.New("invalid position")
 )
 
 type NotEnoughSpaceError struct {

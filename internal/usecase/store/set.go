@@ -10,7 +10,7 @@ import (
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func (u *UseCase) Set(ctx context.Context, key string, content io.Reader) error { //nolint:funlen,cyclop // TODO fix
+func (u *UseCase) Set(ctx context.Context, key string, contents model.Contents) error {
 	if key == "" {
 		return fs_db.ErrEmptyKey
 	}
@@ -30,43 +30,9 @@ func (u *UseCase) Set(ctx context.Context, key string, content io.Reader) error 
 			ContentId: cFile.Id,
 		}
 	)
-
-	var (
-		minSize uint64
-		closer  io.Closer
-	)
-	for dir, ok := range dirs.Iterate(u.randGen) {
-		if !ok {
-			return fs_db.ErrNoFreeSpace
-		}
-
-		if dir.Free <= minSize {
-			continue
-		}
-
-		cFile.Parent = dir.Path()
-		err = u.cRepo.Store(ctx, cFile.Path(), content)
-		if err != nil {
-			var errNotEnoughSpace model.NotEnoughSpaceError
-			if errors.As(err, &errNotEnoughSpace) {
-				if closer != nil {
-					closer.Close()
-				}
-
-				closer = errNotEnoughSpace
-				content = errNotEnoughSpace.Reader()
-				minSize = dir.Free
-				continue
-			}
-
-			return fmt.Errorf("content repository store: %w", err)
-		}
-
-		break
-	}
-
-	if closer != nil {
-		closer.Close()
+	err = u.writeContent(ctx, dirs, &cFile, contents)
+	if err != nil {
+		return fmt.Errorf("write content: %w", err)
 	}
 
 	err = u.cfRepo.Store(ctx, cFile)
@@ -77,6 +43,55 @@ func (u *UseCase) Set(ctx context.Context, key string, content io.Reader) error 
 	err = u.fRepo.Store(ctx, file)
 	if err != nil {
 		return fmt.Errorf("file repository store: %w", err)
+	}
+
+	return nil
+}
+
+func (u *UseCase) writeContent(ctx context.Context, dirs model.Dirs, cFile *model.ContentFile, contents model.Contents) error {
+	var (
+		err     error
+		minSize uint64
+		closer  io.Closer
+
+		errNotEnoughSpace model.NotEnoughSpaceError
+	)
+	defer func() {
+		if closer == nil {
+			return
+		}
+
+		closer.Close()
+	}()
+	for dir, ok := range dirs.Iterate(u.randGen) {
+		if !ok {
+			return fs_db.ErrNoFreeSpace
+		}
+
+		if dir.Free <= minSize {
+			continue
+		}
+
+		cFile.Parent = dir.Path()
+		err = u.cWriter.Write(ctx, cFile.Path(), contents)
+		if err != nil {
+			if errors.As(err, &errNotEnoughSpace) {
+				if closer != nil {
+					closer.Close()
+				}
+
+				closer = errNotEnoughSpace
+				contents = contents.InsertAtStart(ctx, model.Content{
+					Reader: errNotEnoughSpace.Reader(),
+				})
+				minSize = dir.Free
+				continue
+			}
+
+			return fmt.Errorf("content writer write: %w", err)
+		}
+
+		break
 	}
 
 	return nil

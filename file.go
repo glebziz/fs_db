@@ -5,5 +5,12 @@ import (
 )
 
 type File interface {
-	io.WriteCloser
+	io.WriteSeeker
+	io.WriterAt
+	io.Closer
+}
+
+type ReadFile interface {
+	io.ReadSeekCloser
+	io.ReaderAt
 }

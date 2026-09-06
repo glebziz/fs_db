@@ -13,33 +13,41 @@ import (
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
-func TestImplementation_RollbackTx_Success(t *testing.T) {
+func TestService_RollbackTx(t *testing.T) {
 	t.Parallel()
 
-	td := newTestDeps(t)
+	for _, tc := range []struct {
+		name    string
+		prepare prepareFunc
+		errCode codes.Code
+	}{
+		{
+			name: "success",
+			prepare: func(td *testDeps) {
+				td.txuc.EXPECT().
+					Rollback(gomock.Any()).
+					Return(nil)
+			},
+		},
+		{
+			name: "Rollback error",
+			prepare: func(td *testDeps) {
+				td.txuc.EXPECT().
+					Rollback(gomock.Any()).
+					Return(assert.AnError)
+			},
+			errCode: codes.Internal,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	td.txuc.EXPECT().
-		Rollback(gomock.Any()).
-		Return(nil)
+			td := newTestDeps(t)
+			tc.prepare(td)
 
-	_, err := td.client.RollbackTx(context.Background(), &store.RollbackTxRequest{})
-
-	require.NoError(t, err)
-}
-
-func TestImplementation_RollbackTx_Error(t *testing.T) {
-	t.Parallel()
-
-	td := newTestDeps(t)
-
-	td.txuc.EXPECT().
-		Rollback(gomock.Any()).
-		Return(assert.AnError)
-
-	_, err := td.client.RollbackTx(context.Background(), &store.RollbackTxRequest{})
-
-	st := status.Convert(err)
-
-	require.Error(t, err)
-	require.Equal(t, codes.Internal, st.Code())
+			s := td.newService()
+			_, err := s.RollbackTx(context.Background(), &store.RollbackTxRequest{})
+			require.Equal(t, tc.errCode, status.Code(err))
+		})
+	}
 }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"slices"
 
-	"github.com/dgraph-io/badger/v3"
+	"github.com/dgraph-io/badger/v4"
 
 	"github.com/glebziz/fs_db"
 )
@@ -14,7 +14,7 @@ type transaction struct {
 }
 
 func (t transaction) GetAll(prefix []byte) ([]Item, error) {
-	it := t.Txn.NewIterator(badger.DefaultIteratorOptions)
+	it := t.NewIterator(badger.DefaultIteratorOptions)
 	defer it.Close()
 
 	var items []Item

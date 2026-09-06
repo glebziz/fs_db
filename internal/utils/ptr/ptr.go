@@ -1,12 +1,9 @@
 package ptr
 
-func Ptr[T any](v T) *T {
-	return &v
-}
-
 func Val[T any](p *T) T {
 	if p == nil {
-		return *new(T)
+		var zero T
+		return zero
 	}
 
 	return *p

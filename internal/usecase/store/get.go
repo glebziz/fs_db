@@ -3,14 +3,12 @@ package store
 import (
 	"context"
 	"fmt"
-	"io"
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
-func (u *UseCase) Get(ctx context.Context, key string) (io.ReadCloser, error) {
+func (u *UseCase) Get(ctx context.Context, key string) (model.ReadSeekCloser, error) {
 	txId := model.GetTxId(ctx)
 	tx, err := u.txRepo.Get(ctx, txId)
 	if err != nil {
@@ -21,11 +19,11 @@ func (u *UseCase) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	switch tx.IsoLevel {
 	case fs_db.IsoLevelReadUncommitted:
 	case fs_db.IsoLevelReadCommitted:
-		filter.TxId = ptr.Ptr(model.MainTxId)
+		filter.TxId = new(model.MainTxId)
 	case fs_db.IsoLevelRepeatableRead,
 		fs_db.IsoLevelSerializable:
-		filter.TxId = ptr.Ptr(model.MainTxId)
-		filter.BeforeSeq = ptr.Ptr(tx.Seq)
+		filter.TxId = new(model.MainTxId)
+		filter.BeforeSeq = new(tx.Seq)
 	}
 
 	f, err := u.fRepo.Get(ctx, tx.Id, key, filter)

@@ -13,37 +13,82 @@ import (
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
-func TestImplementation_DeleteFile_Success(t *testing.T) {
+func TestService_DeleteFile(t *testing.T) {
 	t.Parallel()
 
-	td := newTestDeps(t)
+	const (
+		key = "key"
+	)
 
-	td.suc.EXPECT().
-		Delete(gomock.Any(), testKey).
-		Return(nil)
+	for _, tc := range []struct {
+		name    string
+		prepare prepareFunc
+		errCode codes.Code
+	}{
+		{
+			name: "success",
+			prepare: func(td *testDeps) {
+				td.suc.EXPECT().
+					Delete(gomock.Any(), key).
+					Return(nil)
+			},
+		},
+		{
+			name: "Delete error",
+			prepare: func(td *testDeps) {
+				td.suc.EXPECT().
+					Delete(gomock.Any(), gomock.Any()).
+					Return(assert.AnError)
+			},
+			errCode: codes.Internal,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	_, err := td.client.DeleteFile(context.Background(), &store.DeleteFileRequest{
-		Key: testKey,
-	})
+			td := newTestDeps(t)
+			tc.prepare(td)
 
-	require.NoError(t, err)
+			s := td.newService()
+			_, err := s.DeleteFile(context.Background(), &store.DeleteFileRequest{
+				Key: key,
+			})
+			require.Equal(t, tc.errCode, status.Code(err))
+		})
+	}
 }
 
-func TestImplementation_DeleteFile_Error(t *testing.T) {
-	t.Parallel()
-
-	td := newTestDeps(t)
-
-	td.suc.EXPECT().
-		Delete(gomock.Any(), gomock.Any()).
-		Return(assert.AnError)
-
-	_, err := td.client.DeleteFile(context.Background(), &store.DeleteFileRequest{
-		Key: testKey,
-	})
-
-	st := status.Convert(err)
-
-	require.Error(t, err)
-	require.Equal(t, codes.Internal, st.Code())
-}
+// func TestImplementation_DeleteFile_Success(t *testing.T) {
+// 	t.Parallel()
+//
+// 	td := newTestDeps(t)
+//
+// 	td.suc.EXPECT().
+// 		Delete(gomock.Any(), testKey).
+// 		Return(nil)
+//
+// 	_, err := td.client.DeleteFile(context.Background(), &store.DeleteFileRequest{
+// 		Key: testKey,
+// 	})
+//
+// 	require.NoError(t, err)
+// }
+//
+// func TestImplementation_DeleteFile_Error(t *testing.T) {
+// 	t.Parallel()
+//
+// 	td := newTestDeps(t)
+//
+// 	td.suc.EXPECT().
+// 		Delete(gomock.Any(), gomock.Any()).
+// 		Return(assert.AnError)
+//
+// 	_, err := td.client.DeleteFile(context.Background(), &store.DeleteFileRequest{
+// 		Key: testKey,
+// 	})
+//
+// 	st := status.Convert(err)
+//
+// 	require.Error(t, err)
+// 	require.Equal(t, codes.Internal, st.Code())
+// }

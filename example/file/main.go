@@ -40,6 +40,11 @@ func main() {
 		log.Panicln("Write:", err)
 	}
 
+	_, err = f.WriteAt([]byte("another content"), 0)
+	if err != nil {
+		log.Panicln("WriteAt:", err)
+	}
+
 	err = f.Close()
 	if err != nil {
 		log.Panicln("Close:", err)

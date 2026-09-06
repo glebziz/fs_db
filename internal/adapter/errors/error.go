@@ -9,7 +9,6 @@ import (
 
 	"github.com/glebziz/fs_db"
 	store "github.com/glebziz/fs_db/internal/proto"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func Error(err error) error {
@@ -38,9 +37,9 @@ func Error(err error) error {
 func ClientError(err error) error {
 	st := status.Convert(err)
 
-	err = detailsToError(st.Details())
-	if err != nil {
-		return err
+	errFromDetails := detailsToError(st.Details())
+	if errFromDetails != nil {
+		return errFromDetails
 	}
 
 	switch st.Code() { //nolint:exhaustive
@@ -84,7 +83,7 @@ func errorToPbError(err error) *store.Error {
 
 	return &store.Error{
 		Code:    errCode,
-		Message: ptr.Ptr(err.Error()),
+		Message: new(err.Error()),
 	}
 }
 

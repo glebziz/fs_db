@@ -51,8 +51,8 @@ func LoggingInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo
 
 func splitFullMethodName(fullMethod string) (string, string) {
 	fullMethod = strings.TrimPrefix(fullMethod, "/") // remove leading slash
-	if i := strings.Index(fullMethod, "/"); i >= 0 {
-		return fullMethod[:i], fullMethod[i+1:]
+	if before, after, ok := strings.Cut(fullMethod, "/"); ok {
+		return before, after
 	}
 	return unknownValue, unknownValue
 }

@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"io"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,82 +14,166 @@ import (
 	store "github.com/glebziz/fs_db/internal/proto"
 )
 
-func TestImplementation_GetFile_Success(t *testing.T) {
+func TestService_GetFile(t *testing.T) {
 	t.Parallel()
 
-	td := newTestDeps(t)
+	const (
+		key     = "key"
+		content = "content"
+	)
 
-	td.suc.EXPECT().
-		Get(gomock.Any(), testKey).
-		Return(testReader, nil)
-
-	resp, err := td.client.GetFile(context.Background(), &store.GetFileRequest{
-		Key: testKey,
-	})
-
-	require.NoError(t, err)
-
-	data, err := resp.Recv()
-
-	require.NoError(t, err)
-	require.Equal(t, testKey, data.GetHeader().Key)
-
-	data, err = resp.Recv()
-
-	require.NoError(t, err)
-	require.Equal(t, testContent, data.GetChunk())
-}
-
-func TestImplementation_GetFile_Error(t *testing.T) {
 	for _, tc := range []struct {
-		name   string
-		err    error
-		reader io.ReadCloser
-		code   codes.Code
+		name    string
+		prepare prepareFunc
+		errCode codes.Code
 	}{
 		{
-			name: "get",
-			err:  assert.AnError,
-			code: codes.Internal,
+			name: "success",
+			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.suc.EXPECT().
+					Get(gomock.Any(), key).
+					Return(td.r, nil)
+
+				td.r.EXPECT().
+					Close().
+					Return(nil)
+
+				td.gStream.EXPECT().
+					Send(&store.GetFileResponse{
+						Data: &store.GetFileResponse_Header{
+							Header: &store.FileHeader{
+								Key: key,
+							},
+						},
+					}).
+					Return(nil)
+
+				td.r.EXPECT().
+					Read(gomock.Any()).
+					DoAndReturn(func(p []byte) (int, error) {
+						copy(p, content)
+
+						return len(content), nil
+					})
+
+				td.gStream.EXPECT().
+					Send(&store.GetFileResponse{
+						Data: &store.GetFileResponse_Chunk{
+							Chunk: []byte(content),
+						},
+					}).
+					Return(nil)
+
+				td.r.EXPECT().
+					Read(gomock.Any()).
+					Return(0, io.EOF)
+			},
 		},
 		{
-			name:   "read",
-			reader: testErrReader,
-			code:   codes.Internal,
+			name: "Get error",
+			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.suc.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(nil, assert.AnError)
+			},
+			errCode: codes.Internal,
 		},
 		{
-			name:   "send",
-			reader: io.NopCloser(strings.NewReader(strings.Repeat("A", 501))),
-			code:   codes.ResourceExhausted,
+			name: "Send header error",
+			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.r.EXPECT().
+					Close().
+					Return(nil)
+
+				td.suc.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(td.r, nil)
+
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(assert.AnError)
+			},
+			errCode: codes.Internal,
+		},
+		{
+			name: "Read error",
+			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.r.EXPECT().
+					Read(gomock.Any()).
+					Return(0, assert.AnError)
+
+				td.r.EXPECT().
+					Close().
+					Return(nil)
+
+				td.suc.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(td.r, nil)
+
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(nil)
+			},
+			errCode: codes.Internal,
+		},
+		{
+			name: "Send chunk error",
+			prepare: func(td *testDeps) {
+				td.gStream.EXPECT().
+					Context().
+					Return(context.Background())
+
+				td.r.EXPECT().
+					Read(gomock.Any()).
+					Return(1, nil)
+
+				td.r.EXPECT().
+					Close().
+					Return(nil)
+
+				td.suc.EXPECT().
+					Get(gomock.Any(), gomock.Any()).
+					Return(td.r, nil)
+
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(nil)
+
+				td.gStream.EXPECT().
+					Send(gomock.Any()).
+					Return(assert.AnError)
+			},
+			errCode: codes.Internal,
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			td := newTestDeps(t)
+			tc.prepare(td)
 
-			td.suc.EXPECT().
-				Get(gomock.Any(), gomock.Any()).
-				Return(tc.reader, tc.err)
+			s := td.newService()
+			err := s.GetFile(&store.GetFileRequest{
+				Key: key,
+			}, td.gStream)
 
-			resp, err := td.client.GetFile(context.Background(), &store.GetFileRequest{
-				Key: testKey,
-			})
-
-			require.NoError(t, err)
-
-			data, err := resp.Recv()
-			if tc.err == nil {
-				require.NoError(t, err)
-				require.Equal(t, testKey, data.GetHeader().Key)
-
-				data, err = resp.Recv()
-			}
-
-			require.Error(t, err)
-			require.Equal(t, tc.code, status.Convert(err).Code())
-			require.Nil(t, data)
+			require.Equal(t, tc.errCode, status.Code(err))
 		})
 	}
 }

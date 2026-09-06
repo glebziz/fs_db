@@ -1,19 +1,29 @@
 package dir
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"os"
 	"path"
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/shirou/gopsutil/disk"
 
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/os"
 )
 
+//go:generate mockgen -source repository.go -package mocks -destination mocks/mocks.go -typed true
+
+type osAdapter interface {
+	Usage(ctx context.Context, path string) (*disk.UsageStat, error)
+	MkdirAll(ctx context.Context, path string, perm os.FileMode) error
+	ReadDir(ctx context.Context, name string) ([]os.DirEntry, error)
+}
+
 const (
-	mkdirPerm = 0750
+	mkdirPerm os.FileMode = 0750
 )
 
 type Repo struct {
@@ -22,23 +32,27 @@ type Repo struct {
 	counts map[string]uint64
 
 	m sync.RWMutex
+
+	os osAdapter
 }
 
-func New(rootDirs []string) (*Repo, error) {
+func New(ctx context.Context, rootDirs []string, osa osAdapter) (*Repo, error) {
 	r := Repo{
 		roots: rootDirs,
 
 		dirs:   make(map[string]model.Dir, len(rootDirs)),
 		counts: make(map[string]uint64, len(rootDirs)),
+
+		os: osa,
 	}
 
 	for i, root := range rootDirs {
 		root = path.Join(root)
 		r.roots[i] = root
 
-		entries, err := os.ReadDir(root)
+		entries, err := osa.ReadDir(ctx, root)
 		if errors.Is(err, os.ErrNotExist) {
-			err = os.MkdirAll(root, mkdirPerm)
+			err = osa.MkdirAll(ctx, root, mkdirPerm)
 			if err != nil {
 				return nil, fmt.Errorf("mkdir all: %w", err)
 			}

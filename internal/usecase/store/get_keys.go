@@ -8,7 +8,6 @@ import (
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func (u *UseCase) GetKeys(ctx context.Context) ([]string, error) {
@@ -22,11 +21,11 @@ func (u *UseCase) GetKeys(ctx context.Context) ([]string, error) {
 	switch tx.IsoLevel {
 	case fs_db.IsoLevelReadUncommitted:
 	case fs_db.IsoLevelReadCommitted:
-		filter.TxId = ptr.Ptr(model.MainTxId)
+		filter.TxId = new(model.MainTxId)
 	case fs_db.IsoLevelRepeatableRead,
 		fs_db.IsoLevelSerializable:
-		filter.TxId = ptr.Ptr(model.MainTxId)
-		filter.BeforeSeq = ptr.Ptr(tx.Seq)
+		filter.TxId = new(model.MainTxId)
+		filter.BeforeSeq = new(tx.Seq)
 	}
 
 	files, err := u.fRepo.GetFiles(ctx, tx.Id, filter)

@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	StoreV1_SetFile_FullMethodName    = "/store.StoreV1/SetFile"
 	StoreV1_GetFile_FullMethodName    = "/store.StoreV1/GetFile"
+	StoreV1_SetFileV2_FullMethodName  = "/store.StoreV1/SetFileV2"
+	StoreV1_GetFileV2_FullMethodName  = "/store.StoreV1/GetFileV2"
 	StoreV1_GetKeys_FullMethodName    = "/store.StoreV1/GetKeys"
 	StoreV1_DeleteFile_FullMethodName = "/store.StoreV1/DeleteFile"
 	StoreV1_BeginTx_FullMethodName    = "/store.StoreV1/BeginTx"
@@ -34,6 +36,8 @@ const (
 type StoreV1Client interface {
 	SetFile(ctx context.Context, opts ...grpc.CallOption) (StoreV1_SetFileClient, error)
 	GetFile(ctx context.Context, in *GetFileRequest, opts ...grpc.CallOption) (StoreV1_GetFileClient, error)
+	SetFileV2(ctx context.Context, opts ...grpc.CallOption) (StoreV1_SetFileV2Client, error)
+	GetFileV2(ctx context.Context, opts ...grpc.CallOption) (StoreV1_GetFileV2Client, error)
 	GetKeys(ctx context.Context, in *GetKeysRequest, opts ...grpc.CallOption) (*GetKeysResponse, error)
 	DeleteFile(ctx context.Context, in *DeleteFileRequest, opts ...grpc.CallOption) (*DeleteFileResponse, error)
 	// Tx
@@ -116,6 +120,71 @@ func (x *storeV1GetFileClient) Recv() (*GetFileResponse, error) {
 	return m, nil
 }
 
+func (c *storeV1Client) SetFileV2(ctx context.Context, opts ...grpc.CallOption) (StoreV1_SetFileV2Client, error) {
+	stream, err := c.cc.NewStream(ctx, &StoreV1_ServiceDesc.Streams[2], StoreV1_SetFileV2_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &storeV1SetFileV2Client{stream}
+	return x, nil
+}
+
+type StoreV1_SetFileV2Client interface {
+	Send(*SetFileV2Request) error
+	CloseAndRecv() (*SetFileV2Response, error)
+	grpc.ClientStream
+}
+
+type storeV1SetFileV2Client struct {
+	grpc.ClientStream
+}
+
+func (x *storeV1SetFileV2Client) Send(m *SetFileV2Request) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *storeV1SetFileV2Client) CloseAndRecv() (*SetFileV2Response, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(SetFileV2Response)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *storeV1Client) GetFileV2(ctx context.Context, opts ...grpc.CallOption) (StoreV1_GetFileV2Client, error) {
+	stream, err := c.cc.NewStream(ctx, &StoreV1_ServiceDesc.Streams[3], StoreV1_GetFileV2_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &storeV1GetFileV2Client{stream}
+	return x, nil
+}
+
+type StoreV1_GetFileV2Client interface {
+	Send(*GetFileV2Request) error
+	Recv() (*GetFileV2Response, error)
+	grpc.ClientStream
+}
+
+type storeV1GetFileV2Client struct {
+	grpc.ClientStream
+}
+
+func (x *storeV1GetFileV2Client) Send(m *GetFileV2Request) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *storeV1GetFileV2Client) Recv() (*GetFileV2Response, error) {
+	m := new(GetFileV2Response)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *storeV1Client) GetKeys(ctx context.Context, in *GetKeysRequest, opts ...grpc.CallOption) (*GetKeysResponse, error) {
 	out := new(GetKeysResponse)
 	err := c.cc.Invoke(ctx, StoreV1_GetKeys_FullMethodName, in, out, opts...)
@@ -167,6 +236,8 @@ func (c *storeV1Client) RollbackTx(ctx context.Context, in *RollbackTxRequest, o
 type StoreV1Server interface {
 	SetFile(StoreV1_SetFileServer) error
 	GetFile(*GetFileRequest, StoreV1_GetFileServer) error
+	SetFileV2(StoreV1_SetFileV2Server) error
+	GetFileV2(StoreV1_GetFileV2Server) error
 	GetKeys(context.Context, *GetKeysRequest) (*GetKeysResponse, error)
 	DeleteFile(context.Context, *DeleteFileRequest) (*DeleteFileResponse, error)
 	// Tx
@@ -185,6 +256,12 @@ func (UnimplementedStoreV1Server) SetFile(StoreV1_SetFileServer) error {
 }
 func (UnimplementedStoreV1Server) GetFile(*GetFileRequest, StoreV1_GetFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetFile not implemented")
+}
+func (UnimplementedStoreV1Server) SetFileV2(StoreV1_SetFileV2Server) error {
+	return status.Errorf(codes.Unimplemented, "method SetFileV2 not implemented")
+}
+func (UnimplementedStoreV1Server) GetFileV2(StoreV1_GetFileV2Server) error {
+	return status.Errorf(codes.Unimplemented, "method GetFileV2 not implemented")
 }
 func (UnimplementedStoreV1Server) GetKeys(context.Context, *GetKeysRequest) (*GetKeysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetKeys not implemented")
@@ -259,6 +336,58 @@ type storeV1GetFileServer struct {
 
 func (x *storeV1GetFileServer) Send(m *GetFileResponse) error {
 	return x.ServerStream.SendMsg(m)
+}
+
+func _StoreV1_SetFileV2_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(StoreV1Server).SetFileV2(&storeV1SetFileV2Server{stream})
+}
+
+type StoreV1_SetFileV2Server interface {
+	SendAndClose(*SetFileV2Response) error
+	Recv() (*SetFileV2Request, error)
+	grpc.ServerStream
+}
+
+type storeV1SetFileV2Server struct {
+	grpc.ServerStream
+}
+
+func (x *storeV1SetFileV2Server) SendAndClose(m *SetFileV2Response) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *storeV1SetFileV2Server) Recv() (*SetFileV2Request, error) {
+	m := new(SetFileV2Request)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _StoreV1_GetFileV2_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(StoreV1Server).GetFileV2(&storeV1GetFileV2Server{stream})
+}
+
+type StoreV1_GetFileV2Server interface {
+	Send(*GetFileV2Response) error
+	Recv() (*GetFileV2Request, error)
+	grpc.ServerStream
+}
+
+type storeV1GetFileV2Server struct {
+	grpc.ServerStream
+}
+
+func (x *storeV1GetFileV2Server) Send(m *GetFileV2Response) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *storeV1GetFileV2Server) Recv() (*GetFileV2Request, error) {
+	m := new(GetFileV2Request)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func _StoreV1_GetKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -389,6 +518,17 @@ var StoreV1_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "GetFile",
 			Handler:       _StoreV1_GetFile_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "SetFileV2",
+			Handler:       _StoreV1_SetFileV2_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "GetFileV2",
+			Handler:       _StoreV1_GetFileV2_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "store_service.proto",

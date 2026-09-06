@@ -5,13 +5,14 @@ import (
 )
 
 func (p *Pool) Stop() {
-	defer p.runM.Unlock()
-	if p.runM.TryLock() {
+	defer p.runA.Store(false)
+	if !p.runA.CompareAndSwap(true, false) {
 		slog.Warn("worker pool already stopped")
 		return
 	}
 
 	p.cancel()
+	p.listCv.Broadcast()
 	p.sendWg.Wait()
 	p.runWg.Wait()
 

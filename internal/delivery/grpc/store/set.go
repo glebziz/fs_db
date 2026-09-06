@@ -5,6 +5,7 @@ import (
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/adapter/errors"
+	"github.com/glebziz/fs_db/internal/model"
 	store "github.com/glebziz/fs_db/internal/proto"
 	"github.com/glebziz/fs_db/internal/utils/grpc/streamreader"
 )
@@ -20,7 +21,7 @@ func (i *Service) SetFile(stream store.StoreV1_SetFileServer) error {
 		return errors.Error(fs_db.ErrHeaderNotFound)
 	}
 
-	err = i.sUsecase.Set(stream.Context(), header.GetKey(), streamreader.New(stream))
+	err = i.sUsecase.Set(stream.Context(), header.GetKey(), model.SingleContent(streamreader.New(stream)))
 	if err != nil {
 		return errors.Error(fmt.Errorf("store usecase set: %w", err))
 	}

@@ -13,7 +13,7 @@ tasks:
   lint:
     cmds:
       - gofmt -s -w .
-      - golangci-lint run -v
+      - go tool golangci-lint run -v
 
   test:
     cmd: go test --tags=test ./internal/...
@@ -35,7 +35,7 @@ tasks:
       - internal/proto/error.proto
     cmds:
       - for: sources
-        cmd: protoc -I ./internal/proto --go_out=./internal/proto --go_opt=paths=source_relative --go-grpc_out=./internal/proto --go-grpc_opt=paths=source_relative {{ .ITEM }}
+        cmd: protoc -I ./internal/proto --go_out=./internal/proto --go_opt=paths=source_relative --go-grpc_out=./internal/proto --go-grpc_opt=paths=source_relative "{{ .ITEM }}"
 
   generate:mocks:
     cmd: go generate ./...

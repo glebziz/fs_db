@@ -1,9 +1,11 @@
 package di
 
 import (
+	"context"
 	"math/rand/v2"
 
 	"github.com/glebziz/fs_db/config"
+	"github.com/glebziz/fs_db/internal/adapter/os"
 	"github.com/glebziz/fs_db/internal/db/badger"
 	storeService "github.com/glebziz/fs_db/internal/delivery/grpc/store"
 	contentRepo "github.com/glebziz/fs_db/internal/repository/content"
@@ -16,17 +18,21 @@ import (
 	"github.com/glebziz/fs_db/internal/usecase/dir"
 	"github.com/glebziz/fs_db/internal/usecase/store"
 	"github.com/glebziz/fs_db/internal/usecase/transaction"
+	"github.com/glebziz/fs_db/internal/usecase/writer"
 	"github.com/glebziz/fs_db/internal/utils/generator"
 	"github.com/glebziz/fs_db/internal/utils/wpool"
 )
 
 type Container struct {
+	ctx context.Context
 	cfg config.Config
 
 	badger *badger.Manager
 	pool   *wpool.Pool
 	gen    *generator.Gen
 	rand   *rand.Rand
+
+	osAdapter os.Adapter
 
 	storeService *storeService.Service
 
@@ -35,6 +41,7 @@ type Container struct {
 	dirUseCase         *dir.UseCase
 	storeUseCase       *store.UseCase
 	transactionUseCase *transaction.UseCase
+	contentWriter      *writer.UseCase
 
 	contentRepo     *contentRepo.Repo
 	contentFileRepo *contentFileRepo.Repo
@@ -43,8 +50,9 @@ type Container struct {
 	transactionRepo *transactionRepo.Repo
 }
 
-func New(cfg config.Config) *Container {
+func New(ctx context.Context, cfg config.Config) *Container {
 	return &Container{
+		ctx: ctx,
 		cfg: cfg,
 	}
 }

@@ -20,7 +20,7 @@ type app struct {
 }
 
 func New(ctx context.Context, cfg config.Config) (*app, error) {
-	container := di.New(cfg)
+	container := di.New(ctx, cfg)
 
 	container.Pool().Run(ctx)
 	deleteFiles, err := container.Core().Load(ctx)
@@ -36,7 +36,13 @@ func New(ctx context.Context, cfg config.Config) (*app, error) {
 		},
 	}, cfg.Storage.GCPeriod)
 
+	credentials, err := cfg.TLS.Credentials()
+	if err != nil {
+		return nil, fmt.Errorf("build credentials: %w", err)
+	}
+
 	s := grpc.NewServer(
+		grpc.Creds(credentials),
 		grpc.ChainUnaryInterceptor(
 			server.LoggingInterceptor,
 			server.ContextInterceptor,

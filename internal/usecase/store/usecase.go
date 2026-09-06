@@ -2,21 +2,20 @@ package store
 
 import (
 	"context"
-	"io"
 	"math/rand/v2"
 
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-//go:generate mockgen -source usecase.go -destination mocks/mocks.go -typed true
+//go:generate mockgen -source usecase.go -package mock_store -destination mocks/mocks.go -typed true
+//go:generate mockgen -source ../../model/io.go -package mock_store -destination mocks/mocks_io.go -typed true
 
 type dirUsecase interface {
 	Get(ctx context.Context) (model.Dirs, error)
 }
 
 type contentRepository interface {
-	Store(ctx context.Context, path string, content io.Reader) error
-	Get(ctx context.Context, path string) (io.ReadCloser, error)
+	Get(ctx context.Context, path string) (model.ReadSeekCloser, error)
 }
 
 type contentFileRepository interface {
@@ -34,6 +33,10 @@ type txRepository interface {
 	Get(ctx context.Context, id string) (model.Transaction, error)
 }
 
+type contentWriter interface {
+	Write(ctx context.Context, path string, contents model.Contents) (err error)
+}
+
 type generator interface {
 	Generate() string
 }
@@ -41,10 +44,11 @@ type generator interface {
 type UseCase struct {
 	dir dirUsecase
 
-	cRepo  contentRepository
-	cfRepo contentFileRepository
-	fRepo  fileRepository
-	txRepo txRepository
+	cRepo   contentRepository
+	cfRepo  contentFileRepository
+	fRepo   fileRepository
+	txRepo  txRepository
+	cWriter contentWriter
 
 	idGen   generator
 	randGen *rand.Rand
@@ -53,16 +57,17 @@ type UseCase struct {
 func New(
 	dir dirUsecase, cRepo contentRepository,
 	cfRepo contentFileRepository, fRepo fileRepository,
-	txRepo txRepository, idGen generator,
-	randGen *rand.Rand,
+	txRepo txRepository, cWriter contentWriter,
+	idGen generator, randGen *rand.Rand,
 ) *UseCase {
 	return &UseCase{
 		dir: dir,
 
-		cRepo:  cRepo,
-		cfRepo: cfRepo,
-		fRepo:  fRepo,
-		txRepo: txRepo,
+		cRepo:   cRepo,
+		cfRepo:  cfRepo,
+		fRepo:   fRepo,
+		txRepo:  txRepo,
+		cWriter: cWriter,
 
 		idGen:   idGen,
 		randGen: randGen,

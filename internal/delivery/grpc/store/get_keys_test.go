@@ -14,10 +14,16 @@ import (
 )
 
 func TestImplementation_GetKeys(t *testing.T) {
+	t.Parallel()
+
+	const (
+		key = "key"
+	)
+
 	for _, tc := range []struct {
 		name    string
 		prepare func(td *testDeps)
-		keys    []string
+		resp    *store.GetKeysResponse
 		errCode codes.Code
 	}{
 		{
@@ -25,17 +31,17 @@ func TestImplementation_GetKeys(t *testing.T) {
 			prepare: func(td *testDeps) {
 				td.suc.EXPECT().
 					GetKeys(gomock.Any()).
-					Times(1).
-					Return([]string{testKey}, nil)
+					Return([]string{key}, nil)
 			},
-			keys: []string{testKey},
+			resp: &store.GetKeysResponse{
+				Keys: []string{key},
+			},
 		},
 		{
 			name: "get keys error",
 			prepare: func(td *testDeps) {
 				td.suc.EXPECT().
 					GetKeys(gomock.Any()).
-					Times(1).
 					Return(nil, assert.AnError)
 			},
 			errCode: codes.Internal,
@@ -47,10 +53,11 @@ func TestImplementation_GetKeys(t *testing.T) {
 			td := newTestDeps(t)
 			tc.prepare(td)
 
-			resp, err := td.client.GetKeys(context.Background(), &store.GetKeysRequest{})
+			s := td.newService()
+			resp, err := s.GetKeys(context.Background(), &store.GetKeysRequest{})
 
 			require.Equal(t, tc.errCode, status.Code(err))
-			require.Equal(t, tc.keys, resp.GetKeys())
+			require.Equal(t, tc.resp, resp)
 		})
 	}
 }

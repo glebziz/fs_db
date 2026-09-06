@@ -6,7 +6,6 @@ import (
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func (u *UseCase) Commit(ctx context.Context) error {
@@ -22,7 +21,7 @@ func (u *UseCase) Commit(ctx context.Context) error {
 		fs_db.IsoLevelReadCommitted:
 	case fs_db.IsoLevelRepeatableRead,
 		fs_db.IsoLevelSerializable:
-		filter.BeforeSeq = ptr.Ptr(tx.Seq)
+		filter.BeforeSeq = new(tx.Seq)
 	}
 
 	deleteFiles, err := u.fRepo.UpdateTx(ctx, txId, model.MainTxId, filter)

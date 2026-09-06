@@ -8,10 +8,11 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
 
+	osa "github.com/glebziz/fs_db/internal/adapter/os"
 	"github.com/glebziz/fs_db/internal/model"
 )
 
-func TestRep_GetRoots(t *testing.T) {
+func TestRepo_GetRoots(t *testing.T) {
 	var (
 		rootPath1 = testNewRootPath(t)
 		rootPath2 = testNewRootPath(t)
@@ -26,7 +27,7 @@ func TestRep_GetRoots(t *testing.T) {
 	testCreateDir(t, dir2)
 	testCreateDir(t, dir3)
 
-	r, err := New([]string{rootPath1, rootPath2, rootPath3})
+	r, err := New(context.Background(), []string{rootPath1, rootPath2, rootPath3}, osa.Adapter{})
 	require.NoError(t, err)
 	require.NotNil(t, r)
 

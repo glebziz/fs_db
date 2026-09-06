@@ -10,7 +10,6 @@ import (
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
 	"github.com/glebziz/fs_db/internal/model/sequence"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func TestUseCase_Commit(t *testing.T) {
@@ -57,7 +56,7 @@ func TestUseCase_Commit(t *testing.T) {
 
 				td.fRepo.EXPECT().
 					UpdateTx(gomock.Any(), testId, model.MainTxId, model.FileFilter{
-						BeforeSeq: ptr.Ptr(seq),
+						BeforeSeq: new(seq),
 					}).
 					Times(1).
 					Return([]model.File{}, nil)

@@ -9,7 +9,6 @@ import (
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func TestUseCase_Get(t *testing.T) {
@@ -70,7 +69,7 @@ func TestUseCase_Get(t *testing.T) {
 
 				td.fRepo.EXPECT().
 					GetFiles(gomock.Any(), testTxId, model.FileFilter{
-						TxId: ptr.Ptr(model.MainTxId),
+						TxId: new(model.MainTxId),
 					}).
 					Times(1).
 					Return([]model.File{{
@@ -109,8 +108,8 @@ func TestUseCase_Get(t *testing.T) {
 
 				td.fRepo.EXPECT().
 					GetFiles(gomock.Any(), testTxId, model.FileFilter{
-						TxId:      ptr.Ptr(model.MainTxId),
-						BeforeSeq: ptr.Ptr(testTxSeq),
+						TxId:      new(model.MainTxId),
+						BeforeSeq: new(testTxSeq),
 					}).
 					Times(1).
 					Return([]model.File{{
@@ -141,8 +140,8 @@ func TestUseCase_Get(t *testing.T) {
 
 				td.fRepo.EXPECT().
 					GetFiles(gomock.Any(), testTxId, model.FileFilter{
-						TxId:      ptr.Ptr(model.MainTxId),
-						BeforeSeq: ptr.Ptr(testTxSeq),
+						TxId:      new(model.MainTxId),
+						BeforeSeq: new(testTxSeq),
 					}).
 					Times(1).
 					Return([]model.File{{

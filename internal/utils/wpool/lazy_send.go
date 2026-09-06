@@ -1,29 +1,29 @@
 package wpool
 
 func (p *Pool) lazySend(e Event) {
-	p.listM.Lock()
-	defer p.listM.Unlock()
+	p.listCv.L.Lock()
+	defer p.listCv.L.Unlock()
 
 	p.el.PushBack(p.pool.Acquire().SetV(e))
+	p.listCv.Signal()
 	p.lazyResend()
 }
 
 func (p *Pool) lazyResend() {
-	if !p.lazySendM.TryLock() {
+	if !p.lazySendA.CompareAndSwap(false, true) {
 		return
 	}
 
-	p.sendWg.Add(1)
-	go func() {
-		defer func() {
-			p.lazySendM.Unlock()
-			p.sendWg.Done()
-		}()
-
+	p.sendWg.Go(func() {
 		for {
-			p.listM.Lock()
+			p.listCv.L.Lock()
 			n := p.el.PopBack()
-			p.listM.Unlock()
+			if n == nil {
+				p.listCv.Wait()
+				n = p.el.PopBack()
+			}
+			p.listCv.L.Unlock()
+
 			if n == nil {
 				return
 			}
@@ -35,5 +35,5 @@ func (p *Pool) lazyResend() {
 				p.pool.Release(n)
 			}
 		}
-	}()
+	})
 }

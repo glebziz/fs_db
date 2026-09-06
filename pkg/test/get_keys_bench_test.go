@@ -10,7 +10,7 @@ import (
 func BenchmarkDb_GetKeys(b *testing.B) {
 	_db := newTestDb(b)
 	keys := make([]string, 0, b.N)
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		key := gofakeit.UUID()
 
 		err := _db.Set(testCtx, key, testContent)

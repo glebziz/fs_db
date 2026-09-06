@@ -4,7 +4,6 @@
 [![Lint](https://github.com/glebziz/fs_db/actions/workflows/lint.yml/badge.svg)](https://github.com/glebziz/fs_db/actions/workflows/lint.yml)
 [![Coverage](https://codecov.io/gh/glebziz/fs_db/branch/master/graph/badge.svg?token=CIBKI0F59J)](https://codecov.io/gh/glebziz/fs_db/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/glebziz/fs_db.svg)](https://pkg.go.dev/github.com/glebziz/fs_db)
-[![Go Report Card](https://goreportcard.com/badge/github.com/glebziz/fs_db)](https://goreportcard.com/report/github.com/glebziz/fs_db)
 
 FS DB is a simple key-value database for storing files. FS DB has two clients that give you the option to
 inline database logic into your application or run an external server and send data using grpc. 
@@ -42,6 +41,9 @@ type Store interface {
 	
 	// Create returns the File for to write to.
 	Create(ctx context.Context, key string) (File, error)
+
+    // Open returns a ReadFile for reading.
+    Open(ctx context.Context, key string) (ReadFile, error)
 }
 ```
 

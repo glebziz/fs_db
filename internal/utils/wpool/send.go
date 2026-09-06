@@ -19,7 +19,7 @@ func (p *Pool) Send(ctx context.Context, e Event) {
 	case <-p.ctx.Done():
 		return
 	case p.ch <- e:
-	case <-time.After(p.opts.SendDuration):
+	case <-time.After(p.opts.sendDuration):
 		p.lazySend(e)
 	}
 }

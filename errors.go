@@ -1,14 +1,19 @@
 package fs_db
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/glebziz/fs_db/internal/model"
+)
 
 var (
 	ErrUnknown = errors.New("unknown error")
 
-	ErrNoFreeSpace    = errors.New("no free space")
-	ErrNotFound       = errors.New("not found")
-	ErrEmptyKey       = errors.New("empty key")
-	ErrHeaderNotFound = errors.New("header not found")
+	ErrNoFreeSpace     = errors.New("no free space")
+	ErrNotFound        = errors.New("not found")
+	ErrEmptyKey        = errors.New("empty key")
+	ErrHeaderNotFound  = errors.New("header not found")
+	ErrInvalidPosition = model.ErrInvalidPosition
 
 	// Tx errors.
 	ErrTxNotFound      = errors.New("transaction not found")

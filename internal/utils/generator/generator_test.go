@@ -14,7 +14,7 @@ func TestGen_Generate(t *testing.T) {
 	g := New()
 	strs := make(map[string]struct{}, N)
 
-	for i := 0; i < N; i++ {
+	for range N {
 		str := g.Generate()
 		strs[str] = struct{}{}
 	}

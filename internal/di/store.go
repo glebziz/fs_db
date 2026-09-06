@@ -12,6 +12,7 @@ func (c *Container) Store() *store.UseCase {
 			c.ContentFileRepo(),
 			c.Core(),
 			c.TransactionRepo(),
+			c.ContentWriter(),
 			c.Gen(),
 			c.Rand(),
 		)

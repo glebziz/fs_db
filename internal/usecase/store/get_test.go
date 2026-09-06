@@ -9,7 +9,6 @@ import (
 
 	"github.com/glebziz/fs_db"
 	"github.com/glebziz/fs_db/internal/model"
-	"github.com/glebziz/fs_db/internal/utils/ptr"
 )
 
 func TestUseCase_Get_Success(t *testing.T) {
@@ -26,27 +25,26 @@ func TestUseCase_Get_Success(t *testing.T) {
 			name: "read committed",
 			lvl:  fs_db.IsoLevelReadCommitted,
 			filter: model.FileFilter{
-				TxId: ptr.Ptr(model.MainTxId),
+				TxId: new(model.MainTxId),
 			},
 		},
 		{
 			name: "repeatable read",
 			lvl:  fs_db.IsoLevelRepeatableRead,
 			filter: model.FileFilter{
-				TxId:      ptr.Ptr(model.MainTxId),
-				BeforeSeq: ptr.Ptr(testTxSeq),
+				TxId:      new(model.MainTxId),
+				BeforeSeq: new(testTxSeq),
 			},
 		},
 		{
 			name: "serializable",
 			lvl:  fs_db.IsoLevelSerializable,
 			filter: model.FileFilter{
-				TxId:      ptr.Ptr(model.MainTxId),
-				BeforeSeq: ptr.Ptr(testTxSeq),
+				TxId:      new(model.MainTxId),
+				BeforeSeq: new(testTxSeq),
 			},
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -68,7 +66,6 @@ func TestUseCase_Get_Success(t *testing.T) {
 					Key:       testKey,
 					ContentId: testContentId,
 				}
-				content = testReader
 			)
 			td := newTestDeps(t)
 
@@ -86,14 +83,14 @@ func TestUseCase_Get_Success(t *testing.T) {
 
 			td.cRepo.EXPECT().
 				Get(gomock.Any(), cFile.Path()).
-				Return(content, nil)
+				Return(td.reader, nil)
 
 			uc := td.newUseCase()
 
 			actContent, err := uc.Get(testCtx, testKey)
 
 			require.NoError(t, err)
-			require.Equal(t, content, actContent)
+			require.Equal(t, td.reader, actContent)
 		})
 	}
 }
@@ -179,7 +176,6 @@ func TestUseCase_Get_Error(t *testing.T) {
 			},
 		},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
