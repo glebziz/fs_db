@@ -36,7 +36,13 @@ func New(ctx context.Context, cfg config.Config) (*app, error) {
 		},
 	}, cfg.Storage.GCPeriod)
 
+	credentials, err := cfg.TLS.Credentials()
+	if err != nil {
+		return nil, fmt.Errorf("build credentials: %w", err)
+	}
+
 	s := grpc.NewServer(
+		grpc.Creds(credentials),
 		grpc.ChainUnaryInterceptor(
 			server.LoggingInterceptor,
 			server.ContextInterceptor,

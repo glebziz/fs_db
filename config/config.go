@@ -4,12 +4,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/yaml.v2"
 
 	"github.com/glebziz/fs_db"
@@ -17,6 +20,8 @@ import (
 
 const (
 	envPort         = "PORT"
+	envTLSCert      = "TLS_CERT"
+	envTLSKey       = "TLS_KEY"
 	envDbPath       = "DB_PATH"
 	envDirCount     = "DIR_COUNT"
 	envRootDirs     = "ROOT_DIRS"
@@ -51,6 +56,46 @@ var (
 		},
 	}
 )
+
+// TLS provides configuration options for tls.
+//
+//	Default:
+//	  cert: <empty>
+//	  key: <empty>
+type TLS struct {
+	// Cert path to tls certificate file.
+	//	Default: <empty>
+	//	Env: TLS_CERT
+	Cert string `yaml:"cert"`
+
+	// Key path to tls certificate key.
+	//	Default: <empty>
+	//	Env: TLS_CERT
+	Key string `yaml:"key"`
+}
+
+// ParseEnv fills the tls options with environment variables.
+func (t *TLS) ParseEnv() (err error) {
+	if env, ok := os.LookupEnv(envTLSCert); ok && env != "" {
+		t.Cert = env
+	}
+	if env, ok := os.LookupEnv(envTLSKey); ok && env != "" {
+		t.Key = env
+	}
+
+	return nil
+}
+
+// Credentials creates credentials.TransportCredentials based on the TLS config.
+func (t *TLS) Credentials() (credentials.TransportCredentials, error) {
+	if t.Cert == "" || t.Key == "" {
+		return insecure.NewCredentials(), nil
+	}
+
+	log.Println("Load TLS config")
+
+	return credentials.NewServerTLSFromFile(t.Cert, t.Key)
+}
 
 // Storage provides configuration options for fs db storage.
 //
@@ -177,6 +222,9 @@ type Config struct {
 	//  Env: PORT
 	Port int `yaml:"port"`
 
+	// TLS fs db tls config.
+	TLS TLS `yaml:"tls"`
+
 	// Storage fs db storage options.
 	Storage Storage `yaml:"storage"`
 
@@ -194,7 +242,12 @@ func (c *Config) ParseEnv() error {
 		c.Port = port
 	}
 
-	err := c.Storage.ParseEnv()
+	err := c.TLS.ParseEnv()
+	if err != nil {
+		return fmt.Errorf("tls parse env: %w", err)
+	}
+
+	err = c.Storage.ParseEnv()
 	if err != nil {
 		return fmt.Errorf("storage parse env: %w", err)
 	}

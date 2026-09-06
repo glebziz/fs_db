@@ -9,8 +9,14 @@ import (
 	"github.com/glebziz/fs_db/pkg/external"
 )
 
+//go:generate openssl req -x509 -newkey rsa:2048 -keyout example.key -out example.pem -days 1 -noenc -subj "/CN=fs-db.example" -addext "subjectAltName = DNS:fs-db.example"
+
 func main() {
-	db, err := external.Open(context.Background(), "localhost:8888")
+	db, err := external.Open(
+		context.Background(), "localhost:8888",
+		external.WithCertPath("./example.pem"),
+		external.WithServerNameOverride("fs-db.example"),
+	)
 	if err != nil {
 		log.Panicln("Open db:", err)
 	}

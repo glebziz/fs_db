@@ -37,9 +37,9 @@ func Error(err error) error {
 func ClientError(err error) error {
 	st := status.Convert(err)
 
-	err = detailsToError(st.Details())
-	if err != nil {
-		return err
+	errFromDetails := detailsToError(st.Details())
+	if errFromDetails != nil {
+		return errFromDetails
 	}
 
 	switch st.Code() { //nolint:exhaustive
